@@ -20,6 +20,7 @@ out/
 !**/src/test/**/out/
 
 ### Eclipse ###
+*.env
 .apt_generated
 .classpath
 .factorypath
