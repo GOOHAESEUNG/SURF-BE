@@ -75,7 +75,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
         ErrorCode errorCode = INTERNAL_SERVER_ERROR;
-        logWarning(e, errorCode.getStatus().value());
+        logError(e, errorCode.getStatus().value());
         return responseException(errorCode.getStatus(), e.getMessage(), null);
     }
 
@@ -90,6 +90,11 @@ public class GlobalExceptionHandler {
     private void logWarning(Exception e, int errorCode) {
         log.warn(e.getMessage(), e);
         log.warn(LOG_FORMAT, e.getClass().getSimpleName(), errorCode, e.getMessage());
+    }
+
+    private void logError(Exception e, int errorCode) {
+        log.error(e.getMessage(), e);
+        log.error(LOG_FORMAT, e.getClass().getSimpleName(), errorCode, e.getMessage());
     }
 
 }
