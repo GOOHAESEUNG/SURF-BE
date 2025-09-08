@@ -21,6 +21,17 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-security")
 
+    // Validation
+    implementation("org.springframework.boot:spring-boot-starter-validation:3.5.4")
+
+    // Data Jpa
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
+    // MySQL
+    runtimeOnly("com.mysql:mysql-connector-j")
+
+
+
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 
