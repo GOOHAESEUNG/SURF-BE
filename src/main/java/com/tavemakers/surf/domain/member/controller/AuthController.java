@@ -1,7 +1,7 @@
 package com.tavemakers.surf.domain.member.controller;
 
 import com.tavemakers.surf.domain.login.AuthService;
-import com.tavemakers.surf.domain.login.kakao.dto.KakaoTokenResponseDto;
+import com.tavemakers.surf.domain.kakao.dto.KakaoTokenResponseDto;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

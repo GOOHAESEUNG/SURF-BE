@@ -44,3 +44,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### Local Spring Config (민감정보) ###
+src/main/resources/application-local.yml
