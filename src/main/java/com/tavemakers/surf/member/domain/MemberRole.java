@@ -1,0 +1,8 @@
+package com.tavemakers.surf.member.domain;
+
+public enum MemberRole {
+    ROOT,       // 루트
+    PRESIDENT,  // 회장
+    MANAGER,    // 매니저
+    MEMBER      // 일반 회원
+}
