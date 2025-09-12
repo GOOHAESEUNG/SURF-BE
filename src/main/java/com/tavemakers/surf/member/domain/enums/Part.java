@@ -1,4 +1,4 @@
-package com.tavemakers.surf.member.domain;
+package com.tavemakers.surf.member.domain.enums;
 
 public enum Part {
     BACKEND,
