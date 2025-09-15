@@ -1,28 +1,25 @@
 package com.tavemakers.surf.domain.login;
 
 import lombok.Builder;
-import com.tavemakers.surf.domain.kakao.dto.KakaoTokenResponseDto;
 
 /**
  * 로그인 성공 시 프론트엔드로 내려주는 응답 DTO
+ * - accessToken + 최소한의 사용자 정보만 포함
+ * - refreshToken, expiresIn 은 제외 (보안 및 불필요 데이터 제거)
  */
 @Builder
 public record LoginResDto(
         String accessToken,
-        String refreshToken,
-        String nickname,
-        Long expiresIn
+        String nickname
 ) {
     /**
      * 정적 팩토리 메서드
-     * - KakaoTokenResponseDto + 사용자 정보 → LoginResDto 변환
+     * - accessToken + nickname → LoginResDto 변환
      */
-    public static LoginResDto from(KakaoTokenResponseDto token, String nickname) {
+    public static LoginResDto of(String accessToken, String nickname) {
         return LoginResDto.builder()
-                .accessToken(token.accessToken())
-                .refreshToken(token.refreshToken())
+                .accessToken(accessToken)
                 .nickname(nickname)
-                .expiresIn(token.expiresIn())
                 .build();
     }
 }
