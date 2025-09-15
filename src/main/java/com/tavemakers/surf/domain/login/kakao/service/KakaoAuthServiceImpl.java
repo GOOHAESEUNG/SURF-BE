@@ -3,17 +3,21 @@ package com.tavemakers.surf.domain.login.kakao.service;
 import com.tavemakers.surf.domain.login.AuthService;
 import com.tavemakers.surf.domain.login.kakao.config.KakaoOAuthProps;
 import com.tavemakers.surf.domain.login.kakao.dto.KakaoTokenResponseDto;
+import com.tavemakers.surf.domain.login.kakao.dto.KakaoUserInfoDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import reactor.core.publisher.Mono;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.core.ParameterizedTypeReference;
+import java.util.Map;
 
-@Service("kakaoAuthService") // 다른 구현체들과 구분하기 위해 명시적 이름 부여
+@Service
 @RequiredArgsConstructor
-public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto> {
+public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, KakaoUserInfoDto> {
 
     private final @Qualifier("kakaoAuthWebClient") WebClient kakaoAuthWebClient;
     private final @Qualifier("kakaoApiWebClient")  WebClient kakaoApiWebClient;
@@ -28,63 +32,63 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto> 
     }
 
     @Override
-    public KakaoTokenResponseDto exchangeCodeForToken(String code) {
+    public Mono<KakaoTokenResponseDto> exchangeCodeForToken(String code) {
+        var form = BodyInserters
+                .fromFormData("grant_type", "authorization_code")
+                .with("client_id", props.getClientId())
+                .with("redirect_uri", props.getRedirectUri())
+                .with("code", code);
+
+        var secret = props.getClientSecret();
+        if (secret != null && !secret.isBlank()) {
+            form = form.with("client_secret", secret);
+        }
+
         return kakaoAuthWebClient.post()
                 .uri("/oauth/token")
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(BodyInserters
-                        .fromFormData("grant_type", "authorization_code")
-                        .with("client_id", props.getClientId())
-                        .with("redirect_uri", props.getRedirectUri())
-                        .with("code", code)
-                        .with("client_secret", props.getClientSecret()))
+                .body(form)
                 .retrieve()
-                .onStatus(status -> status.is4xxClientError(),
-                        clientResponse -> clientResponse.bodyToMono(String.class)
-                                .flatMap(errorBody -> Mono.error(
-                                        new RuntimeException("카카오 인증 요청 오류: " + errorBody))))
-                .onStatus(status -> status.is5xxServerError(),
-                        clientResponse -> clientResponse.bodyToMono(String.class)
-                                .flatMap(errorBody -> Mono.error(
-                                        new RuntimeException("카카오 서버 오류: " + errorBody))))
-                .bodyToMono(KakaoTokenResponseDto.class)
-                .block();
+                .onStatus(s -> s.is4xxClientError(),
+                        resp -> handleError(resp, "카카오 인증 요청 오류"))
+                .onStatus(s -> s.is5xxServerError(),
+                        resp -> handleError(resp, "카카오 서버 오류"))
+                .bodyToMono(KakaoTokenResponseDto.class);
     }
 
     @Override
-    public String getAccessTokenInfo(String accessToken) {
+    public Mono<Map<String, Object>> getAccessTokenInfo(String accessToken) {
         return kakaoApiWebClient.get()
                 .uri("/v1/user/access_token_info")
                 .header("Authorization", "Bearer " + accessToken)
                 .retrieve()
-                .onStatus(status -> status.is4xxClientError(),
-                        clientResponse -> clientResponse.bodyToMono(String.class)
-                                .flatMap(errorBody -> Mono.error(
-                                        new RuntimeException("잘못된 AccessToken: " + errorBody))))
-                .onStatus(status -> status.is5xxServerError(),
-                        clientResponse -> clientResponse.bodyToMono(String.class)
-                                .flatMap(errorBody -> Mono.error(
-                                        new RuntimeException("카카오 서버 오류: " + errorBody))))
-                .bodyToMono(String.class)
-                .block();
+                .onStatus(s -> s.is4xxClientError(),
+                        resp -> handleError(resp, "잘못된 AccessToken"))
+                .onStatus(s -> s.is5xxServerError(),
+                        resp -> handleError(resp, "카카오 서버 오류"))
+                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {});
     }
 
     @Override
-    public String getUserInfo(String accessToken) {
+    public Mono<KakaoUserInfoDto> getUserInfo(String accessToken) {
         return kakaoApiWebClient.get()
                 .uri("/v2/user/me")
                 .header("Authorization", "Bearer " + accessToken)
                 .retrieve()
-                .onStatus(status -> status.is4xxClientError(),
-                        clientResponse -> clientResponse.bodyToMono(String.class)
-                                .flatMap(errorBody -> Mono.error(
-                                        new RuntimeException("카카오 사용자 정보 요청 오류: " + errorBody))))
-                .onStatus(status -> status.is5xxServerError(),
-                        clientResponse -> clientResponse.bodyToMono(String.class)
-                                .flatMap(errorBody -> Mono.error(
-                                        new RuntimeException("카카오 서버 오류: " + errorBody))))
-                .bodyToMono(String.class) // JSON 그대로 반환 (추후 DTO로 매핑 가능)
-                .block();
+                .onStatus(s -> s.is4xxClientError(),
+                        resp -> handleError(resp, "카카오 사용자 정보 요청 오류"))
+                .onStatus(s -> s.is5xxServerError(),
+                        resp -> handleError(resp, "카카오 서버 오류"))
+                .bodyToMono(KakaoUserInfoDto.class);
     }
 
+    /**
+     * 공통 에러 처리 메서드
+     */
+    private Mono<Throwable> handleError(ClientResponse resp, String message) {
+        return resp.bodyToMono(String.class)
+                .flatMap(errorBody -> Mono.error(
+                        new org.springframework.web.server.ResponseStatusException(
+                                resp.statusCode(), message + ": " + errorBody)));
+    }
 }
