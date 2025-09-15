@@ -50,23 +50,6 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MemberClassification memberType; // OB, YB 구분
 
-    private boolean isActive; // 활동/비활동 여부
+    private boolean activityStatus; // 활동/비활동 여부
 
-    @Builder
-    public Member(String name, String profileImageUrl, String university, String graduateSchool,
-                  String email, String phoneNumber, Integer activityScore, MemberStatus status,
-                  String kakaoId, MemberRole role, MemberClassification memberType, boolean isActive) {
-        this.name = name;
-        this.profileImageUrl = profileImageUrl;
-        this.university = university;
-        this.graduateSchool = graduateSchool;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.activityScore = activityScore;
-        this.status = status;
-        this.kakaoId = kakaoId;
-        this.role = role;
-        this.memberType = memberType;
-        this.isActive = isActive;
-    }
 }

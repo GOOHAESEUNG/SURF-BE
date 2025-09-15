@@ -28,19 +28,10 @@ public class Career extends BaseEntity {
     @Column(nullable = false)
     private LocalDate startDate; // 근무 시작일
 
-    @Column(nullable = false)
     private LocalDate endDate; // 근무 종료일 (진행 중일 경우 null)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    @Builder
-    public Career(String companyName, String jobTitle, LocalDate startDate, LocalDate endDate, Member member) {
-        this.companyName = companyName;
-        this.position = jobTitle;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.member = member;
-    }
 }

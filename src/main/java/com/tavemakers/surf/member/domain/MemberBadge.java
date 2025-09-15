@@ -29,10 +29,4 @@ public class MemberBadge extends BaseEntity {
     @JoinColumn(name = "badge_name")
     private Badge badge;
 
-    @Builder
-    public MemberBadge(LocalDate awardedAt, Member member, Badge badge) {
-        this.awardedAt = awardedAt;
-        this.member = member;
-        this.badge = badge;
-    }
 }

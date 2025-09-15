@@ -1,9 +1,7 @@
 package com.tavemakers.surf.member.domain;
 
 import com.tavemakers.surf.global.common.entity.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +12,11 @@ import lombok.NoArgsConstructor;
 public class Badge extends BaseEntity {
 
     @Id
-    @Column(name = "badge_name")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "badge_id")
+    private Long id;
+
+    @Column(nullable = false)
     private String name;
 
     public Badge(String name) {
