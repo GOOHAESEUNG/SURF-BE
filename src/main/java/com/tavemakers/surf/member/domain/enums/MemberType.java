@@ -1,6 +1,6 @@
 package com.tavemakers.surf.member.domain.enums;
 
-public enum MemberClassification {
+public enum MemberType {
     OB, // Old Boy
-    YB  // Young Blood
+    YB  // Young Boy
 }

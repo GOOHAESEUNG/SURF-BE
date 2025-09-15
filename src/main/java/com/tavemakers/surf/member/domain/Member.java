@@ -1,12 +1,11 @@
 package com.tavemakers.surf.member.domain;
 
 import com.tavemakers.surf.global.common.entity.BaseEntity;
-import com.tavemakers.surf.member.domain.enums.MemberClassification;
+import com.tavemakers.surf.member.domain.enums.MemberType;
 import com.tavemakers.surf.member.domain.enums.MemberRole;
 import com.tavemakers.surf.member.domain.enums.MemberStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -48,7 +47,7 @@ public class Member extends BaseEntity {
     private MemberRole role; // 역할 (루트, 회장, 매니저, 회원)
 
     @Enumerated(EnumType.STRING)
-    private MemberClassification memberType; // OB, YB 구분
+    private MemberType memberType; // OB, YB 구분
 
     private boolean activityStatus; // 활동/비활동 여부
 
