@@ -1,4 +1,4 @@
-package com.tavemakers.surf.kakao.config;
+package com.tavemakers.surf.domain.login.kakao.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
