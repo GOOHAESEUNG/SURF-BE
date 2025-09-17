@@ -22,6 +22,7 @@ public class PersonalActivityScore extends BaseEntity implements ScoreComputable
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @Column(nullable = false)
     private Integer score;
 
     @Override
