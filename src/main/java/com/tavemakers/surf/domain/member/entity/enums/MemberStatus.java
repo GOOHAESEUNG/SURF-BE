@@ -1,4 +1,4 @@
-package com.tavemakers.surf.member.domain.enums;
+package com.tavemakers.surf.domain.member.entity.enums;
 
 public enum MemberStatus {
     REGISTERING, // 가입중

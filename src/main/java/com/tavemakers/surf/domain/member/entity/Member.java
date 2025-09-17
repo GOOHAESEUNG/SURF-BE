@@ -1,9 +1,9 @@
-package com.tavemakers.surf.member.domain;
+package com.tavemakers.surf.domain.member.entity;
 
 import com.tavemakers.surf.global.common.entity.BaseEntity;
-import com.tavemakers.surf.member.domain.enums.MemberType;
-import com.tavemakers.surf.member.domain.enums.MemberRole;
-import com.tavemakers.surf.member.domain.enums.MemberStatus;
+import com.tavemakers.surf.domain.member.entity.enums.MemberType;
+import com.tavemakers.surf.domain.member.entity.enums.MemberRole;
+import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
