@@ -27,10 +27,13 @@ public class ActivityRecord extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @Enumerated(EnumType.STRING)
     private ActivityCategory category; // 대주제
 
+    @Enumerated(EnumType.STRING)
     private ActivityType activityType; // 소주제 (활동 기록 명)
 
+    @Enumerated(EnumType.STRING)
     private ScoreType scoreType; // 상점, 벌점 여부
 
     private LocalDate activityDate;
