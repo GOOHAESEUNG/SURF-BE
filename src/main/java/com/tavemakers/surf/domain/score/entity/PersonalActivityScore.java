@@ -23,15 +23,15 @@ public class PersonalActivityScore extends BaseEntity implements ScoreComputable
     private Member member;
 
     @Column(nullable = false)
-    private Integer score;
+    private double score;
 
     @Override
-    public Integer getScore() {
+    public double getScore() {
         return this.score;
     }
 
     @Override
-    public Integer updateScore(Integer score) {
+    public double updateScore(double score) {
         this.score += score;
         return this.score;
     }
@@ -39,7 +39,7 @@ public class PersonalActivityScore extends BaseEntity implements ScoreComputable
     public static PersonalActivityScore create(Member member) {
         return PersonalActivityScore.builder()
                 .member(member)
-                .score(100) // 기본 점수 100
+                .score(member.isYB() ? 100 : 50) // 기본 점수 100
                 .build();
     }
 

@@ -2,8 +2,8 @@ package com.tavemakers.surf.domain.score.entity;
 
 public interface ScoreComputable {
 
-    Integer getScore();
+    double getScore();
 
-    Integer updateScore(Integer score);
+    double updateScore(double score);
 
 }
