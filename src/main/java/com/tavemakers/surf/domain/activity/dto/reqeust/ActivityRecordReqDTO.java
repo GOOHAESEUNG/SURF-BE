@@ -1,4 +1,4 @@
-package com.tavemakers.surf.domain.activity.dto;
+package com.tavemakers.surf.domain.activity.dto.reqeust;
 
 import jakarta.validation.constraints.NotNull;
 

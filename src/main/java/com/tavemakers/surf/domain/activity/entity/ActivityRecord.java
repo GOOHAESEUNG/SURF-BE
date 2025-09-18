@@ -1,6 +1,6 @@
 package com.tavemakers.surf.domain.activity.entity;
 
-import com.tavemakers.surf.domain.activity.dto.ActivityRecordReqDTO;
+import com.tavemakers.surf.domain.activity.dto.reqeust.ActivityRecordReqDTO;
 import com.tavemakers.surf.domain.activity.entity.enums.ActivityCategory;
 import com.tavemakers.surf.domain.activity.entity.enums.ActivityType;
 import com.tavemakers.surf.domain.activity.entity.enums.ScoreType;
