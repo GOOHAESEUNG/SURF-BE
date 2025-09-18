@@ -47,7 +47,7 @@ public class ActivityRecord extends BaseEntity {
     // TODO 정적 팩토리 메서드
     public static ActivityRecord of(Long memberId, ActivityRecordReqDTO dto, double prefixSum) {
 
-        ActivityType type = ActivityType.valueOf(dto.activityType());
+        ActivityType type = ActivityType.valueOf(dto.activityName());
 
         return ActivityRecord.builder()
                 .memberId(memberId)

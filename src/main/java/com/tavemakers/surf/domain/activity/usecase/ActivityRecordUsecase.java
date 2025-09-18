@@ -34,7 +34,7 @@ public class ActivityRecordUsecase {
     public void createActivityRecordList(ActivityRecordReqDTO dto) {
         // 다수의 활동 점수 -> 감점 + 가점 -> 누적합과 함께 활동기록 생성
         List<PersonalActivityScore> scoreList = personalScoreGetService.getPersonalScoreList(dto.memberIdList());
-        ActivityType type = ActivityType.valueOf(dto.activityType());
+        ActivityType type = ActivityType.valueOf(dto.activityName());
         List<ActivityRecord> recordList = scoreList.stream()
                 .map(personalScore -> {
                             double prefixSum = scoreCalculator.calculateScore(personalScore, type.getDelta());
