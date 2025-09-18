@@ -17,11 +17,9 @@ public class PersonalScoreController {
 
     private final PersonalScoreUsecase personalScoreUsecase;
 
-    @GetMapping("/v1/member/score/top/{memberId}")
+    @GetMapping("/v1/member/{memberId}/personal-score/top4")
     public ApiResponse<PersonalScoreWithTop4ResDto> getScoreAndTop4(@PathVariable Long memberId) {
-
         PersonalScoreWithTop4ResDto response = personalScoreUsecase.findPersonalScoreAndTop4(memberId);
-
         return ApiResponse.response(HttpStatus.OK, SCORE_AND_TOP_4_READ.getMessage(), response);
     }
 }

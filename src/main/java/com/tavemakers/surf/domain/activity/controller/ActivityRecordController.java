@@ -18,24 +18,20 @@ public class ActivityRecordController {
 
     private final ActivityRecordUsecase activityRecordUsecase;
 
-    @PostMapping("/v1/manager/activity_record")
+    @PostMapping("/v1/manager/activity-record")
     public ApiResponse<Void> createActivityRecord(@RequestBody @Valid ActivityRecordReqDTO dto) {
-
         activityRecordUsecase.createActivityRecordList(dto);
-
         return ApiResponse.response(HttpStatus.CREATED, ACTIVITY_RECORD_CREATED.getMessage(), null);
     }
 
-    @GetMapping("/v1/member/activity_record/{memberId}")
+    @GetMapping("/v1/member/{memberId}/activity-record")
     public ApiResponse<ActivityRecordSliceResDTO> getActivityRecord(
             @PathVariable Long memberId,
             @RequestParam ScoreType scoreType,
             @RequestParam int pageSize,
             @RequestParam int pageNum
     ) {
-
         ActivityRecordSliceResDTO response = activityRecordUsecase.getActivityRecordList(memberId, scoreType, pageSize, pageNum);
-
         return ApiResponse.response(HttpStatus.CREATED, ACTIVITY_RECORD_READ.getMessage(), response);
     }
 
