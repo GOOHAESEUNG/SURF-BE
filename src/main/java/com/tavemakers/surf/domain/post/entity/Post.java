@@ -53,10 +53,11 @@ public class Post extends BaseEntity {
                 .build();
     }
 
-    public void update(PostUpdateReqDTO req) {
+    public void update(PostUpdateReqDTO req, Board board) {
         this.title = req.title();
         this.content = req.content();
         this.pinned = req.pinned() != null ? req.pinned() : this.pinned;
         this.postedAt = req.postedAt() != null ? req.postedAt() : this.postedAt;
+        this.board = board;
     }
 }

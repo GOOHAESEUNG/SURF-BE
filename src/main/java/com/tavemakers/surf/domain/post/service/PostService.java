@@ -3,11 +3,14 @@ package com.tavemakers.surf.domain.post.service;
 import com.tavemakers.surf.domain.board.entity.Board;
 import com.tavemakers.surf.domain.board.repository.BoardRepository;
 import com.tavemakers.surf.domain.post.dto.req.PostCreateReqDTO;
+import com.tavemakers.surf.domain.post.dto.req.PostUpdateReqDTO;
 import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,16 +24,44 @@ public class PostService {
     private final PostRepository postRepository;
 
     @Transactional
-    public PostResDTO create(PostCreateReqDTO req) {
+    public PostResDTO createPost(PostCreateReqDTO req) {
         Board board = boardRepository.findById(req.boardId())
                 .orElseThrow(() -> new EntityNotFoundException("Board not found"));
 
-        Post post = new Post();
-        set(post, board, req.title(), req.content(),
-                req.pinned() != null ? req.pinned() : false,
-                req.postedAt() != null ? req.postedAt() : LocalDateTime.now());
-
+        Post post = Post.of(req, board);
         Post saved = postRepository.save(post);
-        return toRes(saved);
+
+        return PostResDTO.from(saved);
+    }
+
+    public PostResDTO getPost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("Post not found"));
+        return PostResDTO.from(post);
+    }
+
+    public Page<PostResDTO> getPostsByBoard(Long boardId, Pageable pageable) {
+        if (!boardRepository.existsById(boardId)) {
+            throw new EntityNotFoundException("Board not found");
+        }
+        Page<Post> page = postRepository.findByBoardId(boardId, pageable);
+        return page.map(PostResDTO::from);
+    }
+
+    @Transactional
+    public PostResDTO updatePost(Long postId, PostUpdateReqDTO req) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("Post not found"));
+
+        post.update(req, post.getBoard());
+        return PostResDTO.from(post);
+    }
+
+    @Transactional
+    public void deletePost(Long postId) {
+        if (!postRepository.existsById(postId)) {
+            throw new EntityNotFoundException("Post not found");
+        }
+        postRepository.deleteById(postId);
     }
 }
