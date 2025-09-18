@@ -25,10 +25,10 @@ public record ActivityRecordResDTO(
 
         // 대주제가 Null인 경우,
         if (activityRecord.getCategory() == null) {
-            category = activityRecord.getActivityType().name();
+            category = activityRecord.getActivityType().getDisplayName();
         } else {
-            category = activityRecord.getCategory().name();
-            activityName = activityRecord.getActivityType().name();
+            category = activityRecord.getCategory().name(); // TODO 추후 displayName으로 수정
+            activityName = activityRecord.getActivityType().getDisplayName();
         }
 
         return ActivityRecordResDTO.builder()

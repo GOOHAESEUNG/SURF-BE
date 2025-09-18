@@ -10,7 +10,7 @@ public record ActivityTypeCountResDTO(
 ) {
     public static ActivityTypeCountResDTO of(ActivityType type, Long count) {
         return ActivityTypeCountResDTO.builder()
-                .activityType(type.name())
+                .activityType(type.getDisplayName())
                 .count(count)
                 .build();
     }
