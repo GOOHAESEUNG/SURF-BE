@@ -6,6 +6,7 @@ import com.tavemakers.surf.domain.post.dto.req.PostCreateReqDTO;
 import com.tavemakers.surf.domain.post.dto.req.PostUpdateReqDTO;
 import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.entity.Post;
+import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class PostService {
 
     public PostResDTO getPost(Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("Post not found"));
+                .orElseThrow(PostNotFoundException::new);
         return PostResDTO.from(post);
     }
 
@@ -51,7 +52,7 @@ public class PostService {
     @Transactional
     public PostResDTO updatePost(Long postId, PostUpdateReqDTO req) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("Post not found"));
+                .orElseThrow(PostNotFoundException::new);
 
         post.update(req, post.getBoard());
         return PostResDTO.from(post);
@@ -60,7 +61,7 @@ public class PostService {
     @Transactional
     public void deletePost(Long postId) {
         if (!postRepository.existsById(postId)) {
-            throw new EntityNotFoundException("Post not found");
+            throw new PostNotFoundException();
         }
         postRepository.deleteById(postId);
     }
