@@ -6,6 +6,8 @@ import com.tavemakers.surf.domain.score.repository.PersonalActivityScoreReposito
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class PersonalScoreGetService {
@@ -15,6 +17,10 @@ public class PersonalScoreGetService {
     public PersonalActivityScore getPersonalScore(Long memberId) {
         return personalScoreRepository.findByMemberId(memberId)
                 .orElseThrow(PersonalScoreNotFoundException::new);
+    }
+
+    public List<PersonalActivityScore> getPersonalScoreList(List<Long> memberIdList) {
+        return personalScoreRepository.findAllByMemberIdIn(memberIdList);
     }
 
 }
