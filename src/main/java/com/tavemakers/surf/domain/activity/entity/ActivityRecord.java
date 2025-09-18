@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -37,9 +38,11 @@ public class ActivityRecord extends BaseEntity {
 
     private LocalDate activityDate;
 
-    private double prefixSum; // 누적합
+    @Column(precision = 19, scale = 4)
+    private BigDecimal prefixSum; // 누적합(정밀도 확보)
 
-    private double appliedScore;
+    @Column(precision = 19, scale = 4)
+    private BigDecimal appliedScore;
 
     @Column(nullable = false, columnDefinition = "TINYINT(1) default 0")
     private boolean isDeleted = false;
@@ -55,8 +58,8 @@ public class ActivityRecord extends BaseEntity {
                 .activityType(type)
                 .activityDate(dto.activityDate())
                 .scoreType(type.getScoreType())
-                .appliedScore(type.getDelta())
-                .prefixSum(prefixSum)
+                .appliedScore(BigDecimal.valueOf(type.getDelta()))
+                .prefixSum(BigDecimal.valueOf(prefixSum))
                 .isDeleted(false)
                 .build();
     }

@@ -37,8 +37,8 @@ public record ActivityRecordResDTO(
                 .activityName(activityName)
                 .activityDate(formattedDate)
                 .scoreType(activityRecord.getScoreType().name())
-                .prefixSum(activityRecord.getPrefixSum())
-                .appliedScore(activityRecord.getAppliedScore())
+                .prefixSum(activityRecord.getPrefixSum().doubleValue())
+                .appliedScore(activityRecord.getAppliedScore().doubleValue())
                 .build();
     }
 

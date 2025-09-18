@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import java.math.BigDecimal;
 
 @Entity
 @Getter
@@ -22,24 +23,24 @@ public class PersonalActivityScore extends BaseEntity implements ScoreComputable
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @Column(nullable = false)
-    private double score;
+    @Column(precision = 19, scale = 4)
+    private BigDecimal score;
 
     @Override
     public double getScore() {
-        return this.score;
+        return this.score.doubleValue();
     }
 
     @Override
     public double updateScore(double score) {
-        this.score += score;
-        return this.score;
+        this.score = this.score.add(BigDecimal.valueOf(score));
+        return this.score.doubleValue();
     }
 
     public static PersonalActivityScore from(Member member) {
         return PersonalActivityScore.builder()
                 .member(member)
-                .score(member.isYB() ? 100 : 50) // 기본 점수 100
+                .score(member.isYB() ? BigDecimal.valueOf(100) : BigDecimal.valueOf(50)) // 기본 점수 100
                 .build();
     }
 
