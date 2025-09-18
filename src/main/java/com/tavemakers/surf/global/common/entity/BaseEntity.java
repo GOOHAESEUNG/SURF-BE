@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 @MappedSuperclass
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
-public class BaseEntity {
+public abstract class BaseEntity {
 
     @CreatedDate
     @Column(updatable = false)
