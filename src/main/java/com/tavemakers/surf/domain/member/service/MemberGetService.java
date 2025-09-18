@@ -18,4 +18,10 @@ public class MemberGetService {
                 .orElseThrow(MemberNotFoundException::new);
     }
 
+    //회원 조회 - 이름
+    public Member getMemberByName(String name) {
+        return memberRepository.findByNameAndActivityStatus(true,name)
+                .orElse(null); //검색한 이름의 유저가 없을 경우
+    }
+
 }
