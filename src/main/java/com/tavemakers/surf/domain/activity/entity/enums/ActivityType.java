@@ -22,6 +22,7 @@ public enum ActivityType {
     WRITE_WIL("WIL 작성", 3, REWARD),
     UPLOAD_INSTAGRAM_STORY("인스타그램 스토리 업로드", 3, REWARD),
     UPLOAD_TAVE_REVIEW("TAVE 활동 후기 업로드", 20, REWARD),
+    TEAM_LEADER("팀장 역할 수행", 10, REWARD),
 
     // PENALTY
     SESSION_ABSENCE("정규 세션 결석", -30,PENALTY),
