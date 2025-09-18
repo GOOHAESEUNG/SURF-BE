@@ -5,11 +5,16 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
   jpa:
+    show-sql: true
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
 
 kakao:
   client-id: ${KAKAO_CLIENT_ID}

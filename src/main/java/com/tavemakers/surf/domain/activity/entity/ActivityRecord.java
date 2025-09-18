@@ -21,7 +21,7 @@ import java.time.LocalDate;
 public class ActivityRecord extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Tsid
     private Long id;
 
     private Long memberId;
