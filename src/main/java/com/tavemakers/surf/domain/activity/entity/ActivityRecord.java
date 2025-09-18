@@ -49,16 +49,13 @@ public class ActivityRecord extends BaseEntity {
 
     // TODO 정적 팩토리 메서드
     public static ActivityRecord of(Long memberId, ActivityRecordReqDTO dto, double prefixSum) {
-
-        ActivityType type = ActivityType.valueOf(dto.activityName());
-
         return ActivityRecord.builder()
                 .memberId(memberId)
-                .category(dto.category() != null ? ActivityCategory.valueOf(dto.category()) : null)
-                .activityType(type)
+                .category(dto.category() != null ? dto.category() : null)
+                .activityType(dto.activityName())
                 .activityDate(dto.activityDate())
-                .scoreType(type.getScoreType())
-                .appliedScore(BigDecimal.valueOf(type.getDelta()))
+                .scoreType(dto.activityName().getScoreType())
+                .appliedScore(BigDecimal.valueOf(dto.activityName().getDelta()))
                 .prefixSum(BigDecimal.valueOf(prefixSum))
                 .isDeleted(false)
                 .build();
