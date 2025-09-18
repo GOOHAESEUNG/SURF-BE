@@ -1,4 +1,4 @@
-package com.tavemakers.surf.domain.score.dto.reponse;
+package com.tavemakers.surf.domain.score.dto.response;
 
 import com.tavemakers.surf.domain.activity.dto.response.ActivityTypeCountResDTO;
 import com.tavemakers.surf.domain.activity.entity.enums.ActivityType;

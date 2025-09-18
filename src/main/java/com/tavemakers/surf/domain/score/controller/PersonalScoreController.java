@@ -1,6 +1,6 @@
 package com.tavemakers.surf.domain.score.controller;
 
-import com.tavemakers.surf.domain.score.dto.reponse.PersonalScoreWithTop4ResDto;
+import com.tavemakers.surf.domain.score.dto.response.PersonalScoreWithTop4ResDto;
 import com.tavemakers.surf.domain.score.usecase.PersonalScoreUsecase;
 import com.tavemakers.surf.global.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;

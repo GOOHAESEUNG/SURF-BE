@@ -2,7 +2,7 @@ package com.tavemakers.surf.domain.score.usecase;
 
 import com.tavemakers.surf.domain.activity.entity.enums.ActivityType;
 import com.tavemakers.surf.domain.activity.service.ActivityRecordGetService;
-import com.tavemakers.surf.domain.score.dto.reponse.PersonalScoreWithTop4ResDto;
+import com.tavemakers.surf.domain.score.dto.response.PersonalScoreWithTop4ResDto;
 import com.tavemakers.surf.domain.score.entity.PersonalActivityScore;
 import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
 import lombok.RequiredArgsConstructor;

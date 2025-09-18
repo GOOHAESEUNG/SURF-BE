@@ -1,6 +1,6 @@
 package com.tavemakers.surf.domain.activity.controller;
 
-import com.tavemakers.surf.domain.activity.dto.reqeust.ActivityRecordReqDTO;
+import com.tavemakers.surf.domain.activity.dto.request.ActivityRecordReqDTO;
 import com.tavemakers.surf.domain.activity.dto.response.ActivityRecordSliceResDTO;
 import com.tavemakers.surf.domain.activity.entity.enums.ScoreType;
 import com.tavemakers.surf.domain.activity.usecase.ActivityRecordUsecase;

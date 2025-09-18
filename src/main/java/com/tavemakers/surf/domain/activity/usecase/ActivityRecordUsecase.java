@@ -1,6 +1,6 @@
 package com.tavemakers.surf.domain.activity.usecase;
 
-import com.tavemakers.surf.domain.activity.dto.reqeust.ActivityRecordReqDTO;
+import com.tavemakers.surf.domain.activity.dto.request.ActivityRecordReqDTO;
 import com.tavemakers.surf.domain.activity.dto.response.ActivityRecordResDTO;
 import com.tavemakers.surf.domain.activity.dto.response.ActivityRecordSliceResDTO;
 import com.tavemakers.surf.domain.activity.entity.ActivityRecord;
