@@ -1,0 +1,17 @@
+package com.tavemakers.surf.domain.activity.dto.response;
+
+import com.tavemakers.surf.domain.activity.entity.enums.ActivityType;
+import lombok.Builder;
+
+@Builder
+public record ActivityTypeCountResDTO(
+        String activityType,
+        Long count
+) {
+    public static ActivityTypeCountResDTO of(ActivityType type, Long count) {
+        return ActivityTypeCountResDTO.builder()
+                .activityType(type.name())
+                .count(count)
+                .build();
+    }
+}
