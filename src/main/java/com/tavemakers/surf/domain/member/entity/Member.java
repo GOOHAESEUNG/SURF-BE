@@ -51,4 +51,8 @@ public class Member extends BaseEntity {
 
     private boolean activityStatus; // 활동/비활동 여부
 
+    public boolean isYB() {
+        return memberType == MemberType.YB;
+    }
+
 }
