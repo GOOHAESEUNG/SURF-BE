@@ -3,7 +3,6 @@ package com.tavemakers.surf.domain.activity.entity;
 import com.tavemakers.surf.domain.activity.entity.enums.ActivityCategory;
 import com.tavemakers.surf.domain.activity.entity.enums.ActivityType;
 import com.tavemakers.surf.domain.activity.entity.enums.ScoreType;
-import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -38,9 +37,9 @@ public class ActivityRecord extends BaseEntity {
 
     private LocalDate activityDate;
 
-    private Long prefixSum; // 누적합
+    private double prefixSum; // 누적합
 
-    private Long appliedScore; // 적용 점수
+    private double appliedScore;
 
     @Column(nullable = false, columnDefinition = "TINYINT(1) default 0")
     private boolean isDeleted = false;
