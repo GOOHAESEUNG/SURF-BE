@@ -32,7 +32,7 @@ public class ActivityRecordController {
             @RequestParam int pageNum
     ) {
         ActivityRecordSliceResDTO response = activityRecordUsecase.getActivityRecordList(memberId, scoreType, pageSize, pageNum);
-        return ApiResponse.response(HttpStatus.CREATED, ACTIVITY_RECORD_READ.getMessage(), response);
+        return ApiResponse.response(HttpStatus.OK, ACTIVITY_RECORD_READ.getMessage(), response);
     }
 
 }
