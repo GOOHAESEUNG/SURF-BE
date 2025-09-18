@@ -28,4 +28,14 @@ public class Track extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    // 테스트를 위한 정적 팩토리 메서드
+    public static Track createTrackForTest(Long id, Integer generation, Part part, Member member) {
+        Track track = new Track();
+        track.id = id;
+        track.generation = generation;
+        track.part = part;
+        track.member = member;
+        return track;
+    }
+
 }

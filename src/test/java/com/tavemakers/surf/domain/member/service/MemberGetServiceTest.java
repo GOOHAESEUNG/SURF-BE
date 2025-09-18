@@ -1,7 +1,12 @@
 package com.tavemakers.surf.domain.member.service;
 
+import com.tavemakers.surf.domain.member.dto.MemberSearchResDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
+import com.tavemakers.surf.domain.member.entity.Track;
+import com.tavemakers.surf.domain.member.entity.enums.Part;
+import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
+import com.tavemakers.surf.domain.member.repository.TrackRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,78 +23,68 @@ class MemberGetServiceTest {
     @Mock
     private MemberRepository memberRepository;
 
+    @Mock
+    private TrackRepository trackRepository;
+
     @InjectMocks
     private MemberGetService memberGetService;
 
-    // 테스트를 위한 정적 팩토리 메서드
-    private static Member createTestMember(String name, boolean activityStatus) {
-        // 엔티티의 정적 팩토리 메서드를 사용하되, 테스트에 필요한 값만 전달
-        // 이메일, 전화번호, 대학 등은 임의의 값으로 설정
-        return Member.createMemberforTest(name,
-                name + "@test.com",
-                "010-1234-5678",
-                "테스트대학교",
-                activityStatus);
+    // 테스트용 Member 객체를 생성하는 팩토리 메소드
+    private static Member createTestMember(Long id, String name, boolean activityStatus) {
+        // 실제 코드의 Member 엔티티에 @Builder나 테스트용 생성자가 있어야 합니다.
+        return Member.createMemberforTest(name, "test@email.com", "010-1234-5678", "테스트대학교", activityStatus);
     }
 
+    // 테스트용 Track 객체를 생성하는 팩토리 메소드
+    private static Track createTestTrack(Long id, int generation, Part part, Member member) {
+        // 실제 코드의 Track 엔티티에 @Builder나 테스트용 생성자가 있어야 합니다.
+        return Track.createTrackForTest(id, generation, part, member);
+    }
+
+
+
     @Test
-    @DisplayName("회원 이름으로 조회 성공 - 활동 중인 회원")
-    void getMemberByName_Success_ActiveMember() {
+    @DisplayName("회원 이름으로 조회 성공 - DTO 반환")
+    void getMemberByName_Success_ReturnsDTO() {
         // given
         String memberName = "김서핑";
-        Member activeMember = createTestMember(memberName, true);
-        given(memberRepository.findByNameAndActivityStatus(true,memberName))
-                .willReturn(Optional.of(activeMember));
+        Long memberId = 1L;
+        int generation = 10;
+        Part part = Part.BACKEND;
+
+        // Mock 객체의 동작 설정: findByNameAndActivityStatus()가 Member 객체를 반환하도록 설정
+        Member foundMember = createTestMember(memberId, memberName, true);
+        given(memberRepository.findByActivityStatusAndName(true, memberName))
+                .willReturn(Optional.of(foundMember));
+
+        // Mock 객체의 동작 설정: findByMemberId()가 Track 객체를 반환하도록 설정
+        Track foundTrack = createTestTrack(1L, generation, part, foundMember);
+        given(trackRepository.findByMemberId(memberId))
+                .willReturn(foundTrack);
 
         // when
-        Member foundMember = memberGetService.getMemberByName(memberName);
+        MemberSearchResDTO resDTO = memberGetService.getMemberByName(memberName);
 
         // then
-        assertNotNull(foundMember);
-        assertEquals(memberName, foundMember.getName());
-        assertTrue(foundMember.isActivityStatus());
+        assertNotNull(resDTO);
+        assertEquals(memberName, resDTO.getName());
+        assertEquals(generation, resDTO.getGeneration());
+        assertEquals(part.toString(), resDTO.getTrack());
     }
 
+
+
     @Test
-    @DisplayName("존재하지 않는 회원 이름으로 조회 시 null 반환")
-    void getMemberByName_NotFound_ReturnsNull() {
+    @DisplayName("존재하지 않는 회원 이름으로 조회 시 MemberNotFoundException 발생")
+    void getMemberByName_NotFound_ThrowsException() {
         // given
         String nonExistentName = "없는회원";
-        given(memberRepository.findByNameAndActivityStatus(true,nonExistentName))
+        given(memberRepository.findByActivityStatusAndName(true, nonExistentName))
                 .willReturn(Optional.empty());
 
-        // when
-        Member foundMember = memberGetService.getMemberByName(nonExistentName);
-
-        // then
-        assertNull(foundMember);
-    }
-
-    // 추가 테스트: 여러 명의 회원을 조회하는 시나리오
-    @Test
-    @DisplayName("여러 명의 회원 생성 및 조회 테스트")
-    void createAndFindMultipleMembers() {
-        // given
-        Member member1 = createTestMember("유저A", true);
-        Member member2 = createTestMember("유저B", true);
-
-        // member1을 검색할 때의 Mocking
-        given(memberRepository.findByNameAndActivityStatus(true,"유저A" ))
-                .willReturn(Optional.of(member1));
-
-        // member2를 검색할 때의 Mocking
-        given(memberRepository.findByNameAndActivityStatus(true,"유저B"))
-                .willReturn(Optional.of(member2));
-
-        // when
-        Member foundUserA = memberGetService.getMemberByName("유저A");
-        Member foundUserB = memberGetService.getMemberByName("유저B");
-
-        // then
-        assertNotNull(foundUserA);
-        assertEquals("유저A", foundUserA.getName());
-
-        assertNotNull(foundUserB);
-        assertEquals("유저B", foundUserB.getName());
+        // when & then
+        assertThrows(MemberNotFoundException.class, () -> {
+            memberGetService.getMemberByName(nonExistentName);
+        });
     }
 }
