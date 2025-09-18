@@ -42,7 +42,8 @@ public class ActivityRecord extends BaseEntity {
 
     private Long appliedScore; // 적용 점수
 
-    private boolean isDeleted;
+    @Column(nullable = false, columnDefinition = "TINYINT(1) default 0")
+    private boolean isDeleted = false;
 
     // TODO 정적 팩토리 메서드
 
