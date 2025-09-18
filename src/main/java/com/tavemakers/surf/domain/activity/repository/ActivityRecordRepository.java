@@ -25,4 +25,6 @@ public interface ActivityRecordRepository extends JpaRepository<ActivityRecord, 
             Pageable pageable
     );
 
+    List<ActivityRecord> findByMemberIdAndIsDeleted(Long memberId,Boolean isDeleted);
+
 }
