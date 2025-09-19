@@ -49,7 +49,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostResDTO> getMyPosts(Long memberId, Pageable pageable) {
+    public Page<PostResDTO> getPostsByMember(Long memberId, Pageable pageable) {
         if (!memberRepository.existsById(memberId)) {
             throw new MemberNotFoundException();
         }

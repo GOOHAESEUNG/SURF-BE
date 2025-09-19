@@ -1,5 +1,6 @@
 package com.tavemakers.surf.domain.post.controller;
 
+import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.post.dto.req.PostCreateReqDTO;
 import com.tavemakers.surf.domain.post.dto.req.PostUpdateReqDTO;
 import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
@@ -8,8 +9,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -33,12 +36,12 @@ public class PostController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<Page<PostResDTO>> getMyPosts(
+    public ResponseEntity<Page<PostResDTO>> getPostsByMember(
             @RequestParam Long memberId,
             // 페이징 우선 12개로 설정, 추후 변경 필요, sort는 postedAt 기준 내림차순
             @PageableDefault(size = 12, sort = "postedAt") Pageable pageable
     ) {
-        return ResponseEntity.ok(postService.getMyPosts(memberId, pageable));
+        return ResponseEntity.ok(postService.getPostsByMember(memberId, pageable));
     }
 
     @GetMapping
