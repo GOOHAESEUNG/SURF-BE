@@ -1,6 +1,7 @@
 package com.tavemakers.surf.domain.post.entity;
 
 import com.tavemakers.surf.domain.board.entity.Board;
+import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.post.dto.req.PostCreateReqDTO;
 import com.tavemakers.surf.domain.post.dto.req.PostUpdateReqDTO;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
@@ -36,22 +37,28 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+
     @Builder
-    private Post(String title, String content, boolean pinned, LocalDateTime postedAt, Board board) {
+    private Post(String title, String content, boolean pinned, LocalDateTime postedAt, Board board, Member member) {
         this.title = title;
         this.content = content;
         this.pinned = pinned;
         this.postedAt = postedAt;
         this.board = board;
+        this.member = member;
     }
 
-    public static Post of(PostCreateReqDTO req, Board board) {
+    public static Post of(PostCreateReqDTO req, Board board, Member member) {
         return Post.builder()
                 .title(req.title())
                 .content(req.content())
                 .pinned(req.pinned() != null ? req.pinned() : false)
                 .postedAt(req.postedAt() != null ? req.postedAt() : LocalDateTime.now())
                 .board(board)
+                .member(member)
                 .build();
     }
 

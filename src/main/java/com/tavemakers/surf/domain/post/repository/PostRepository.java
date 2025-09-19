@@ -7,4 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findByBoardId(Long boardId, Pageable pageable);
+
+    Page<Post> findByMemberId(Long memberId, Pageable pageable);
+    Page<Post> findByMemberIdAndBoardId(Long memberId, Long boardId, Pageable pageable);
 }

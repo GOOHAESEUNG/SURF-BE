@@ -21,14 +21,24 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<PostResDTO> createPost(
-            @Valid @RequestBody PostCreateReqDTO req) {
-        return ResponseEntity.ok(postService.createPost(req));
+            @Valid @RequestBody PostCreateReqDTO req,
+            @RequestParam Long memberId) {
+        return ResponseEntity.ok(postService.createPost(req, memberId));
     }
 
     @GetMapping("/{postId}")
     public ResponseEntity<PostResDTO> getPost(
             @PathVariable Long postId) {
         return ResponseEntity.ok(postService.getPost(postId));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<Page<PostResDTO>> getMyPosts(
+            @RequestParam Long memberId,
+            // 페이징 우선 12개로 설정, 추후 변경 필요, sort는 postedAt 기준 내림차순
+            @PageableDefault(size = 12, sort = "postedAt") Pageable pageable
+    ) {
+        return ResponseEntity.ok(postService.getMyPosts(memberId, pageable));
     }
 
     @GetMapping
