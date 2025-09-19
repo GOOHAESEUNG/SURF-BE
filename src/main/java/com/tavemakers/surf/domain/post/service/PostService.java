@@ -36,12 +36,14 @@ public class PostService {
         return PostResDTO.from(saved);
     }
 
+    @Transactional(readOnly = true)
     public PostResDTO getPost(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
         return PostResDTO.from(post);
     }
 
+    @Transactional(readOnly = true)
     public Page<PostResDTO> getPostsByBoard(Long boardId, Pageable pageable) {
         if (!boardRepository.existsById(boardId)) {
             throw new BoardNotFoundException();

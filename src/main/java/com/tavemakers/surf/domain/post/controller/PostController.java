@@ -25,10 +25,10 @@ public class PostController {
         return ResponseEntity.ok(postService.createPost(req));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{postId}")
     public ResponseEntity<PostResDTO> getPost(
-            @PathVariable Long id) {
-        return ResponseEntity.ok(postService.getPost(id));
+            @PathVariable Long postId) {
+        return ResponseEntity.ok(postService.getPost(postId));
     }
 
     @GetMapping
@@ -40,17 +40,17 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostsByBoard(boardId, pageable));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{postId}")
     public ResponseEntity<PostResDTO> updatePost(
-            @PathVariable Long id,
+            @PathVariable Long postId,
             @Valid @RequestBody PostUpdateReqDTO req) {
-        return ResponseEntity.ok(postService.updatePost(id, req));
+        return ResponseEntity.ok(postService.updatePost(postId, req));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(
-            @PathVariable Long id) {
-        postService.deletePost(id);
+            @PathVariable Long postId) {
+        postService.deletePost(postId);
         return ResponseEntity.noContent().build();
     }
 
