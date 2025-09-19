@@ -1,5 +1,6 @@
 package com.tavemakers.surf.domain.board.entity;
 
+import com.tavemakers.surf.domain.board.dto.req.BoardCreateReqDTO;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -17,19 +18,24 @@ public class Board extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String name;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @NotNull
     private BoardType type;
 
     @Builder
-    private Board(BoardType type) {
+    private Board(String name, BoardType type) {
+        this.name = name;
         this.type = type;
     }
 
-    public static Board of(BoardType type) {
+    public static Board of(BoardCreateReqDTO req) {
         return Board.builder()
-                .type(type)
+                .name(req.name())
+                .type(req.type())
                 .build();
     }
 

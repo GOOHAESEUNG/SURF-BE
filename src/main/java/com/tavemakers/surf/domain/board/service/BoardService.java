@@ -18,7 +18,7 @@ public class BoardService {
 
     @Transactional
     public BoardResDTO createBoard(BoardCreateReqDTO req) {
-        Board board = Board.of(req.type());
+        Board board = Board.of(req);
         Board saved = boardRepository.save(board);
         return BoardResDTO.from(saved);
     }
