@@ -3,10 +3,12 @@ package com.tavemakers.surf.domain.score.utils;
 import com.tavemakers.surf.domain.score.entity.ScoreComputable;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 @Component
 public class ScoreCalculator {
 
-    public double calculateScore(ScoreComputable scoreComputable, double delta) {
+    public BigDecimal calculateScore(ScoreComputable scoreComputable, BigDecimal delta) {
         return scoreComputable.updateScore(delta);
     }
 

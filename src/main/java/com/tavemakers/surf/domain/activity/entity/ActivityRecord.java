@@ -8,11 +8,13 @@ import com.tavemakers.surf.global.common.entity.BaseEntity;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 @Entity
@@ -38,17 +40,17 @@ public class ActivityRecord extends BaseEntity {
 
     private LocalDate activityDate;
 
-    @Column(precision = 19, scale = 4)
-    private BigDecimal prefixSum; // 누적합(정밀도 확보)
+    @Column(precision = 19, scale = 1)
+    private BigDecimal prefixSum = BigDecimal.ZERO.setScale(1, RoundingMode.HALF_UP); // 누적합(정밀도 확보)
 
-    @Column(precision = 19, scale = 4)
-    private BigDecimal appliedScore;
+    @Column(precision = 19, scale = 1)
+    private BigDecimal appliedScore = BigDecimal.ZERO.setScale(1, RoundingMode.HALF_UP);
 
     @Column(nullable = false, columnDefinition = "TINYINT(1) default 0")
     private boolean isDeleted = false;
 
     // TODO 정적 팩토리 메서드
-    public static ActivityRecord of(Long memberId, ActivityRecordReqDTO dto, double prefixSum) {
+    public static ActivityRecord of(Long memberId, ActivityRecordReqDTO dto, BigDecimal prefixSum) {
         return ActivityRecord.builder()
                 .memberId(memberId)
                 .category(dto.category() != null ? dto.category() : null)
@@ -56,7 +58,7 @@ public class ActivityRecord extends BaseEntity {
                 .activityDate(dto.activityDate())
                 .scoreType(dto.activityName().getScoreType())
                 .appliedScore(BigDecimal.valueOf(dto.activityName().getDelta()))
-                .prefixSum(BigDecimal.valueOf(prefixSum))
+                .prefixSum(prefixSum)
                 .isDeleted(false)
                 .build();
     }

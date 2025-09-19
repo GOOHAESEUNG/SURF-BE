@@ -3,6 +3,7 @@ package com.tavemakers.surf.domain.activity.dto.response;
 import com.tavemakers.surf.domain.activity.entity.ActivityRecord;
 import lombok.Builder;
 
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 
 @Builder
@@ -12,8 +13,8 @@ public record ActivityRecordResDTO(
         String activityName,
         String scoreType,
         String activityDate,
-        double prefixSum,
-        double appliedScore
+        BigDecimal prefixSum,
+        BigDecimal appliedScore
 ) {
 
     public static ActivityRecordResDTO from(ActivityRecord activityRecord) {
@@ -37,8 +38,8 @@ public record ActivityRecordResDTO(
                 .activityName(activityName)
                 .activityDate(formattedDate)
                 .scoreType(activityRecord.getScoreType().name())
-                .prefixSum(activityRecord.getPrefixSum().doubleValue())
-                .appliedScore(activityRecord.getAppliedScore().doubleValue())
+                .prefixSum(activityRecord.getPrefixSum())
+                .appliedScore(activityRecord.getAppliedScore())
                 .build();
     }
 

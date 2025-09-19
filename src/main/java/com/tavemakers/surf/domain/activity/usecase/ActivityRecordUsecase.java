@@ -19,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -36,7 +37,7 @@ public class ActivityRecordUsecase {
         List<PersonalActivityScore> scoreList = personalScoreGetService.getPersonalScoreList(dto.memberIdList());
         List<ActivityRecord> recordList = scoreList.stream()
                 .map(personalScore -> {
-                            double prefixSum = scoreCalculator.calculateScore(personalScore, dto.activityName().getDelta());
+                            BigDecimal prefixSum = scoreCalculator.calculateScore(personalScore, BigDecimal.valueOf(dto.activityName().getDelta()));
                             return ActivityRecord.of(personalScore.getMember().getId(), dto, prefixSum);
                         }
                 ).toList();

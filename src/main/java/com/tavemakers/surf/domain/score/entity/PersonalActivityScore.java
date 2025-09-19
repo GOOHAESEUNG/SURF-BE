@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Entity
 @Getter
@@ -23,18 +24,18 @@ public class PersonalActivityScore extends BaseEntity implements ScoreComputable
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @Column(precision = 19, scale = 4)
-    private BigDecimal score;
+    @Column(precision = 19, scale = 1)
+    private BigDecimal score = BigDecimal.ZERO.setScale(1, RoundingMode.HALF_UP);
 
     @Override
-    public double getScore() {
-        return this.score.doubleValue();
+    public BigDecimal getScore() {
+        return this.score;
     }
 
     @Override
-    public double updateScore(double score) {
-        this.score = this.score.add(BigDecimal.valueOf(score));
-        return this.score.doubleValue();
+    public BigDecimal updateScore(BigDecimal score) {
+        this.score = this.score.add(score);
+        return this.score;
     }
 
     public static PersonalActivityScore from(Member member) {

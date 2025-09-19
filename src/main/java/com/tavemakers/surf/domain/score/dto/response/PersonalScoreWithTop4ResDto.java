@@ -4,16 +4,17 @@ import com.tavemakers.surf.domain.activity.dto.response.ActivityTypeCountResDTO;
 import com.tavemakers.surf.domain.activity.entity.enums.ActivityType;
 import lombok.Builder;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 @Builder
 public record PersonalScoreWithTop4ResDto(
-        double score,
+        BigDecimal score,
         List<ActivityTypeCountResDTO> top4
 ) {
 
-    public static PersonalScoreWithTop4ResDto of(double score, Map<ActivityType, Long> countMap) {
+    public static PersonalScoreWithTop4ResDto of(BigDecimal score, Map<ActivityType, Long> countMap) {
         List<ActivityTypeCountResDTO> dataList = countMap.entrySet().stream()
                 .map(entry -> ActivityTypeCountResDTO.of(entry.getKey(), entry.getValue()))
                 .toList();
