@@ -1,6 +1,7 @@
 package com.tavemakers.surf.domain.post.service;
 
 import com.tavemakers.surf.domain.board.entity.Board;
+import com.tavemakers.surf.domain.board.exception.BoardNotFoundException;
 import com.tavemakers.surf.domain.board.repository.BoardRepository;
 import com.tavemakers.surf.domain.post.dto.req.PostCreateReqDTO;
 import com.tavemakers.surf.domain.post.dto.req.PostUpdateReqDTO;
@@ -27,7 +28,7 @@ public class PostService {
     @Transactional
     public PostResDTO createPost(PostCreateReqDTO req) {
         Board board = boardRepository.findById(req.boardId())
-                .orElseThrow(() -> new EntityNotFoundException("Board not found"));
+                .orElseThrow(BoardNotFoundException::new);
 
         Post post = Post.of(req, board);
         Post saved = postRepository.save(post);
@@ -43,7 +44,7 @@ public class PostService {
 
     public Page<PostResDTO> getPostsByBoard(Long boardId, Pageable pageable) {
         if (!boardRepository.existsById(boardId)) {
-            throw new EntityNotFoundException("Board not found");
+            throw new BoardNotFoundException();
         }
         Page<Post> page = postRepository.findByBoardId(boardId, pageable);
         return page.map(PostResDTO::from);
