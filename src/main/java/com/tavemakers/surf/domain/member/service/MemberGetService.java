@@ -6,6 +6,7 @@ import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,11 +25,6 @@ public class MemberGetService {
     public List<Member> getMemberByName(String name) {
         return memberRepository.findByActivityStatusAndName(true,name);
 
-    }
-
-    //활동 여부에 따른 회원 전체 목록 조회
-    public List<Member> getMemberByStatus(Boolean status) {
-        return memberRepository.findByActivityStatus(status);
     }
 
 

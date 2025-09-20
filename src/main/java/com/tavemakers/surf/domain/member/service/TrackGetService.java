@@ -6,6 +6,8 @@ import com.tavemakers.surf.domain.member.repository.TrackRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class TrackGetService {
@@ -16,6 +18,6 @@ public class TrackGetService {
 
         return trackRepository.findByMemberId(memberId)
                 .orElseThrow(TrackNotFoundException::new);
-
     }
+
 }

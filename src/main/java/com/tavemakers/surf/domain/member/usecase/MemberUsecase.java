@@ -40,4 +40,7 @@ public class MemberUsecase {
                 })
                 .collect(Collectors.toList());
     }
+
+    //트랙+기수별 회원을 묶어 반환
+
 }
