@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface TrackRepository extends JpaRepository<Track, Long> {
 
-    Track findByMemberId(Long memberId);
+    Optional<Track> findByMemberId(Long memberId);
 }

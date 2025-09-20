@@ -14,7 +14,8 @@ public class TrackGetService {
 
     public Track getTrack(Long memberId) {
 
-        return trackRepository.findById(memberId).orElseThrow(TrackNotFoundException::new);
+        return trackRepository.findByMemberId(memberId)
+                .orElseThrow(TrackNotFoundException::new);
 
     }
 }
