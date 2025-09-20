@@ -24,7 +24,7 @@ public class TrackGetService {
 
     //트랙과 함께 모든 회원 반환
     public List<Track> getAllTracksWithMember() {
-        return trackRepository.findAllWithMember();
+        return trackRepository.findAllWithActiveMember();
     }
 
 }
