@@ -28,7 +28,7 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
         return "https://kauth.kakao.com/oauth/authorize?response_type=code"
                 + "&client_id=" + props.getClientId()
                 + "&redirect_uri=" + props.getRedirectUri()
-                + "&scope=account_email"; // 필요 시 확장
+                + "&scope=account_email profile_nickname profile_image";
     }
 
     @Override
