@@ -55,16 +55,4 @@ public class Member extends BaseEntity {
         return memberType == MemberType.YB;
     }
 
-    public static Member createMemberforTest(String name, String email, String phoneNumber, String university, Boolean activityStatus) {
-        Member member = new Member();
-        member.name = name;
-        member.email = email;
-        member.phoneNumber = phoneNumber;
-        member.university = university;
-        member.activityStatus = activityStatus;
-        member.status = MemberStatus.REGISTERING; // 기본 상태 설정
-        member.role = MemberRole.MEMBER; // 기본 역할 설정
-        return member;
-    }
-
 }
