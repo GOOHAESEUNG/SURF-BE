@@ -1,6 +1,7 @@
 package com.tavemakers.surf.domain.member.usecase;
 
 import com.tavemakers.surf.domain.member.dto.MemberSearchResDTO;
+import com.tavemakers.surf.domain.member.dto.MemberSimpleResDto;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.Track;
 import com.tavemakers.surf.domain.member.service.MemberGetService;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -42,5 +44,15 @@ public class MemberUsecase {
     }
 
     //트랙+기수별 회원을 묶어 반환
+    public Map<String, List<MemberSimpleResDto>> getMembersGroupedByTrack() {
+        return trackGetService.getAllTracksWithMember().stream()
+                .collect(Collectors.groupingBy(
+                        track -> track.getPart().name() + "_" + track.getGeneration() + "기",
+                        Collectors.mapping(
+                                track -> MemberSimpleResDto.from(track.getMember()),
+                                Collectors.toList()
+                        )
+                ));
+    }
 
 }
