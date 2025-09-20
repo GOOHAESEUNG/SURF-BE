@@ -27,22 +27,16 @@ public class MemberUsecase {
 
         // 2. 조회된 회원이 없으면 빈 리스트를 반환합니다.
         if (members.isEmpty()) {
-            return List.of(); // 또는 return Collections.emptyList();
+            return List.of();
         }
 
         // 3. 각 회원을 순회하며 DTO로 변환합니다.
         return members.stream()
                 .map(member -> {
                     // 4. 각 회원의 ID로 트랙 정보를 조회합니다.
-                    //트랙을 찾지 못할 경우를 대비하여 null 체크를 포함합니다.
                     Track track = trackGetService.getTrack(member.getId());
-
-                    if (track != null) {
                         return MemberSearchResDTO.of(member, track.getGeneration(), track.getPart().toString());
-                    } else {
-                        // 트랙 정보가 없는 경우, 임시로 널
-                        return MemberSearchResDTO.of(member, null, null);
-                    }
+
                 })
                 .collect(Collectors.toList());
     }
