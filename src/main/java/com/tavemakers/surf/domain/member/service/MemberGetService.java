@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 public class MemberGetService {
 
     private final MemberRepository memberRepository;
-    private final TrackRepository trackRepository;
 
     public Member getMember(Long memberId) {
         return memberRepository.findByIdAndStatus(memberId, MemberStatus.APPROVED)
@@ -23,13 +22,10 @@ public class MemberGetService {
     }
 
     //회원 조회 - 이름
-    public MemberSearchResDTO getMemberByName(String name) {
-        Member member =  memberRepository.findByActivityStatusAndName(true,name)
+    public Member getMemberByName(String name) {
+        return memberRepository.findByActivityStatusAndName(true,name)
                 .orElseThrow(MemberNotFoundException::new); //검색한 이름의 유저가 없을 경우
 
-        Track track = trackRepository.findByMemberId(member.getId());
-
-        return MemberSearchResDTO.of(member, track.getGeneration(), track.getPart().toString());
     }
 
 
