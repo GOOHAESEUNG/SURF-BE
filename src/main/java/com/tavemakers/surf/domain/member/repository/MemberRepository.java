@@ -5,6 +5,7 @@ import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -12,5 +13,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByIdAndStatus(Long memberId, MemberStatus status);
 
-    Optional<Member> findByActivityStatusAndName(Boolean activityStatus,String name);
+    List<Member> findByActivityStatusAndName(Boolean activityStatus, String name);
 }

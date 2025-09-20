@@ -10,6 +10,8 @@ import com.tavemakers.surf.domain.member.repository.TrackRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class MemberGetService {
@@ -22,9 +24,8 @@ public class MemberGetService {
     }
 
     //회원 조회 - 이름
-    public Member getMemberByName(String name) {
-        return memberRepository.findByActivityStatusAndName(true,name)
-                .orElseThrow(MemberNotFoundException::new); //검색한 이름의 유저가 없을 경우
+    public List<Member> getMemberByName(String name) {
+        return memberRepository.findByActivityStatusAndName(true,name);//검색한 이름의 유저가 없을 경우
 
     }
 
