@@ -26,5 +26,10 @@ public class MemberGetService {
 
     }
 
+    //활동 여부에 따른 회원 전체 목록 조회
+    public List<Member> getMemberByStatus(Boolean status) {
+        return memberRepository.findByActivityStatus(status);
+    }
+
 
 }
