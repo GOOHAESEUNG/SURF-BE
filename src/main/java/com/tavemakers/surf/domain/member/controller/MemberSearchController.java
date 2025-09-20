@@ -1,8 +1,6 @@
 package com.tavemakers.surf.domain.member.controller;
 
 import com.tavemakers.surf.domain.member.dto.MemberSearchResDTO;
-import com.tavemakers.surf.domain.member.entity.Member;
-import com.tavemakers.surf.domain.member.service.MemberGetService;
 import com.tavemakers.surf.domain.member.usecase.MemberUsecase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
