@@ -12,11 +12,13 @@ import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
+import com.tavemakers.surf.domain.scrap.service.ScrapService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.View;
 
 
 @Service
@@ -26,6 +28,9 @@ public class PostService {
     private final BoardRepository boardRepository;
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+
+    private final ScrapService scrapService;
+    private final View view;
 
     @Transactional
     public PostResDTO createPost(PostCreateReqDTO req, Long memberId) {
@@ -38,41 +43,51 @@ public class PostService {
         Post post = Post.of(req, board, member);
         Post saved = postRepository.save(post);
 
-        return PostResDTO.from(saved);
+        return PostResDTO.from(saved, false);
     }
 
     @Transactional(readOnly = true)
-    public PostResDTO getPost(Long postId) {
+    public PostResDTO getPost(Long postId, Long memberId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
-        return PostResDTO.from(post);
+
+        boolean scrappedByMe = scrapService.isScrappedByMe(memberId, postId);
+
+        return PostResDTO.from(post, scrappedByMe);
     }
 
     @Transactional(readOnly = true)
-    public Page<PostResDTO> getPostsByMember(Long memberId, Pageable pageable) {
-        if (!memberRepository.existsById(memberId)) {
+    public Page<PostResDTO> getPostsByMember(Long authorId, Long viewerId, Pageable pageable) {
+        if (!memberRepository.existsById(authorId)) {
             throw new MemberNotFoundException();
         }
-        Page<Post> page = postRepository.findByMemberId(memberId, pageable);
-        return page.map(PostResDTO::from);
+        Page<Post> page = postRepository.findByMemberId(authorId, pageable);
+        return page.map(p -> PostResDTO.from(
+                p,
+                viewerId != null && scrapService.isScrappedByMe(viewerId, p.getId())
+        ));
     }
 
     @Transactional(readOnly = true)
-    public Page<PostResDTO> getPostsByBoard(Long boardId, Pageable pageable) {
+    public Page<PostResDTO> getPostsByBoard(Long boardId, Long viewerId, Pageable pageable) {
         if (!boardRepository.existsById(boardId)) {
             throw new BoardNotFoundException();
         }
         Page<Post> page = postRepository.findByBoardId(boardId, pageable);
-        return page.map(PostResDTO::from);
+        return page.map(p -> PostResDTO.from(
+                p,
+                scrapService.isScrappedByMe(viewerId, p.getId())
+        ));
     }
 
     @Transactional
-    public PostResDTO updatePost(Long postId, PostUpdateReqDTO req) {
+    public PostResDTO updatePost(Long postId, PostUpdateReqDTO req, Long viewerId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
 
         post.update(req, post.getBoard());
-        return PostResDTO.from(post);
+        boolean scrappedByMe = scrapService.isScrappedByMe(viewerId, postId);
+        return PostResDTO.from(post, scrappedByMe);
     }
 
     @Transactional

@@ -1,6 +1,5 @@
 package com.tavemakers.surf.domain.post.controller;
 
-import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.post.dto.req.PostCreateReqDTO;
 import com.tavemakers.surf.domain.post.dto.req.PostUpdateReqDTO;
 import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
@@ -12,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,33 +29,47 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public ResponseEntity<PostResDTO> getPost(
-            @PathVariable Long postId) {
-        return ResponseEntity.ok(postService.getPost(postId));
+            @PathVariable Long postId,
+            @RequestParam Long memberId) {
+        return ResponseEntity.ok(postService.getPost(postId, memberId));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<Page<PostResDTO>> getPostsByMember(
-            @RequestParam Long memberId,
-            // 페이징 우선 12개로 설정, 추후 변경 필요, sort는 postedAt 기준 내림차순
-            @PageableDefault(size = 12, sort = "postedAt") Pageable pageable
+    public ResponseEntity<Page<PostResDTO>> getMyPosts(
+            @RequestParam Long memberId, // 추후 수정
+            @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
+            Pageable pageable
     ) {
-        return ResponseEntity.ok(postService.getPostsByMember(memberId, pageable));
+        return ResponseEntity.ok(postService.getPostsByMember(memberId, memberId, pageable));
+    }
+
+    @GetMapping("/{authorId}/posts")
+    public ResponseEntity<Page<PostResDTO>> getPostsByMember(
+            @PathVariable Long authorId,
+            @RequestParam(required = false) Long viewerId, // 추후 수정
+            @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(postService.getPostsByMember(authorId, viewerId, pageable));
     }
 
     @GetMapping
     public ResponseEntity<Page<PostResDTO>> getPostsByBoard(
             @RequestParam Long boardId,
-            // 페이징 우선 12개로 설정, 추후 변경 필요, sort는 postedAt 기준 내림차순
-            @PageableDefault(size = 12, sort = "postedAt") Pageable pageable
+            @RequestParam Long memberId, // 추후 수정
+            @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
+            Pageable pageable
     ) {
-        return ResponseEntity.ok(postService.getPostsByBoard(boardId, pageable));
+        return ResponseEntity.ok(postService.getPostsByBoard(boardId, memberId, pageable));
     }
 
     @PutMapping("/{postId}")
     public ResponseEntity<PostResDTO> updatePost(
             @PathVariable Long postId,
-            @Valid @RequestBody PostUpdateReqDTO req) {
-        return ResponseEntity.ok(postService.updatePost(postId, req));
+            @Valid @RequestBody PostUpdateReqDTO req,
+            @RequestParam Long memberId // 추후 수정
+    ) {
+        return ResponseEntity.ok(postService.updatePost(postId, req, memberId));
     }
 
     @DeleteMapping("/{postId}")
@@ -66,5 +78,4 @@ public class PostController {
         postService.deletePost(postId);
         return ResponseEntity.noContent().build();
     }
-
 }

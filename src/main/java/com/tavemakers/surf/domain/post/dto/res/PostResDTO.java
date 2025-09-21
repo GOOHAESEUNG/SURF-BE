@@ -10,16 +10,20 @@ public record PostResDTO(
         String content,
         boolean pinned,
         LocalDateTime postedAt,
-        Long boardId
+        Long boardId,
+        boolean scrappedByMe,
+        long scrapCount
 ) {
-    public static PostResDTO from(Post post) {
+    public static PostResDTO from(Post post, boolean scrappedByMe) {
         return new PostResDTO(
                 post.getId(),
                 post.getTitle(),
                 post.getContent(),
                 post.isPinned(),
                 post.getPostedAt(),
-                post.getBoard().getId()
+                post.getBoard().getId(),
+                scrappedByMe,
+                post.getScrapCount()
         );
     }
 }

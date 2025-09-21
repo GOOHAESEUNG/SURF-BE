@@ -33,6 +33,9 @@ public class Post extends BaseEntity {
 
     private boolean pinned; // 상단 고정
 
+    @Column(nullable = false)
+    private long scrapCount = 0L;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;
@@ -42,10 +45,11 @@ public class Post extends BaseEntity {
     private Member member;
 
     @Builder
-    private Post(String title, String content, boolean pinned, LocalDateTime postedAt, Board board, Member member) {
+    private Post(String title, String content, boolean pinned, long scrapCount, LocalDateTime postedAt, Board board, Member member) {
         this.title = title;
         this.content = content;
         this.pinned = pinned;
+        this.scrapCount = scrapCount;
         this.postedAt = postedAt;
         this.board = board;
         this.member = member;
@@ -59,6 +63,7 @@ public class Post extends BaseEntity {
                 .postedAt(req.postedAt() != null ? req.postedAt() : LocalDateTime.now())
                 .board(board)
                 .member(member)
+                .scrapCount(0L)
                 .build();
     }
 
@@ -69,4 +74,7 @@ public class Post extends BaseEntity {
         this.postedAt = req.postedAt() != null ? req.postedAt() : this.postedAt;
         this.board = board;
     }
+
+    public void increaseScrapCount() { this.scrapCount++; }
+    public void decreaseScrapCount() { if (this.scrapCount > 0) this.scrapCount--; }
 }

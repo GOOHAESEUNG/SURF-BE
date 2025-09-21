@@ -7,7 +7,9 @@ import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
+import com.tavemakers.surf.domain.post.service.PostService;
 import com.tavemakers.surf.domain.scrap.entity.Scrap;
+import com.tavemakers.surf.domain.scrap.exception.ScrapNotFoundException;
 import com.tavemakers.surf.domain.scrap.repository.ScrapRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,15 +37,24 @@ public class ScrapService {
                 .orElseThrow(PostNotFoundException::new);
 
         scrapRepository.save(Scrap.of(member, post));
+        post.increaseScrapCount();
     }
 
     @Transactional
     public void removeScrap(Long memberId, Long postId) {
-        scrapRepository.deleteByMemberIdAndPostId(memberId, postId);
+        Scrap scrap = scrapRepository.findByMemberIdAndPostId(memberId, postId)
+                .orElseThrow(ScrapNotFoundException::new);
+
+        scrapRepository.delete(scrap);
+        scrap.getPost().decreaseScrapCount();
     }
 
     public Page<PostResDTO> getMyScraps(Long memberId, Pageable pageable) {
         Page<Post> page = scrapRepository.findPostsByMemberId(memberId, pageable);
-        return page.map(PostResDTO::from);
+        return page.map(post -> PostResDTO.from(post, true));
+    }
+
+    public boolean isScrappedByMe(Long memberId, Long postId) {
+        return scrapRepository.existsByMemberIdAndPostId(memberId, postId);
     }
 }
