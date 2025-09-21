@@ -5,4 +5,8 @@ import com.tavemakers.surf.domain.member.dto.response.MemberSignupResDTO;
 
 public interface MemberService {
     MemberSignupResDTO signup(MemberSignupReqDTO request);
+
+    void approveMember(Long memberId);
+
+    void rejectMember(Long memberId);
 }
