@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Builder;
 
 @Entity
 @Getter
@@ -19,6 +20,7 @@ public class Member extends BaseEntity {
     @Column(name = "member_id")
     private Long id;
 
+    /** ===== [회원가입 시 입력 받는 필드] ===== */
     @Column(nullable = false)
     private String name;
 
@@ -35,6 +37,7 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private String phoneNumber;
 
+    /** ===== [시스템/운영자가 관리하는 필드] ===== */
     private Integer activityScore;
 
     @Enumerated(EnumType.STRING)
@@ -51,8 +54,35 @@ public class Member extends BaseEntity {
 
     private boolean activityStatus; // 활동/비활동 여부
 
+    /** ===== [도메인 로직 메서드] ===== */
     public boolean isYB() {
         return memberType == MemberType.YB;
     }
+
+    @Builder
+    public Member(String name,
+                  String profileImageUrl,
+                  String university,
+                  String graduateSchool,
+                  String email,
+                  String phoneNumber,
+                  MemberStatus status,
+                  MemberRole role,
+                  MemberType memberType,
+                  boolean activityStatus) {
+        this.name = name;
+        this.profileImageUrl = profileImageUrl;
+        this.university = university;
+        this.graduateSchool = graduateSchool;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.status = status;
+        this.role = role;
+        this.memberType = memberType;
+        this.activityStatus = activityStatus;
+        this.activityScore = 0; // 기본값
+    }
+
+
 
 }
