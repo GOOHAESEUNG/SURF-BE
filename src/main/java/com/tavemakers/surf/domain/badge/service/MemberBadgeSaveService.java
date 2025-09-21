@@ -5,6 +5,7 @@ import com.tavemakers.surf.domain.badge.entity.MemberBadge;
 import com.tavemakers.surf.domain.badge.repository.MemberBadgeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -15,6 +16,7 @@ public class MemberBadgeSaveService {
 
     private final MemberBadgeRepository memberBadgeRepository;
 
+    @Transactional
     public void saveMemberBadgeList(MemberBadgeReqDTO dto) {
         List<MemberBadge> badgeList = new LinkedList<>();
         dto.memberIdList().forEach(
