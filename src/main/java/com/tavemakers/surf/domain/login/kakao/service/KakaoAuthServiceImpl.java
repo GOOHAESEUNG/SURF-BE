@@ -29,7 +29,9 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
                 + "&client_id=" + props.getClientId()
                 + "&redirect_uri=" + props.getRedirectUri()
                 + "&scope=account_email profile_nickname profile_image";
+
     }
+
 
     @Override
     public Mono<KakaoTokenResponseDto> exchangeCodeForToken(String code) {

@@ -46,7 +46,7 @@ public enum ActivityType {
     NO_SHOW_AFTER_PARTY("뒷풀이 불참", -10, PENALTY);
 
     private String displayName;
-    private Integer score;
+    private Integer delta;
     private ScoreType scoreType;
 
 }

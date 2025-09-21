@@ -21,6 +21,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-security")
 
+    // TSID
+    implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.8.3")
+
     // Validation
     implementation("org.springframework.boot:spring-boot-starter-validation:3.5.4")
 
@@ -37,6 +40,12 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+    testImplementation ("org.junit.jupiter:junit-jupiter-api:5.10.1")
+
+    implementation ("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+
+
 }
 
 
