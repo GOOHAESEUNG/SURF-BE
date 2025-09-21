@@ -34,7 +34,10 @@ public class MemberSearchController {
     public ApiResponse<List<MemberSearchResDTO>> searchMemberByName(
             @RequestParam @NotBlank(message = "검색어(name)은 필수입니다.") String name) {
 
-        return ApiResponse.response(HttpStatus.OK,,memberUsecase.findMemberByNameAndTrack(name));
+        return ApiResponse.response(
+                HttpStatus.OK,
+                ResponseMessage.MEMBER_GROUP_SUCCESS.getFormattedMessage(name),
+                memberUsecase.findMemberByNameAndTrack(name));
     }
 
     //유저 전체 출력시 트랙+기수별 묶어서 출력
@@ -43,7 +46,9 @@ public class MemberSearchController {
             description = "활동 중인 회원 전체 출력시 트랙+기수별로 출력")
     @GetMapping("/grouped-by-track")
     public ApiResponse<Map<String, List<MemberSimpleResDto>>> getGroupedMembers() {
-        Map<String, List<MemberSimpleResDto>> groupedMembers = memberUsecase.getMembersGroupedByTrack();
-        return ResponseEntity.ok(groupedMembers);
+        return ApiResponse.response(
+                HttpStatus.OK,
+                ResponseMessage.MEMBER_GROUP_SUCCESS.getMessage(),
+                memberUsecase.getMembersGroupedByTrack());
     }
 }
