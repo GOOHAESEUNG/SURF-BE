@@ -7,4 +7,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ActivityCategory {
     // 미정
+    NOTHING
 }
