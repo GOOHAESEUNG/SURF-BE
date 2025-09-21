@@ -5,6 +5,7 @@ import com.tavemakers.surf.domain.member.dto.MemberSimpleResDto;
 import com.tavemakers.surf.domain.member.usecase.MemberUsecase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +29,8 @@ public class MemberSearchController {
             summary = "이름 기반 회원 조회",
             description = "파라미터로 특정 이름을 받아 해당하는 회원 리스트를 반환합니다.")
     @GetMapping("/search")
-    public ResponseEntity<List<MemberSearchResDTO>> searchMemberByName(@RequestParam String name) {
+    public ResponseEntity<List<MemberSearchResDTO>> searchMemberByName(
+            @RequestParam @NotBlank(message = "검색어(name)은 필수입니다.") String name) {
         return ResponseEntity.ok(memberUsecase.findMemberByNameAndTrack(name));
     }
 
