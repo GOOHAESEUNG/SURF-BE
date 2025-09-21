@@ -49,4 +49,24 @@ public class MemberServiceImpl implements MemberService {
         // 5) 응답 DTO 변환
         return MemberSignupResDTO.from(saved);
     }
+
+    /** 회원 승인 */
+    @Override
+    @Transactional
+    public void approveMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다. id=" + memberId));
+
+        member.approve();
+    }
+
+    /** 회원 거절 */
+    @Override
+    @Transactional
+    public void rejectMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다. id=" + memberId));
+
+        member.reject();
+    }
 }
