@@ -16,7 +16,7 @@ public class MemberSignupResDTO {
     private String profileImageUrl;
 
     // 정적 팩토리 메서드
-    public static MemberSignupResDTO of(Member member) {
+    public static MemberSignupResDTO from(Member member) {
         return new MemberSignupResDTO(
                 member.getId(),
                 member.getName(),
