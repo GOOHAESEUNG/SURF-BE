@@ -1,9 +1,11 @@
 package com.tavemakers.surf.domain.score.entity;
 
+import java.math.BigDecimal;
+
 public interface ScoreComputable {
 
-    double getScore();
+    BigDecimal getScore();
 
-    double updateScore(double score);
+    BigDecimal updateScore(BigDecimal score);
 
 }
