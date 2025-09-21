@@ -6,9 +6,12 @@ import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.tavemakers.surf.domain.member.exception.MemberAlreadyExistsException;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.entity.enums.MemberRole;
+import java.util.Locale;
+import org.springframework.dao.DataIntegrityViolationException;
 
 
 @Service
@@ -17,31 +20,33 @@ public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
 
-    @Override
+    @Transactional
     public MemberSignupResDTO signup(MemberSignupReqDTO request) {
 
-        // 1. 중복 가입을 막기 위한 이메일 중복 체크
-        if (memberRepository.existsByEmail(request.getEmail())) {
+        // 1) 이메일 입력 정규화
+        final String normalizedEmail = request.getEmail().trim().toLowerCase(Locale.ROOT);
+        final String normalizedPhone = request.getPhoneNumber() == null
+                        ? null
+                        : request.getPhoneNumber().replaceAll("\\D", ""); // 하이픈 등 제거
+
+        // 2) 중복 체크 (정규화된 이메일 기준)
+        if (memberRepository.existsByEmail(normalizedEmail)) {
             throw new MemberAlreadyExistsException();
         }
 
-        // 2. Member 엔티티 생성
-        Member member = Member.builder()
-                .name(request.getName())
-                .university(request.getUniversity())
-                .graduateSchool(request.getGraduateSchool())
-                .email(request.getEmail())
-                .phoneNumber(request.getPhoneNumber())
-                .profileImageUrl(request.getProfileImageUrl())
-                .status(MemberStatus.WAITING)   // 자동
-                .role(MemberRole.MEMBER)        // 자동
-                .activityStatus(true)           // 자동
-                .build();
+        // 3) Member 엔티티 생성
+        Member member = Member.create(request, normalizedEmail, normalizedPhone);
 
-        // 3. DB 저장
-        Member saved = memberRepository.save(member);
+        // 4) DB 저장 (+ 최종 방어막: 유니크 위반 캐치)
+       Member saved;
+        try {
+            saved = memberRepository.save(member);
+        } catch (DataIntegrityViolationException e) {
+            // 이메일 유니크 제약 위반 등
+                    throw new MemberAlreadyExistsException();
+        }
 
-        // 4. 응답 DTO 변환
-        return MemberSignupResDTO.of(saved);
+        // 5) 응답 DTO 변환
+        return MemberSignupResDTO.from(saved);
     }
 }
