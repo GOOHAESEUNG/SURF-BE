@@ -1,7 +1,7 @@
 package com.tavemakers.surf.domain.member.service;
 
-import com.tavemakers.surf.domain.member.dto.request.MemberSignupRequest;
-import com.tavemakers.surf.domain.member.dto.response.MemberSignupResponse;
+import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
+import com.tavemakers.surf.domain.member.dto.response.MemberSignupResDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
 
     @Override
-    public MemberSignupResponse signup(MemberSignupRequest request) {
+    public MemberSignupResDTO signup(MemberSignupReqDTO request) {
 
         // 1. 중복 가입을 막기 위한 이메일 중복 체크
         if (memberRepository.existsByEmail(request.getEmail())) {
@@ -42,6 +42,6 @@ public class MemberServiceImpl implements MemberService {
         Member saved = memberRepository.save(member);
 
         // 4. 응답 DTO 변환
-        return MemberSignupResponse.of(saved);
+        return MemberSignupResDTO.of(saved);
     }
 }

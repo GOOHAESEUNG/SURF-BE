@@ -1,8 +1,8 @@
 package com.tavemakers.surf.domain.member.service;
 
-import com.tavemakers.surf.domain.member.dto.request.MemberSignupRequest;
-import com.tavemakers.surf.domain.member.dto.response.MemberSignupResponse;
+import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
+import com.tavemakers.surf.domain.member.dto.response.MemberSignupResDTO;
 
 public interface MemberService {
-    MemberSignupResponse signup(MemberSignupRequest request);
+    MemberSignupResDTO signup(MemberSignupReqDTO request);
 }

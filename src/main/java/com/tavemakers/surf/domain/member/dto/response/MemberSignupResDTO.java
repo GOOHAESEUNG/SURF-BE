@@ -6,7 +6,7 @@ import com.tavemakers.surf.domain.member.entity.Member;
 
 @Getter
 @AllArgsConstructor
-public class MemberSignupResponse {
+public class MemberSignupResDTO {
     private Long memberId;
     private String name;
     private String email;
@@ -16,8 +16,8 @@ public class MemberSignupResponse {
     private String profileImageUrl;
 
     // 정적 팩토리 메서드
-    public static MemberSignupResponse of(Member member) {
-        return new MemberSignupResponse(
+    public static MemberSignupResDTO of(Member member) {
+        return new MemberSignupResDTO(
                 member.getId(),
                 member.getName(),
                 member.getEmail(),
