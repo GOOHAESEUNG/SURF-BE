@@ -6,9 +6,13 @@ import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MemberGetService {
 
     private final MemberRepository memberRepository;
@@ -17,5 +21,12 @@ public class MemberGetService {
         return memberRepository.findByIdAndStatus(memberId, MemberStatus.APPROVED)
                 .orElseThrow(MemberNotFoundException::new);
     }
+
+    //회원 조회 - 이름 기반 - ID 리스트 반환
+    public List<Member> getMemberByName(String name) {
+        return memberRepository.findByActivityStatusAndName(true, name);
+
+    }
+
 
 }

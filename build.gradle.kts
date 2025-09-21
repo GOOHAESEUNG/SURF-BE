@@ -39,6 +39,12 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+    testImplementation ("org.junit.jupiter:junit-jupiter-api:5.10.1")
+
+    implementation ("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+
+
 }
 
 
