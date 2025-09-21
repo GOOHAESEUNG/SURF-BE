@@ -30,7 +30,8 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
                 + "&redirect_uri=" + props.getRedirectUri()
                 + "&scope=account_email profile_nickname profile_image";
 
-}
+    }
+
 
     @Override
     public Mono<KakaoTokenResponseDto> exchangeCodeForToken(String code) {

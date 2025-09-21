@@ -21,6 +21,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-security")
 
+    // TSID
+    implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.8.3")
+
     // Validation
     implementation("org.springframework.boot:spring-boot-starter-validation:3.5.4")
 
