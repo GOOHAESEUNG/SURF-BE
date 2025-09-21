@@ -1,7 +1,7 @@
 package com.tavemakers.surf.domain.member.usecase;
 
 import com.tavemakers.surf.domain.member.dto.MemberSearchResDTO;
-import com.tavemakers.surf.domain.member.dto.MemberSimpleResDto;
+import com.tavemakers.surf.domain.member.dto.MemberSimpleResDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.Track;
 import com.tavemakers.surf.domain.member.exception.TrackNotFoundException;
@@ -62,12 +62,12 @@ public class MemberUsecase {
     }
 
     //트랙+기수별 회원을 묶어 반환
-    public Map<String, List<MemberSimpleResDto>> getMembersGroupedByTrack() {
+    public Map<String, List<MemberSimpleResDTO>> getMembersGroupedByTrack() {
         return trackGetService.getAllTracksWithMember().stream()
                 .collect(Collectors.groupingBy(
                         track -> track.getPart().name() + "_" + track.getGeneration() + "기",
                         Collectors.mapping(
-                                track -> MemberSimpleResDto.from(track.getMember()),
+                                track -> MemberSimpleResDTO.from(track.getMember()),
                                 Collectors.toList()
                         )
                 ));

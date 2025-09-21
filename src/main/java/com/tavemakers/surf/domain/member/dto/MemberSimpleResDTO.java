@@ -6,12 +6,12 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class MemberSimpleResDto {
+public class MemberSimpleResDTO {
     private final Long memberId;
     private final String name;
 
-    public static MemberSimpleResDto from(Member member) {
-        return MemberSimpleResDto.builder()
+    public static MemberSimpleResDTO from(Member member) {
+        return MemberSimpleResDTO.builder()
                 .memberId(member.getId())
                 .name(member.getName())
                 .build();
