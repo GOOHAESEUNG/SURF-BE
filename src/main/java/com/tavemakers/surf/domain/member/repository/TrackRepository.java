@@ -25,4 +25,6 @@ public interface TrackRepository extends JpaRepository<Track, Long> {
      */
     @Query("SELECT t FROM Track t JOIN FETCH t.member m WHERE m.activityStatus = true")
     List<Track> findAllWithActiveMember();
+
+    List<Track> findByMemberId(Long memberId);
 }
