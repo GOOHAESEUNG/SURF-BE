@@ -27,7 +27,6 @@ public class MemberUsecase {
     // 여러 명의 회원을 조회하고, 각 회원의 트랙 정보를 DTO로 반환하는 메소드
     public List<MemberSearchResDTO> findMemberByNameAndTrack(String name) {
         List<Member> members = memberGetService.getMemberByName(name);
-
         if (members.isEmpty()) {
             return List.of();
         }
