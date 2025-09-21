@@ -39,7 +39,8 @@ public class Member extends BaseEntity {
     private String phoneNumber;
 
     /** ===== [시스템/운영자가 관리하는 필드] ===== */
-    private Integer activityScore;
+    @Column(nullable = false)
+    private int activityScore;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
