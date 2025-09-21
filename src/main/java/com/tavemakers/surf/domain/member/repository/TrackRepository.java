@@ -3,15 +3,21 @@ package com.tavemakers.surf.domain.member.repository;
 import com.tavemakers.surf.domain.member.entity.Track;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface TrackRepository extends JpaRepository<Track, Long> {
 
-    //특정 memberId를 가진 트랙들을 generation(기수) 기준으로 내림차순 정렬하여
-    //가장 첫 번째(최신) 트랙을 조회합니다.
-    Optional<Track> findTopByMemberIdOrderByGenerationDesc(Long memberId);
+    /**
+     * 주어진 회원 ID 리스트에 대해, 각 회원의 '가장 최신 기수' 트랙만 조회합니다.
+     * @param memberIds 조회할 회원들의 ID 리스트
+     * @return 각 회원의 최신 트랙 리스트
+     */
+    @Query("SELECT t FROM Track t WHERE t.member.id IN :memberIds " +
+            "AND t.generation = (SELECT MAX(t2.generation) FROM Track t2 WHERE t2.member = t.member)")
+    List<Track> findLatestTracksByMemberIds(@Param("memberIds") List<Long> memberIds);
 
     // Track을 조회할 때 연관된 현재 활동 중인 Member도 함께 조회하여 N+1 문제를 방지
     @Query("SELECT t FROM Track t JOIN FETCH t.member m WHERE m.activityStatus = true")

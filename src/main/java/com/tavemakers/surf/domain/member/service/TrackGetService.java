@@ -17,9 +17,8 @@ public class TrackGetService {
     private final TrackRepository trackRepository;
 
     //유저의 가장 최신 기수 트랙을 가져옴
-    public Track getTrack(Long memberId) {
-        return trackRepository.findTopByMemberIdOrderByGenerationDesc(memberId)
-                .orElseThrow(TrackNotFoundException::new);
+    public List<Track> getTrack(List<Long> memberIds) {
+        return trackRepository.findLatestTracksByMemberIds(memberIds);
     }
 
     //트랙과 함께 모든 회원 반환
