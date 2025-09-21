@@ -24,7 +24,7 @@ public class MemberGetService {
 
     //회원 조회 - 이름 기반 - ID 리스트 반환
     public List<Member> getMemberByName(String name) {
-        return memberRepository.findByActivityStatusAndName(true,name);
+        return memberRepository.findByActivityStatusAndName(true, name);
 
     }
 
