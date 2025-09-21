@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,17 +20,29 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
 
+    // 인증 없이 접근 가능한 URL 정의
+    private static final String[] PERMITTED_URLS = {
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/kakao/login",
+            "/login/oauth2/code/kakao",
+            "/login/**",
+            "/api/members/signup",
+            "/api/members/**"  //postman 테스트 후 삭제 예정
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable()) // JWT 사용 시 CSRF 비활성화
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login/**", "/api/members/signup").permitAll() // 로그인, 회원가입은 모두 허용
-                        .requestMatchers("/admin/**").hasRole("ADMIN") // 관리자 페이지 접근 제한 예시
+                        .requestMatchers(PERMITTED_URLS).permitAll() // 허용 URL
+                        .requestMatchers("/admin/**").hasRole("ADMIN") // 관리자만 접근
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable()) // 우리는 소셜 로그인 + JWT 사용 → formLogin 비활성화
-                .httpBasic(basic -> basic.disable()); // Basic Auth도 비활성화
+                .httpBasic(basic -> basic.disable()) // Basic Auth 비활성화
+                .headers(h -> h.frameOptions(f -> f.disable())); // H2 console 접근 허용 필요 시
 
         return http.build();
     }
