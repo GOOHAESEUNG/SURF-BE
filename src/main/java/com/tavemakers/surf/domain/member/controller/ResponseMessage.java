@@ -9,7 +9,10 @@ public enum ResponseMessage {
 
     // 이름 규칙 변경 및 메시지에 Placeholder(%s) 추가
     MEMBER_SEARCH_SUCCESS("'%s'(으)로 활동 중인 회원을 조회했습니다."),
-    MEMBER_GROUP_SUCCESS("트랙별로 현재 활동 중인 회원을 조회했습니다.");
+    MEMBER_GROUP_SUCCESS("트랙별로 현재 활동 중인 회원을 조회했습니다."),
+
+    // 프로필 조회
+    MYPAGE_PROFILE_READ("마이페이지에서 [프로필 정보]를 조회합니다.");
 
     private final String message;
 
