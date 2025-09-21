@@ -40,11 +40,11 @@ public class Member extends BaseEntity {
 
     /** ===== [시스템/운영자가 관리하는 필드] ===== */
     @Column(nullable = false)
-    private int activityScore;
+    private int activityScore = 0;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private MemberStatus status; // 회원 상태 (가입중, 대기중, 승인)
+    private MemberStatus status = MemberStatus.WAITING; // 회원 상태; // 회원 상태 (가입중, 대기중, 승인)
 
     private String kakaoId; // 카카오 ID는 보통 문자열로 관리
 
@@ -59,6 +59,14 @@ public class Member extends BaseEntity {
     /** ===== [도메인 로직 메서드] ===== */
     public boolean isYB() {
         return memberType == MemberType.YB;
+    }
+
+    public void approve() {
+        this.status = MemberStatus.APPROVED;
+    }
+
+    public void reject() {
+        this.status = MemberStatus.REJECTED;
     }
 
     @Builder
