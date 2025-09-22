@@ -62,10 +62,18 @@ public class Member extends BaseEntity {
     }
 
     public void approve() {
+        if (this.status == MemberStatus.APPROVED) return; // idempotent
+        if (this.status != MemberStatus.WAITING && this.status != MemberStatus.REGISTERING) {
+                throw new IllegalStateException("현재 상태(" + this.status + ")에서 승인할 수 없습니다.");
+            }
         this.status = MemberStatus.APPROVED;
     }
 
     public void reject() {
+        if (this.status == MemberStatus.REJECTED) return; // idempotent
+        if (this.status != MemberStatus.WAITING && this.status != MemberStatus.REGISTERING) {
+                throw new IllegalStateException("현재 상태(" + this.status + ")에서 거절할 수 없습니다.");
+            }
         this.status = MemberStatus.REJECTED;
     }
 
