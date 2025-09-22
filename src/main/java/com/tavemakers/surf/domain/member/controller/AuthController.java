@@ -60,8 +60,11 @@ public class AuthController {
                                     // body에는 accessToken + nickname만 내려줌
                                     LoginResDto loginRes = LoginResDto.of(
                                             token.accessToken(),
-                                            userInfo.kakaoAccount().profile().nickname()
+                                            userInfo.kakaoAccount().profile().nickname(),
+                                            userInfo.kakaoAccount().email(),
+                                            userInfo.kakaoAccount().profile().profileImageUrl()
                                     );
+
                                     return ApiResponse.response(HttpStatus.OK, "로그인 성공", loginRes);
                                 })
                 );

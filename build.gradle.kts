@@ -33,7 +33,8 @@ dependencies {
     // MySQL
     runtimeOnly("com.mysql:mysql-connector-j")
 
-
+    // .env 자동 로딩
+    implementation("me.paulschwarz:spring-dotenv:3.0.0")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
