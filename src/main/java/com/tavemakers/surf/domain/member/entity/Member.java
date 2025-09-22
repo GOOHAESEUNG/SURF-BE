@@ -21,7 +21,6 @@ public class Member extends BaseEntity {
     @Column(name = "member_id")
     private Long id;
 
-    /** ===== [회원가입 시 입력 받는 필드] ===== */
     @Column(nullable = false)
     private String name;
 
@@ -38,9 +37,7 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private String phoneNumber;
 
-    /** ===== [시스템/운영자가 관리하는 필드] ===== */
-    @Column(nullable = false)
-    private int activityScore;
+    private Integer activityScore;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -56,9 +53,12 @@ public class Member extends BaseEntity {
 
     private boolean activityStatus; // 활동/비활동 여부
 
-    /** ===== [도메인 로직 메서드] ===== */
     public boolean isYB() {
         return memberType == MemberType.YB;
+    }
+
+    public boolean isActive() {
+        return activityStatus;
     }
 
     @Builder
