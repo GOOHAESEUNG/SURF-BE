@@ -20,10 +20,13 @@ public interface TrackRepository extends JpaRepository<Track, Long> {
     List<Track> findLatestTracksByMemberIds(@Param("memberIds") List<Long> memberIds);
 
     /**
-     * Track을 조회할 때 연관된 현재 활동 중인 Member도 함께 조회하여 N+1 문제를 방지
-     * @return 현재 활동 중인 회원 전체 + 트랙 리스트
+     * Track을 조회할 때 연관된 현재 활동 중인 Member도 함께 조회하되,
+     * 각 회원의 '가장 최신 기수' 트랙만 조회하여 N+1 문제를 방지
+     * @return 현재 활동 중인 회원들의 최신 트랙 리스트
      */
-    @Query("SELECT t FROM Track t JOIN FETCH t.member m WHERE m.activityStatus = true")
+    @Query("SELECT t FROM Track t JOIN FETCH t.member m " +
+            "WHERE m.activityStatus = true " +
+            "AND t.generation = (SELECT MAX(t2.generation) FROM Track t2 WHERE t2.member = t.member)")
     List<Track> findAllWithActiveMember();
 
     List<Track> findByMemberId(Long memberId);

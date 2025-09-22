@@ -10,16 +10,21 @@ import lombok.Builder;
 @Builder
 public record LoginResDto(
         String accessToken,
-        String nickname
+        String nickname,
+        String email,
+        String profileImageUrl
 ) {
     /**
      * 정적 팩토리 메서드
      * - accessToken + nickname → LoginResDto 변환
      */
-    public static LoginResDto of(String accessToken, String nickname) {
+    public static LoginResDto of(String accessToken, String nickname, String email, String profileImageUrl) {
         return LoginResDto.builder()
                 .accessToken(accessToken)
                 .nickname(nickname)
+                .email(email)
+                .profileImageUrl(profileImageUrl)
                 .build();
+
     }
 }

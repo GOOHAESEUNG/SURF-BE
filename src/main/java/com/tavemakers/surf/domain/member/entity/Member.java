@@ -1,6 +1,7 @@
 package com.tavemakers.surf.domain.member.entity;
 
 import com.tavemakers.surf.global.common.entity.BaseEntity;
+import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.entity.enums.MemberType;
 import com.tavemakers.surf.domain.member.entity.enums.MemberRole;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
@@ -8,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Builder;
 
 @Entity
 @Getter
@@ -58,5 +60,49 @@ public class Member extends BaseEntity {
     public boolean isActive() {
         return activityStatus;
     }
+
+    @Builder
+    public Member(String name,
+                  String profileImageUrl,
+                  String university,
+                  String graduateSchool,
+                  String email,
+                  String phoneNumber,
+                  MemberStatus status,
+                  MemberRole role,
+                  MemberType memberType,
+                  boolean activityStatus) {
+        this.name = name;
+        this.profileImageUrl = profileImageUrl;
+        this.university = university;
+        this.graduateSchool = graduateSchool;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.status = status;
+        this.role = role;
+        this.memberType = memberType;
+        this.activityStatus = activityStatus;
+        this.activityScore = 0; // 기본값
+    }
+
+    /** ===== [정적 팩토리 메서드] ===== */
+    public static Member create(MemberSignupReqDTO request,
+                                String normalizedEmail,
+                                String normalizedPhone) {
+        return Member.builder()
+                .name(request.getName())
+                .university(request.getUniversity())
+                .graduateSchool(request.getGraduateSchool())
+                .email(normalizedEmail)
+                .phoneNumber(normalizedPhone)
+                .profileImageUrl(request.getProfileImageUrl())
+                .status(MemberStatus.WAITING)   // 기본값
+                .role(MemberRole.MEMBER)        // 기본값
+                .memberType(MemberType.YB)      // 예시: 회원가입 시 기본 YB
+                .activityStatus(true)           // 기본값
+                .build();
+    }
+
+
 
 }
