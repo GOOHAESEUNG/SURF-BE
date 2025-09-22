@@ -19,4 +19,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     //현재 활동 중 + 특정 이름을 가진 회원 리스트 반환
     List<Member> findByActivityStatusAndName(Boolean activityStatus, String name);
+
+    Optional<Member> findByEmailAndStatus(String email, MemberStatus status);
 }
