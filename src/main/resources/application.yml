@@ -15,6 +15,12 @@ spring:
           batch_size: 50
         order_inserts: true
         order_updates: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+
 
 kakao:
   client-id: ${KAKAO_CLIENT_ID}
@@ -32,3 +38,4 @@ jwt:
   refresh:
     expiration: 86400000 # 1 day
     header: RefreshToken
+
