@@ -27,8 +27,7 @@ public class SecurityConfig {
             "/kakao/login",
             "/login/oauth2/code/kakao",
             "/login/**",
-            "/api/members/signup",
-            "/api/members/**"  //postman 테스트 후 삭제 예정
+            "/api/members/signup"
     };
 
     @Bean
