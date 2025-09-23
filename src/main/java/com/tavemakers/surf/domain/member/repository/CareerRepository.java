@@ -12,4 +12,7 @@ import java.util.Set;
 public interface CareerRepository extends JpaRepository<Career,Long> {
 
     List<Career> findAllByMemberAndIdIn(Member member,  Set<Long> ids);
+
+    List<Career> findAllByMemberAndIdIn(Member member,  List<Long> ids);
+
 }

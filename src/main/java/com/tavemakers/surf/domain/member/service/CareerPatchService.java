@@ -25,17 +25,17 @@ public class CareerPatchService {
                 .map(CareerUpdateReqDTO::getCareerId)
                 .collect(Collectors.toSet());
 
-        List<Career> validCareers = careerRepository.findAllByMemberAndIdIn(member, requestedIds);
+        List<Career> CareersToUpdate = careerRepository.findAllByMemberAndIdIn(member, requestedIds);
 
-        if (validCareers.size() != requestedIds.size()) {
-            Set<Long> validIds = validCareers.stream()
+        if (CareersToUpdate.size() != requestedIds.size()) {
+            Set<Long> validIds = CareersToUpdate.stream()
                     .map(Career::getId)
                     .collect(Collectors.toSet());
             requestedIds.removeAll(validIds);
             throw new CareerNotFoundException("잘못되었거나 권한이 없는 경력 ID: " + requestedIds);
         }
 
-        Map<Long, Career> validCareerMap = validCareers.stream()
+        Map<Long, Career> validCareerMap = CareersToUpdate.stream()
                 .collect(Collectors.toMap(Career::getId, career -> career));
 
         dtos.forEach(dto -> {
