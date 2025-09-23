@@ -28,4 +28,10 @@ public class Track extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    public Track(Integer generation, Part part, Member member) {
+        this.generation = generation;
+        this.part = part;
+        this.member = member;
+    }
+
 }
