@@ -3,8 +3,10 @@ package com.tavemakers.surf.domain.member.service;
 import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.dto.response.MemberSignupResDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
+import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.tavemakers.surf.domain.member.exception.MemberAlreadyExistsException;
@@ -53,9 +55,10 @@ public class MemberServiceImpl implements MemberService {
     /** 회원 승인 */
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void approveMember(Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다. id=" + memberId));
+                .orElseThrow(() -> new MemberNotFoundException(memberId));
 
         member.approve();
     }
@@ -63,9 +66,10 @@ public class MemberServiceImpl implements MemberService {
     /** 회원 거절 */
     @Override
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public void rejectMember(Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("회원이 존재하지 않습니다. id=" + memberId));
+                .orElseThrow(() -> new MemberNotFoundException(memberId));
 
         member.reject();
     }
