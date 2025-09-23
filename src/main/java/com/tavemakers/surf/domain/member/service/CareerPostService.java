@@ -6,6 +6,7 @@ import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.repository.CareerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class CareerPostService {
     private final CareerRepository careerRepository;
 
     //경력 신규 생성
+    @Transactional
     public void createCareer(Member member, List<CareerCreateReqDTO> dtos){
         List<Career> newCareers = dtos.stream()
                 .map(dto->Career.from(dto,member))
