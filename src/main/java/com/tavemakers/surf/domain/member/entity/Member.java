@@ -135,5 +135,16 @@ public class Member extends BaseEntity {
         if (this.status == MemberStatus.REGISTERING) {
             this.status = MemberStatus.WAITING;
         }
+
+
+    }
+
+    /** ===== [도메인 행위 메서드] ===== */
+    public void approve() {
+        this.status = MemberStatus.APPROVED;
+    }
+
+    public void reject() {
+        this.status = MemberStatus.REJECTED;
     }
 }
