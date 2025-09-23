@@ -4,6 +4,7 @@ import com.tavemakers.surf.domain.login.AuthService;
 import com.tavemakers.surf.domain.login.LoginResDto;
 import com.tavemakers.surf.domain.login.kakao.dto.KakaoTokenResponseDto;
 import com.tavemakers.surf.domain.login.kakao.dto.KakaoUserInfoDto;
+import com.tavemakers.surf.global.common.exception.UnauthorizedException;
 import com.tavemakers.surf.global.common.response.ApiResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
+import com.tavemakers.surf.domain.member.entity.Member;
+import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
+import com.tavemakers.surf.domain.member.repository.MemberRepository;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -23,6 +27,7 @@ import java.time.Duration;
 public class AuthController {
 
     private final AuthService<KakaoTokenResponseDto, KakaoUserInfoDto> kakaoAuthService;
+    private final MemberRepository memberRepository;  // 👈 추가
 
     /**
      * 1) 카카오 인가 화면으로 리다이렉트
@@ -47,7 +52,13 @@ public class AuthController {
                 .flatMap(token ->
                         kakaoAuthService.getUserInfo(token.accessToken())
                                 .map(userInfo -> {
-                                    // refreshToken → HttpOnly + Secure 쿠키 저장
+                                    // 1) DB에서 회원 조회 + APPROVED 검증
+                                    Member member = memberRepository.findByEmailAndStatus(
+                                            userInfo.kakaoAccount().email(),
+                                            MemberStatus.APPROVED
+                                    ).orElseThrow(() -> new UnauthorizedException("관리자 승인이 필요합니다."));
+
+                                    // 2) refreshToken → HttpOnly + Secure 쿠키 저장
                                     ResponseCookie cookie = ResponseCookie.from("refresh_token", token.refreshToken())
                                             .httpOnly(true)
                                             .secure(true)
@@ -57,16 +68,17 @@ public class AuthController {
                                             .build();
                                     response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-                                    // body에는 accessToken + nickname만 내려줌
+                                    // 3) body에는 accessToken + nickname만 내려줌
                                     LoginResDto loginRes = LoginResDto.of(
                                             token.accessToken(),
-                                            userInfo.kakaoAccount().profile().nickname(),
-                                            userInfo.kakaoAccount().email(),
-                                            userInfo.kakaoAccount().profile().profileImageUrl()
+                                            member.getName(), // DB 정보 기반
+                                            member.getEmail(),
+                                            member.getProfileImageUrl()
                                     );
 
                                     return ApiResponse.response(HttpStatus.OK, "로그인 성공", loginRes);
                                 })
                 );
     }
+
 }
