@@ -1,5 +1,6 @@
 package com.tavemakers.surf.domain.member.entity;
 
+import com.tavemakers.surf.domain.login.kakao.dto.KakaoUserInfoDto;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
 import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.entity.enums.MemberType;
@@ -26,7 +27,6 @@ public class Member extends BaseEntity {
 
     private String profileImageUrl;
 
-    @Column(nullable = false)
     private String university;
 
     private String graduateSchool;
@@ -34,7 +34,6 @@ public class Member extends BaseEntity {
     @Column(nullable = false, unique = true) // 이메일은 고유해야 함
     private String email;
 
-    @Column(nullable = false)
     private String phoneNumber;
 
     private Integer activityScore;
@@ -103,6 +102,38 @@ public class Member extends BaseEntity {
                 .build();
     }
 
+    public static Member createRegisteringFromKakao(KakaoUserInfoDto info) {
+        var acc = info.kakaoAccount();
 
+        if (acc == null || acc.email() == null || acc.email().isBlank()) {
+            throw new IllegalStateException("카카오 계정 이메일 권한이 필요합니다.");
+        }
 
+        return Member.builder()
+                .name(acc.profile().nickname())
+                .email(acc.email())
+                .profileImageUrl(acc.profile().profileImageUrl())
+                .status(MemberStatus.REGISTERING)
+                .role(MemberRole.MEMBER)
+                .memberType(MemberType.YB)
+                .activityStatus(true)
+                .build();
+    }
+
+    public void applySignup(MemberSignupReqDTO req, String normalizedPhone) {
+        this.name = req.getName();
+        this.university = req.getUniversity();
+        this.graduateSchool = req.getGraduateSchool();
+        this.phoneNumber = normalizedPhone;
+
+        // 기본 정책 보정 (비어있을 수 있는 값들)
+        if (this.role == null) this.role = MemberRole.MEMBER;
+        if (this.memberType == null) this.memberType = MemberType.YB;
+        this.activityStatus = true;
+
+        // 상태 전이: REGISTERING -> WAITING (또는 정책상 APPROVED)
+        if (this.status == MemberStatus.REGISTERING) {
+            this.status = MemberStatus.WAITING;
+        }
+    }
 }
