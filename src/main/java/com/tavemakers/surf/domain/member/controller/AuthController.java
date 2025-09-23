@@ -6,6 +6,7 @@ import com.tavemakers.surf.domain.login.kakao.dto.KakaoTokenResponseDto;
 import com.tavemakers.surf.domain.login.kakao.dto.KakaoUserInfoDto;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
+import com.tavemakers.surf.domain.member.service.MemberUpsertService;
 import com.tavemakers.surf.global.common.response.ApiResponse;
 import com.tavemakers.surf.global.jwt.JwtService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,7 +25,7 @@ public class AuthController {
 
     private final AuthService<KakaoTokenResponseDto, KakaoUserInfoDto> kakaoAuthService;
     private final JwtService jwtService;
-    private final MemberRepository memberRepository;
+    private final MemberUpsertService memberUpsertService;
 
     /**
      * 1) 카카오 인가 화면으로 리다이렉트
@@ -49,17 +50,8 @@ public class AuthController {
                 .flatMap(token ->
                         kakaoAuthService.getUserInfo(token.accessToken())
                                 .map(userInfo -> {
-
-                                    var account = userInfo.kakaoAccount();
-                                    String email = account.email();
-                                    String nickname = account.profile().nickname();
-                                    String profileImageUrl = account.profile().profileImageUrl();
-
                                     // 1) 회원 upsert: 없으면 REGISTERING 상태로 생성
-                                    Member member = memberRepository.findByEmail(email)
-                                            .orElseGet(() -> memberRepository.save(
-                                                    Member.createRegisteringFromKakao(userInfo)
-                                            ));
+                                    Member member = memberUpsertService.upsertRegisteringFromKakao(userInfo);
 
                                     // 2) 우리 JWT 발급 (subject=memberId, role 포함)
                                     String accessToken  = jwtService.createAccessToken(member.getId(), member.getRole().name());
@@ -67,6 +59,11 @@ public class AuthController {
 
                                     // 3) 헤더/쿠키로 토큰 전송 (refresh는 HttpOnly 쿠키)
                                     jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
+
+                                    var account = userInfo.kakaoAccount();
+                                    String email = account.email();
+                                    String nickname = account.profile().nickname();
+                                    String profileImageUrl = account.profile().profileImageUrl();
 
                                     // 4) 바디에는 accessToken + 프로필
                                     LoginResDto loginRes = LoginResDto.of(
