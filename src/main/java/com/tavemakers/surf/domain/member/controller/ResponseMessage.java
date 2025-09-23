@@ -12,7 +12,10 @@ public enum ResponseMessage {
     MEMBER_GROUP_SUCCESS("[트랙]별로 현재 활동 중인 [회원]을 조회했습니다."),
 
     // 프로필 조회
-    MYPAGE_PROFILE_READ("마이페이지에서 [프로필 정보]를 조회합니다.");
+    MYPAGE_PROFILE_READ("마이페이지에서 [프로필 정보]를 조회합니다."),
+
+    // 프로필 수정
+    MYPAGE_PROFILE_UPDATE_SUCCESS("마이페이지에서 [프로필 정보]를 수정했습니다.");
 
     private final String message;
 
