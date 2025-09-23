@@ -15,10 +15,7 @@ public class MemberPatchService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void updateProfile(Long memberId, ProfileUpdateRequestDTO request) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(MemberNotFoundException::new);
-
+    public void updateProfile(Member member, ProfileUpdateRequestDTO request) {
         member.updateProfile(request);
     }
 

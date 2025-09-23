@@ -1,16 +1,14 @@
 package com.tavemakers.surf.domain.member.usecase;
 
-import com.tavemakers.surf.domain.activity.service.ActivityRecordGetService;
 import com.tavemakers.surf.domain.member.dto.MemberSearchResDTO;
 import com.tavemakers.surf.domain.member.dto.MemberSimpleResDTO;
+import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateRequestDTO;
 import com.tavemakers.surf.domain.member.dto.response.MyPageProfileResDTO;
 import com.tavemakers.surf.domain.member.dto.response.TrackResDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.Track;
 import com.tavemakers.surf.domain.member.exception.TrackNotFoundException;
-import com.tavemakers.surf.domain.member.service.MemberGetService;
-import com.tavemakers.surf.domain.member.service.TrackGetService;
-import com.tavemakers.surf.domain.score.entity.PersonalActivityScore;
+import com.tavemakers.surf.domain.member.service.*;
 import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +27,11 @@ public class MemberUsecase {
     private final MemberGetService memberGetService;
     private final TrackGetService trackGetService;
     private final PersonalScoreGetService personalScoreGetService;
+    private final CareerPostService careerPostService;
+    private final CareerPatchService careerPatchService;
+    private final CareerDeleteService careerDeleteService;
+    private final MemberPatchService memberPatchService;
+    private final MemberUpsertService memberUpsertService;
 
     public MyPageProfileResDTO getMyPageAndProfile(Long memberId) {
         Member member = memberGetService.getMember(memberId);
@@ -85,4 +88,22 @@ public class MemberUsecase {
                 ));
     }
 
+    //프로필 수정
+    public void updateProfile(Long memberId, ProfileUpdateRequestDTO request) {
+        Member member = memberGetService.getMember(memberId);
+
+        memberPatchService.updateProfile(member, request);
+
+        if (request.getCareersToUpdate() != null) {
+            careerPatchService.updateCareer(member, request.getCareersToUpdate());
+        }
+
+        if (request.getCareerIdsToDelete() != null) {
+            careerDeleteService.deleteCareer(member, request.getCareerIdsToDelete());
+        }
+
+        if (request.getCareersToCreate() != null) {
+            careerPostService.createCareer(member, request.getCareersToCreate());
+        }
+    }
 }

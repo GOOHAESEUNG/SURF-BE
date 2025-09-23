@@ -18,6 +18,7 @@ public class CareerDeleteService {
 
     private final CareerRepository careerRepository;
 
+    //경력 삭제
     @Transactional
     public void deleteCareer(Member member, List<Long> careerIds){
 

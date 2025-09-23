@@ -25,7 +25,7 @@ public class ProfileUpdateRequestDTO {
     private List<CareerCreateReqDTO> careersToCreate;
 
     @Schema(description = "수정할 기존 경력 정보 리스트 (선택)")
-    private List<CareerCreateReqDTO> careersToUpdate;
+    private List<CareerUpdateReqDTO> careersToUpdate;
 
     @Schema(description = "삭제할 경력의 ID 리스트 (선택)")
     private List<Long> careerIdsToDelete;
