@@ -34,6 +34,7 @@ public class Career extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    //경력 수정
     public void update(CareerUpdateReqDTO dto){
         if(dto.getCompanyName() != null){
             this.companyName = dto.getCompanyName();
