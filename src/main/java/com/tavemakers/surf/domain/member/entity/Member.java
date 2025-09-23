@@ -1,5 +1,6 @@
 package com.tavemakers.surf.domain.member.entity;
 
+import com.tavemakers.surf.domain.login.kakao.dto.KakaoUserInfoDto;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
 import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.entity.enums.MemberType;
@@ -27,7 +28,6 @@ public class Member extends BaseEntity {
 
     private String profileImageUrl;
 
-    @Column(nullable = false)
     private String university;
 
     private String graduateSchool;
@@ -35,11 +35,9 @@ public class Member extends BaseEntity {
     @Column(nullable = false, unique = true) // 이메일은 고유해야 함
     private String email;
 
-    @Column(nullable = false)
     private String phoneNumber;
 
     /** ===== [시스템/운영자가 관리하는 필드] ===== */
-    @Column(nullable = false)
     private int activityScore;
 
     @Enumerated(EnumType.STRING)
@@ -103,6 +101,16 @@ public class Member extends BaseEntity {
                 .build();
     }
 
-
-
+    public static Member createRegisteringFromKakao(KakaoUserInfoDto info) {
+        var acc = info.kakaoAccount();
+        return Member.builder()
+                .name(acc.profile().nickname())
+                .email(acc.email())
+                .profileImageUrl(acc.profile().profileImageUrl())
+                .status(MemberStatus.REGISTERING)
+                .role(MemberRole.MEMBER)
+                .memberType(MemberType.YB)
+                .activityStatus(true)
+                .build();
+    }
 }
