@@ -32,14 +32,16 @@ public class MemberServiceImpl implements MemberService {
         // 2) 선조회
         Member member = memberRepository.findByEmail(normalizedEmail).orElse(null);
 
-        if (member != null) {
-            // 2-1) 이미 존재: REGISTERING이면 가입 정보 반영
-            if (member.getStatus() == MemberStatus.REGISTERING) {
-                member.applySignup(request, normalizedPhone); // ← 변경 감지로 업데이트
-                return MemberSignupResDTO.from(member);
-            }
-            // 2-2) 이미 가입 진행된 계정이면 예외
+        // 3) REGISTERING 상태만 가입 진행 허용
+        if (member.getStatus() != MemberStatus.REGISTERING) {
+            // 이미 WAITING/APPROVED 등인 경우
             throw new MemberAlreadyExistsException();
         }
+
+        // 4) 가입 정보 반영 (도메인 메서드가 상태 전이까지 수행)
+        member.applySignup(request, normalizedPhone);
+
+        // 5) 응답 변환 (영속 엔티티 → DTO)
+        return MemberSignupResDTO.from(member);
     }
 }
