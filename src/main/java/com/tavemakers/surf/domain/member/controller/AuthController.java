@@ -53,8 +53,12 @@ public class AuthController {
                         kakaoAuthService.getUserInfo(token.accessToken())
                                 .map(userInfo -> {
                                     // 1) DB에서 회원 조회 + APPROVED 검증
-                                    Member member = memberRepository.findByEmailAndStatus(
-                                            userInfo.kakaoAccount().email(),
+                                     String email = userInfo.kakaoAccount().email();
+                                     if (email == null || email.isBlank()) {
+                                             throw new UnauthorizedException("카카오 계정에서 이메일 제공 동의가 필요합니다.");
+                                         }
+                                     Member member = memberRepository.findByEmailAndStatus(
+                                                     email,
                                             MemberStatus.APPROVED
                                     ).orElseThrow(() -> new UnauthorizedException("관리자 승인이 필요합니다."));
 
