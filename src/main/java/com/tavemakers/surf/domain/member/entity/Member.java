@@ -103,6 +103,11 @@ public class Member extends BaseEntity {
 
     public static Member createRegisteringFromKakao(KakaoUserInfoDto info) {
         var acc = info.kakaoAccount();
+
+        if (acc == null || acc.email() == null || acc.email().isBlank()) {
+            throw new IllegalStateException("카카오 계정 이메일 권한이 필요합니다.");
+        }
+
         return Member.builder()
                 .name(acc.profile().nickname())
                 .email(acc.email())

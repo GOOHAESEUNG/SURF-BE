@@ -27,7 +27,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtService jwtService;
     private final MemberRepository memberRepository;
     private final RedisTemplate<String, String> redisTemplate;
@@ -45,7 +44,7 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable()) // 우리는 소셜 로그인 + JWT 사용 → formLogin 비활성화
                 .httpBasic(basic -> basic.disable()); // Basic Auth도 비활성화
 
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
