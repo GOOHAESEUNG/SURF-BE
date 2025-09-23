@@ -21,6 +21,10 @@ public class TrackGetService {
         return trackRepository.findLatestTracksByMemberIds(memberIds);
     }
 
+    public List<Track> getTrack(Long memberId) {
+        return trackRepository.findByMemberId(memberId);
+    }
+
     //트랙과 함께 모든 회원 반환
     public List<Track> getAllTracksWithMember() {
         return trackRepository.findAllWithActiveMember();

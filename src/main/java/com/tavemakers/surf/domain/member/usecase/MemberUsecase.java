@@ -1,15 +1,21 @@
 package com.tavemakers.surf.domain.member.usecase;
 
+import com.tavemakers.surf.domain.activity.service.ActivityRecordGetService;
 import com.tavemakers.surf.domain.member.dto.MemberSearchResDTO;
 import com.tavemakers.surf.domain.member.dto.MemberSimpleResDTO;
+import com.tavemakers.surf.domain.member.dto.response.MyPageProfileResDTO;
+import com.tavemakers.surf.domain.member.dto.response.TrackResDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.Track;
 import com.tavemakers.surf.domain.member.exception.TrackNotFoundException;
 import com.tavemakers.surf.domain.member.service.MemberGetService;
 import com.tavemakers.surf.domain.member.service.TrackGetService;
+import com.tavemakers.surf.domain.score.entity.PersonalActivityScore;
+import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +28,20 @@ public class MemberUsecase {
 
     private final MemberGetService memberGetService;
     private final TrackGetService trackGetService;
+    private final PersonalScoreGetService personalScoreGetService;
 
+    public MyPageProfileResDTO getMyPageAndProfile(Long memberId) {
+        Member member = memberGetService.getMember(memberId);
+        List<TrackResDTO> trackList = trackGetService.getTrack(memberId)
+                .stream().map(TrackResDTO::from).toList();
+
+        BigDecimal score = null;
+        if (member.isActive()) {
+            score = personalScoreGetService.getPersonalScore(memberId).getScore();
+        }
+
+        return MyPageProfileResDTO.of(member, trackList, score);
+    }
 
     // 여러 명의 회원을 조회하고, 각 회원의 트랙 정보를 DTO로 반환하는 메소드
     public List<MemberSearchResDTO> findMemberByNameAndTrack(String name) {

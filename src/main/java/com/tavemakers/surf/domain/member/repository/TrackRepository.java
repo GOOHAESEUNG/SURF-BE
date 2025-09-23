@@ -28,4 +28,6 @@ public interface TrackRepository extends JpaRepository<Track, Long> {
             "WHERE m.activityStatus = true " +
             "AND t.generation = (SELECT MAX(t2.generation) FROM Track t2 WHERE t2.member = t.member)")
     List<Track> findAllWithActiveMember();
+
+    List<Track> findByMemberId(Long memberId);
 }
