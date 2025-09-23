@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.tavemakers.surf.domain.member.exception.MemberAlreadyExistsException;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import java.util.Locale;
-
+import com.tavemakers.surf.domain.member.entity.Track;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +45,14 @@ public class MemberServiceImpl implements MemberService {
 
         // 5) 가입 정보 반영 (도메인 메서드가 상태 전이까지 수행)
         member.applySignup(request, normalizedPhone);
+
+        // 6) 트랙 정보 반영
+        var tracks = request.getTracks().stream()
+                .map(t -> new Track(t.getGeneration(), t.getPart(), member)) // 생성자 활용
+                .toList();
+
+        member.getTracks().clear();          // 기존 값 초기화 (재가입 시 중복 방지)
+        member.getTracks().addAll(tracks);   // 새로 받은 트랙 추가
 
         // 6) 응답 변환 (영속 엔티티 → DTO)
         return MemberSignupResDTO.from(member);
