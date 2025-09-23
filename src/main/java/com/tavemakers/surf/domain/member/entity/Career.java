@@ -1,5 +1,6 @@
 package com.tavemakers.surf.domain.member.entity;
 
+import com.tavemakers.surf.domain.member.dto.request.CareerUpdateReqDTO;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -32,5 +33,20 @@ public class Career extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
+
+    public void update(CareerUpdateReqDTO dto){
+        if(dto.getCompanyName() != null){
+            this.companyName = dto.getCompanyName();
+        }
+        if(dto.getPosition() != null){
+            this.position = dto.getPosition();
+        }
+        if(dto.getStartDate() != null){
+            this.startDate = dto.getStartDate();
+        }
+        if(dto.getEndDate() != null){
+            this.endDate = dto.getEndDate();
+        }
+    }
 
 }
