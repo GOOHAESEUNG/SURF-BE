@@ -12,9 +12,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @Getter
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 기본 생성자 protected 설정
 public class Member extends BaseEntity {
 

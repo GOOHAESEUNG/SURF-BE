@@ -34,7 +34,7 @@ public class MemberUsecase {
     private final MemberUpsertService memberUpsertService;
 
     public MyPageProfileResDTO getMyPageAndProfile(Long memberId) {
-        Member member = memberGetService.getMember(memberId);
+        Member member = memberGetService.getMemberByApprovedStatus(memberId);
         List<TrackResDTO> trackList = trackGetService.getTrack(memberId)
                 .stream().map(TrackResDTO::from).toList();
 

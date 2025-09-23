@@ -5,6 +5,7 @@ import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,12 +14,18 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class MemberGetService {
 
     private final MemberRepository memberRepository;
 
-    public Member getMember(Long memberId) {
+    public Member getMemberByApprovedStatus(Long memberId) {
         return memberRepository.findByIdAndStatus(memberId, MemberStatus.APPROVED)
+                .orElseThrow(MemberNotFoundException::new);
+    }
+
+    public Member getMember(Long memberId) {
+        return memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
     }
 
