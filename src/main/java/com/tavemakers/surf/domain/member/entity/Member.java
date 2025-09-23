@@ -1,6 +1,7 @@
 package com.tavemakers.surf.domain.member.entity;
 
 import com.tavemakers.surf.domain.login.kakao.dto.KakaoUserInfoDto;
+import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateRequestDto;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
 import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.entity.enums.MemberType;
@@ -134,6 +135,23 @@ public class Member extends BaseEntity {
         // 상태 전이: REGISTERING -> WAITING (또는 정책상 APPROVED)
         if (this.status == MemberStatus.REGISTERING) {
             this.status = MemberStatus.WAITING;
+        }
+    }
+
+    //프로필 수정하기
+    public void updateProfile(ProfileUpdateRequestDto request) {
+        if (request.getPhoneNumber() != null) {
+            this.phoneNumber = request.getPhoneNumber();
+        }
+        if (request.getEmail() != null) {
+            // 이메일은 중복 체크 등 추가 로직이 필요할 수 있음
+            this.email = request.getEmail();
+        }
+        if (request.getUniversity() != null) {
+            this.university = request.getUniversity();
+        }
+        if (request.getGraduateSchool() != null) {
+            this.graduateSchool = request.getGraduateSchool();
         }
     }
 }
