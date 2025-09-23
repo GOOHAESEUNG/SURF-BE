@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -51,38 +51,44 @@ public class AuthController {
         return kakaoAuthService.exchangeCodeForToken(code)
                 .flatMap(token ->
                         kakaoAuthService.getUserInfo(token.accessToken())
-                                .map(userInfo -> {
-                                    // 1) DB에서 회원 조회 + APPROVED 검증
-                                     String email = userInfo.kakaoAccount().email();
-                                     if (email == null || email.isBlank()) {
-                                             throw new UnauthorizedException("카카오 계정에서 이메일 제공 동의가 필요합니다.");
-                                         }
-                                     Member member = memberRepository.findByEmailAndStatus(
-                                                     email,
-                                            MemberStatus.APPROVED
-                                    ).orElseThrow(() -> new UnauthorizedException("관리자 승인이 필요합니다."));
+                                .flatMap(userInfo -> {
+                                    final var account = userInfo.kakaoAccount();
+                                    final String email = (account != null) ? account.email() : null;
 
-                                    // 2) refreshToken → HttpOnly + Secure 쿠키 저장
-                                    ResponseCookie cookie = ResponseCookie.from("refresh_token", token.refreshToken())
-                                            .httpOnly(true)
-                                            .secure(true)
-                                            .sameSite("Strict")
-                                            .path("/")
-                                            .maxAge(Duration.ofDays(14))
-                                            .build();
-                                    response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+                                    if (email == null || email.isBlank()) {
+                                        return Mono.error(new UnauthorizedException("카카오 계정에서 이메일 제공 동의가 필요합니다."));
+                                    }
 
-                                    // 3) body에는 accessToken + nickname만 내려줌
-                                    LoginResDto loginRes = LoginResDto.of(
-                                            token.accessToken(),
-                                            member.getName(), // DB 정보 기반
-                                            member.getEmail(),
-                                            member.getProfileImageUrl()
-                                    );
+                                    // DB 조회는 블로킹 → boundedElastic 스케줄러에서 실행
+                                    return Mono.fromCallable(() ->
+                                                    memberRepository.findByEmailAndStatus(email, MemberStatus.APPROVED)
+                                                            .orElseThrow(() -> new UnauthorizedException("관리자 승인이 필요합니다."))
+                                            )
+                                            .subscribeOn(Schedulers.boundedElastic())
+                                            .map(member -> {
+                                                // refreshToken 쿠키 설정
+                                                ResponseCookie cookie = ResponseCookie.from("refresh_token", token.refreshToken())
+                                                        .httpOnly(true)
+                                                        .secure(true)
+                                                        .sameSite("Strict")
+                                                        .path("/")
+                                                        .maxAge(Duration.ofDays(14))
+                                                        .build();
+                                                response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-                                    return ApiResponse.response(HttpStatus.OK, "로그인 성공", loginRes);
+                                                // body에 accessToken + DB 회원 정보만 포함
+                                                LoginResDto loginRes = LoginResDto.of(
+                                                        token.accessToken(),
+                                                        member.getName(),
+                                                        member.getEmail(),
+                                                        member.getProfileImageUrl()
+                                                );
+
+                                                return ApiResponse.response(HttpStatus.OK, "로그인 성공", loginRes);
+                                            });
                                 })
                 );
     }
+
 
 }
