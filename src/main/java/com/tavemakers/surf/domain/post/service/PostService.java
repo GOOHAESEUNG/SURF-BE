@@ -18,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.View;
 
 
 @Service
@@ -30,7 +29,6 @@ public class PostService {
     private final MemberRepository memberRepository;
 
     private final ScrapService scrapService;
-    private final View view;
 
     @Transactional
     public PostResDTO createPost(PostCreateReqDTO req, Long memberId) {
@@ -57,14 +55,25 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostResDTO> getPostsByMember(Long authorId, Long viewerId, Pageable pageable) {
-        if (!memberRepository.existsById(authorId)) {
+    public Page<PostResDTO> getMyPosts(Long myId, Pageable pageable) {
+        if (!memberRepository.existsById(myId))
             throw new MemberNotFoundException();
-        }
+
+        Page<Post> page = postRepository.findByMemberId(myId, pageable);
+        return page.map(p -> PostResDTO.from(
+                p,
+                scrapService.isScrappedByMe(myId, p.getId())
+        ));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<PostResDTO> getPostsByMember(Long authorId, Long viewerId, Pageable pageable) {
+        if (!memberRepository.existsById(authorId)) throw new MemberNotFoundException();
+
         Page<Post> page = postRepository.findByMemberId(authorId, pageable);
         return page.map(p -> PostResDTO.from(
                 p,
-                viewerId != null && scrapService.isScrappedByMe(viewerId, p.getId())
+                scrapService.isScrappedByMe(viewerId, p.getId())
         ));
     }
 
