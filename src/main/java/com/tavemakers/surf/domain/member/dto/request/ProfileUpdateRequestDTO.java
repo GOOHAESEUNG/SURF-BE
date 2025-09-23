@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @Schema(description = "프로필 수정 요청 DTO")
-public class ProfileUpdateRequestDto {
+public class ProfileUpdateRequestDTO {
 
     @Schema(description = "변경할 전화번호 (선택)", example = "010-5678-1234")
     private String phoneNumber;
