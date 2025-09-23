@@ -113,4 +113,21 @@ public class Member extends BaseEntity {
                 .activityStatus(true)
                 .build();
     }
+
+    public void applySignup(MemberSignupReqDTO req, String normalizedPhone) {
+        this.name = req.getName();
+        this.university = req.getUniversity();
+        this.graduateSchool = req.getGraduateSchool();
+        this.phoneNumber = normalizedPhone;
+
+        // 기본 정책 보정 (비어있을 수 있는 값들)
+        if (this.role == null) this.role = MemberRole.MEMBER;
+        if (this.memberType == null) this.memberType = MemberType.YB;
+        this.activityStatus = true;
+
+        // 상태 전이: REGISTERING -> WAITING (또는 정책상 APPROVED)
+        if (this.status == MemberStatus.REGISTERING) {
+            this.status = MemberStatus.WAITING;
+        }
+    }
 }

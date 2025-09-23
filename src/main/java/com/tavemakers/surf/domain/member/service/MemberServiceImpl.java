@@ -23,30 +23,23 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public MemberSignupResDTO signup(MemberSignupReqDTO request) {
 
-        // 1) 이메일 입력 정규화
+        // 1) 정규화
         final String normalizedEmail = request.getEmail().trim().toLowerCase(Locale.ROOT);
         final String normalizedPhone = request.getPhoneNumber() == null
-                        ? null
-                        : request.getPhoneNumber().replaceAll("\\D", ""); // 하이픈 등 제거
+                ? null
+                : request.getPhoneNumber().replaceAll("\\D", "");
 
-        // 2) 중복 체크 (정규화된 이메일 기준)
-        if (memberRepository.existsByEmail(normalizedEmail)) {
+        // 2) 선조회
+        Member member = memberRepository.findByEmail(normalizedEmail).orElse(null);
+
+        if (member != null) {
+            // 2-1) 이미 존재: REGISTERING이면 가입 정보 반영
+            if (member.getStatus() == MemberStatus.REGISTERING) {
+                member.applySignup(request, normalizedPhone); // ← 변경 감지로 업데이트
+                return MemberSignupResDTO.from(member);
+            }
+            // 2-2) 이미 가입 진행된 계정이면 예외
             throw new MemberAlreadyExistsException();
         }
-
-        // 3) Member 엔티티 생성
-        Member member = Member.create(request, normalizedEmail, normalizedPhone);
-
-        // 4) DB 저장 (+ 최종 방어막: 유니크 위반 캐치)
-       Member saved;
-        try {
-            saved = memberRepository.save(member);
-        } catch (DataIntegrityViolationException e) {
-            // 이메일 유니크 제약 위반 등
-                    throw new MemberAlreadyExistsException();
-        }
-
-        // 5) 응답 DTO 변환
-        return MemberSignupResDTO.from(saved);
     }
 }
