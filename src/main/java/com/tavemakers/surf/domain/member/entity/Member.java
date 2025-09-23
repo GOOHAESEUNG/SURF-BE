@@ -12,6 +12,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 기본 생성자 protected 설정
@@ -38,11 +41,12 @@ public class Member extends BaseEntity {
 
     private Integer activityScore;
 
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Track> tracks = new ArrayList<>();
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MemberStatus status = MemberStatus.WAITING; // 회원 상태; // 회원 상태 (가입중, 대기중, 승인)
-
-    private String kakaoId; // 카카오 ID는 보통 문자열로 관리
 
     @Enumerated(EnumType.STRING)
     private MemberRole role; // 역할 (루트, 회장, 매니저, 회원)
@@ -67,6 +71,7 @@ public class Member extends BaseEntity {
                   String graduateSchool,
                   String email,
                   String phoneNumber,
+                  List<Track> tracks,
                   MemberStatus status,
                   MemberRole role,
                   MemberType memberType,
@@ -77,17 +82,20 @@ public class Member extends BaseEntity {
         this.graduateSchool = graduateSchool;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        this.tracks = (tracks != null) ? tracks : new ArrayList<>();
         this.status = status;
         this.role = role;
         this.memberType = memberType;
         this.activityStatus = activityStatus;
-        this.activityScore = 0; // 기본값
+        this.activityScore = 0;
     }
+
 
     /** ===== [정적 팩토리 메서드] ===== */
     public static Member create(MemberSignupReqDTO request,
                                 String normalizedEmail,
-                                String normalizedPhone) {
+                                String normalizedPhone,
+                                List<Track> tracks) {
         return Member.builder()
                 .name(request.getName())
                 .university(request.getUniversity())
@@ -95,10 +103,11 @@ public class Member extends BaseEntity {
                 .email(normalizedEmail)
                 .phoneNumber(normalizedPhone)
                 .profileImageUrl(request.getProfileImageUrl())
-                .status(MemberStatus.WAITING)   // 기본값
-                .role(MemberRole.MEMBER)        // 기본값
-                .memberType(MemberType.YB)      // 예시: 회원가입 시 기본 YB
-                .activityStatus(true)           // 기본값
+                .tracks(tracks)
+                .status(MemberStatus.WAITING)
+                .role(MemberRole.MEMBER)
+                .memberType(MemberType.YB)
+                .activityStatus(true)
                 .build();
     }
 
