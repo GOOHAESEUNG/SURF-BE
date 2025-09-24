@@ -98,7 +98,9 @@ public class Member extends BaseEntity {
         this.tracks = new ArrayList<>();
     }
 
-    /** ===== [정적 팩토리 메서드] ===== */
+    /**
+     * ===== [정적 팩토리 메서드] =====
+     */
     public static Member create(MemberSignupReqDTO request,
                                 String normalizedEmail,
                                 String normalizedPhone) {
@@ -144,7 +146,7 @@ public class Member extends BaseEntity {
                 .build();
     }
 
-    public void applySignup(MemberSignupReqDTO req,String normalizedEmail, String normalizedPhone) {
+    public void applySignup(MemberSignupReqDTO req, String normalizedEmail, String normalizedPhone) {
         this.name = req.getName();
         this.university = req.getUniversity();
         this.graduateSchool = req.getGraduateSchool();
@@ -162,7 +164,9 @@ public class Member extends BaseEntity {
         }
     }
 
-    /** ===== [도메인 행위 메서드] ===== */
+    /**
+     * ===== [도메인 행위 메서드] =====
+     */
     public void approve() {
         this.status = MemberStatus.APPROVED;
     }
@@ -171,7 +175,9 @@ public class Member extends BaseEntity {
         this.status = MemberStatus.REJECTED;
     }
 
-    /** ===== [연관관계 편의 메서드] ===== */
+    /**
+     * ===== [연관관계 편의 메서드] =====
+     */
     // 트랙 추가 (기수+파트로 생성)
     public void addTrack(Integer generation, Part part) {
         boolean exists = this.tracks.stream()
@@ -181,6 +187,7 @@ public class Member extends BaseEntity {
 
         Track track = new Track(generation, part);
         track.setMember(this); // 여기서만 add 수행
+    }
 
     //프로필 수정하기
     public void updateProfile(ProfileUpdateReqDTO request) {
@@ -199,3 +206,4 @@ public class Member extends BaseEntity {
         }
     }
 }
+
