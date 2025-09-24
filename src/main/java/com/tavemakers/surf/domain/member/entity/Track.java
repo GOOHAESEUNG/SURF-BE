@@ -28,10 +28,21 @@ public class Track extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    public Track(Integer generation, Part part, Member member) {
+    public Track(Integer generation, Part part) {
         this.generation = generation;
         this.part = part;
+    }
+
+    public void setMember(Member member) {
         this.member = member;
+        if (!member.getTracks().contains(this)) {
+            member.getTracks().add(this);
+        }
+    }
+
+    public void update(Integer generation, Part part) {
+        if (generation != null) this.generation = generation;
+        if (part != null) this.part = part;
     }
 
 }
