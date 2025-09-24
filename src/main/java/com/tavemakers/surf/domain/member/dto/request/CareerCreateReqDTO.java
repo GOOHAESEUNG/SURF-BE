@@ -1,6 +1,7 @@
 package com.tavemakers.surf.domain.member.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -8,6 +9,7 @@ import lombok.Getter;
 import java.time.LocalDate;
 
 @Getter
+@Valid
 @Schema(description = "신규 경력 추가 요청 DTO")
 public class CareerCreateReqDTO {
 

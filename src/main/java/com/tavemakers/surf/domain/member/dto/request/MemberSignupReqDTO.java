@@ -1,9 +1,11 @@
 package com.tavemakers.surf.domain.member.dto.request;
 
+import jakarta.validation.Valid;
 import lombok.Getter;
 import jakarta.validation.constraints.*;
 
 @Getter
+@Valid
 public class MemberSignupReqDTO {
 
     @NotBlank(message = "이름은 필수 입력값입니다.")
