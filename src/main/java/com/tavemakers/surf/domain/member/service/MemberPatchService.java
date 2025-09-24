@@ -14,8 +14,8 @@ public class MemberPatchService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void updateProfile(Member member, ProfileUpdateReqDTO request) {
-        member.updateProfile(request);
+    public void updateProfile(Member member, ProfileUpdateReqDTO dto) {
+        member.updateProfile(dto);
     }
 
 }
