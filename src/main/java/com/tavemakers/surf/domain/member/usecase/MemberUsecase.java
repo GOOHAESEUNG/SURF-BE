@@ -120,6 +120,7 @@ public class MemberUsecase {
         return memberServiceImpl.needsOnboarding(member);
     }
 
+    //회원가입
     public MemberSignupResDTO signup(Long memberId, MemberSignupReqDTO request) {
         Member member = memberGetService.getMember(memberId);
         return memberService.signup(member, request);

@@ -21,7 +21,6 @@ import jakarta.validation.Valid;
 @RequiredArgsConstructor
 public class MemberController {
 
-    private final MemberFacade memberFacade;
     private final MemberUsecase memberUsecase;
 
     @PostMapping("/signup")
@@ -29,7 +28,7 @@ public class MemberController {
         return ApiResponse.response(
                 HttpStatus.CREATED,
                 "회원가입 성공",
-                memberFacade.signup(SecurityUtils.getCurrentMemberId(), request)
+                memberUsecase.signup(SecurityUtils.getCurrentMemberId(), request)
             );
     }
 
