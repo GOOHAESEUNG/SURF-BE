@@ -31,7 +31,7 @@ public class MemberPatchController {
             @Valid @RequestBody ProfileUpdateReqDTO profileUpdateReqDTO
             )
     {
-        memberUsecase.updateProfile(userDetails.getId(), profileUpdateReqDTO); //멤버 아이디 임시
+        memberUsecase.updateProfile(userDetails.getId(), profileUpdateReqDTO);
         return ApiResponse.response(
                 HttpStatus.OK,
                 ResponseMessage.MYPAGE_PROFILE_UPDATE_SUCCESS.getMessage(),
