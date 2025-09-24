@@ -25,6 +25,7 @@ public class Member extends BaseEntity {
     @Column(name = "member_id")
     private Long id;
 
+    @Column(nullable = false, unique = true) // 이메일은 고유해야 함
     private Long kakaoId;
 
     @Column(nullable = false)
