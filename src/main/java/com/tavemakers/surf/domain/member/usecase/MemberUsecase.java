@@ -91,21 +91,21 @@ public class MemberUsecase {
 
     //프로필 수정
     @Transactional
-    public void updateProfile(Long memberId, ProfileUpdateRequestDTO request) {
+    public void updateProfile(Long memberId, ProfileUpdateRequestDTO dto) {
         Member member = memberGetService.getMember(memberId);
 
-        memberPatchService.updateProfile(member, request);
+        memberPatchService.updateProfile(member, dto);
 
-        if (request.getCareersToUpdate() != null) {
-            careerPatchService.updateCareer(member, request.getCareersToUpdate());
+        if (dto.getCareersToUpdate() != null) {
+            careerPatchService.updateCareer(member, dto.getCareersToUpdate());
         }
 
-        if (request.getCareerIdsToDelete() != null) {
-            careerDeleteService.deleteCareer(member, request.getCareerIdsToDelete());
+        if (dto.getCareerIdsToDelete() != null) {
+            careerDeleteService.deleteCareer(member, dto.getCareerIdsToDelete());
         }
 
-        if (request.getCareersToCreate() != null) {
-            careerPostService.createCareer(member, request.getCareersToCreate());
+        if (dto.getCareersToCreate() != null) {
+            careerPostService.createCareer(member, dto.getCareersToCreate());
         }
     }
 }
