@@ -22,7 +22,7 @@ public class ScrapController {
     private final ScrapService scrapService;
 
     /** 스크랩 추가 (현재 로그인 사용자 기준) */
-    @Operation(summary = "스크랩 추가")
+    @Operation(summary = "스크랩 추가", description = "특정 게시글을 스크랩합니다.")
     @PostMapping("/{postId}")
     public ResponseEntity<Void> addScrap(@PathVariable Long postId) {
         Long me = SecurityUtils.getCurrentMemberId();
@@ -31,7 +31,7 @@ public class ScrapController {
     }
 
     /** 스크랩 삭제 (현재 로그인 사용자 기준) */
-    @Operation(summary = "스크랩 삭제")
+    @Operation(summary = "스크랩 삭제", description = "특정 게시글의 스크랩을 취소합니다.")
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> removeScrap(@PathVariable Long postId) {
         Long me = SecurityUtils.getCurrentMemberId();
@@ -40,7 +40,7 @@ public class ScrapController {
     }
 
     /** 내가 스크랩한 게시글 목록 */
-    @Operation(summary = "내가 스크랩한 게시글 목록")
+    @Operation(summary = "내가 스크랩한 게시글 목록", description = "본인이 스크랩한 게시글 목록을 조회합니다.")
     @GetMapping("/me")
     public ResponseEntity<Page<PostResDTO>> myScraps(
             @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)

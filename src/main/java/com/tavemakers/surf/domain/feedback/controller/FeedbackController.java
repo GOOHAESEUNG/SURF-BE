@@ -26,7 +26,7 @@ public class FeedbackController {
     private final FeedbackService feedbackService;
 
     /** 피드백 생성 (로그인 사용자) */
-    @Operation(summary = "피드백 생성")
+    @Operation(summary = "피드백 생성", description = "익명의 피드백을 생성합니다. (하루 3회 제한)")
     @PostMapping
     public ResponseEntity<FeedbackResDTO> createFeedback(
             @Valid @RequestBody FeedbackCreateReqDTO req
@@ -36,7 +36,7 @@ public class FeedbackController {
     }
 
     /** 피드백 조회 (운영진 전용) */
-    @Operation(summary = "피드백 조회")
+    @Operation(summary = "피드백 조회", description = "운영진이 피드백을 조회합니다.")
     @GetMapping
     @PreAuthorize("hasAnyRole('ROOT','MANAGER','PRESIDENT')")
     public ResponseEntity<Page<FeedbackResDTO>> getFeedbacks(

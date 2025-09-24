@@ -25,7 +25,7 @@ public class PostController {
     private final PostService postService;
 
     /** 게시글 생성 (작성자 = 현재 로그인 사용자) */
-    @Operation(summary = "게시글 생성 (작성자 = 현재 로그인 사용자)")
+    @Operation(summary = "게시글 생성", description = "게시글을 생성합니다.")
     @PostMapping
     public ResponseEntity<PostResDTO> createPost(
             @Valid @RequestBody PostCreateReqDTO req
@@ -35,7 +35,7 @@ public class PostController {
     }
 
     /** 게시글 단건 조회 (뷰어 = 현재 로그인 사용자; 스크랩 여부 등 계산용) */
-    @Operation(summary = "게시글 단건 조회")
+    @Operation(summary = "게시글 단건 조회", description = "특정 ID의 게시글을 조회합니다.")
     @GetMapping("/{postId}")
     public ResponseEntity<PostResDTO> getPost(
             @PathVariable Long postId
@@ -45,7 +45,7 @@ public class PostController {
     }
 
     /** 내가 작성한 게시글 목록 */
-    @Operation(summary = "내가 작성한 게시글 목록")
+    @Operation(summary = "내가 작성한 게시글", description = "본인이 작성한 게시글 목록을 조회합니다.")
     @GetMapping("/me")
     public ResponseEntity<Page<PostResDTO>> getMyPosts(
             @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
@@ -56,7 +56,7 @@ public class PostController {
     }
 
     /** 특정 작성자의 게시글 목록 (뷰어 = 현재 로그인 사용자) */
-    @Operation(summary = "특정 작성사의 게시글 목록")
+    @Operation(summary = "특정 작성자의 게시글 목록", description = "특정 작성자가 작성한 게시글 목록을 조회합니다.")
     @GetMapping("/{authorId}/posts")
     public ResponseEntity<Page<PostResDTO>> getPostsByMember(
             @PathVariable Long authorId,
@@ -68,7 +68,7 @@ public class PostController {
     }
 
     /** 게시판별 게시글 목록 (뷰어 = 현재 로그인 사용자) */
-    @Operation(summary = "게시판별 게시글 목록")
+    @Operation(summary = "게시판별 게시글 목록", description = "특정 게시판에 속한 게시글 목록을 조회합니다.")
     @GetMapping
     public ResponseEntity<Page<PostResDTO>> getPostsByBoard(
             @RequestParam Long boardId,
@@ -80,7 +80,7 @@ public class PostController {
     }
 
     /** 게시글 수정 (작성자 검증은 서비스에서) */
-    @Operation(summary = "게시글 수정")
+    @Operation(summary = "게시글 수정", description = "본인이 작성한 게시글을 수정합니다.")
     @PutMapping("/{postId}")
     public ResponseEntity<PostResDTO> updatePost(
             @PathVariable Long postId,
@@ -91,7 +91,7 @@ public class PostController {
     }
 
     /** 게시글 삭제 (작성자/권한 검증은 서비스에서) */
-    @Operation(summary = "게시글 삭제")
+    @Operation(summary = "게시글 삭제", description = "본인이 작성한 게시글을 삭제합니다.")
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
         postService.deletePost(postId);

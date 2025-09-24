@@ -74,7 +74,6 @@ public class Post extends BaseEntity {
         this.title = req.title();
         this.content = req.content();
         this.pinned = req.pinned() != null ? req.pinned() : this.pinned;
-        this.postedAt = req.postedAt() != null ? req.postedAt() : this.postedAt;
         this.board = board;
     }
 }
