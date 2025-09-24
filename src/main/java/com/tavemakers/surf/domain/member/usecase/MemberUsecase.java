@@ -1,7 +1,7 @@
 package com.tavemakers.surf.domain.member.usecase;
 
-import com.tavemakers.surf.domain.member.dto.MemberSearchResDTO;
-import com.tavemakers.surf.domain.member.dto.MemberSimpleResDTO;
+import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
+import com.tavemakers.surf.domain.member.dto.response.*;
 import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateReqDTO;
 import com.tavemakers.surf.domain.member.dto.response.MyPageProfileResDTO;
 import com.tavemakers.surf.domain.member.dto.response.TrackResDTO;
@@ -36,6 +36,8 @@ public class MemberUsecase {
     private final MemberPatchService memberPatchService;
     private final MemberUpsertService memberUpsertService;
     private final MemberServiceImpl memberServiceImpl;
+    private final MemberService memberService;
+
 
     public MyPageProfileResDTO getMyPageAndProfile(Long memberId) {
         Member member = memberGetService.getMemberByApprovedStatus(memberId);
@@ -118,5 +120,11 @@ public class MemberUsecase {
     public Boolean needsOnboarding(Long memberId) {
         Member member = memberGetService.getMember(memberId);
         return memberServiceImpl.needsOnboarding(member);
+    }
+
+    //회원가입
+    public MemberSignupResDTO signup(Long memberId, MemberSignupReqDTO request) {
+        Member member = memberGetService.getMember(memberId);
+        return memberService.signup(member, request);
     }
 }

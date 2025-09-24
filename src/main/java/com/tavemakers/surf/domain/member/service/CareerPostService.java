@@ -20,7 +20,7 @@ public class CareerPostService {
     @Transactional
     public void createCareer(Member member, List<CareerCreateReqDTO> dtos) {
         List<Career> newCareers = dtos.stream()
-                .map(dto -> Career.from(dto, member))
+                .map(dto -> Career.of(dto, member))
                 .toList();
         careerRepository.saveAll(newCareers);
     }
