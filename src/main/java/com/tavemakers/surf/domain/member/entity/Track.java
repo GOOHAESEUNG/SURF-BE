@@ -34,9 +34,22 @@ public class Track extends BaseEntity {
     }
 
     public void setMember(Member member) {
+        if (member == null) {
+            throw new IllegalArgumentException("member는 null일 수 없습니다.");
+        }
+
+        if (this.member == member) return;
+
+        // 기존 관계 끊기
+        if (this.member != null) {
+            this.member.getTracks().remove(this);
+        }
+
         this.member = member;
+
+        // 양방향 일관성 유지
         if (!member.getTracks().contains(this)) {
-            member.getTracks().add(this);
+        member.getTracks().add(this);
         }
     }
 
