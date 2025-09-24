@@ -13,15 +13,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Page<Post> findByMemberId(Long memberId, Pageable pageable);
 
-    Long findVersionById(Long id);
+    @Query("select p.version from Post p where p.id = :id")
+    Long findVersionById(@Param("id") Long id);
 
-    @Modifying
-    @Query("update Post p set p.scrapCount = p.scrapCount + 1 " +
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("update Post p set p.scrapCount = p.scrapCount + 1, p.version = p.version + 1 " +
             "where p.id = :id and p.version = :version")
     int increaseScrapCount(@Param("id") Long id, @Param("version") Long version);
 
-    @Modifying
-    @Query("update Post p set p.scrapCount = p.scrapCount - 1 " +
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("update Post p set p.scrapCount = p.scrapCount - 1, p.version = p.version + 1 " +
             "where p.id = :id and p.version = :version and p.scrapCount > 0")
     int decreaseScrapCount(@Param("id") Long id, @Param("version") Long version);
 }

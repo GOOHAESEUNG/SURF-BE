@@ -1,6 +1,7 @@
 package com.tavemakers.surf.domain.scrap.service;
 
 import com.tavemakers.surf.domain.member.entity.Member;
+import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.entity.Post;
@@ -27,10 +28,12 @@ public class ScrapService {
 
     @Transactional
     public void addScrap(Long memberId, Long postId) {
-        Member memberRef = memberRepository.getReferenceById(memberId);
-        Post   postRef   = postRepository.getReferenceById(postId);
+        Member member = memberRepository.findById(memberId).
+                orElseThrow(MemberNotFoundException::new);
+        Post post = postRepository.findById(postId).
+                orElseThrow(PostNotFoundException::new);
         try {
-            scrapRepository.save(Scrap.of(memberRef, postRef)); // (member_id, post_id) UNIQUE
+            scrapRepository.save(Scrap.of(member, post));
             // 버전 기반 단일 UPDATE (+재시도)
             for (int i = 0; i < 3; i++) {
                 Long v = postRepository.findVersionById(postId);
