@@ -18,4 +18,9 @@ public class MemberPatchService {
         member.updateProfile(dto);
     }
 
+    @Transactional
+    public void grantAdmin(Member member) {
+        //유저 권한 부여
+
+    }
 }

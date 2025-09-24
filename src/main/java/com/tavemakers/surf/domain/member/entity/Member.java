@@ -160,4 +160,9 @@ public class Member extends BaseEntity {
             this.graduateSchool = request.getGraduateSchool();
         }
     }
+
+    //유저 권한 변경
+    public void exchangeRole(MemberRole role) {
+        this.role = role;
+    }
 }
