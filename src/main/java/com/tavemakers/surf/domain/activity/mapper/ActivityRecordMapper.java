@@ -2,41 +2,72 @@ package com.tavemakers.surf.domain.activity.mapper;
 
 import com.tavemakers.surf.domain.activity.dto.response.ActivityRecordSummaryResDTO;
 import com.tavemakers.surf.domain.activity.dto.response.ActivityTypeCountResDTO;
+import com.tavemakers.surf.domain.activity.dto.response.ActivityTypeGroupCountResDTO;
+import com.tavemakers.surf.domain.activity.dto.test.ActivityPenaltyGroupReqDTO;
+import com.tavemakers.surf.domain.activity.dto.test.ActivityRewardGroupReqDTO;
 import com.tavemakers.surf.domain.activity.entity.ActivityRecord;
 import com.tavemakers.surf.domain.activity.entity.enums.ActivityType;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.tavemakers.surf.domain.activity.constants.ActivityGroupConstants.*;
+import static com.tavemakers.surf.domain.activity.entity.enums.ActivityType.*;
+
 @Component
 public class ActivityRecordMapper {
 
-    private static final List<ActivityType> SINGLE_RECORDS = List.of(
-            ActivityType.UPLOAD_INSTAGRAM_STORY,
-            ActivityType.ENGAGE_TECH_SEMINAR,
-            ActivityType.EARLY_BIRD
-    );
-
-    private static final List<ActivityType> GROUP_RECORDS = List.of(
-            ActivityType.WRITE_WIL,
-            ActivityType.UPLOAD_TAVE_REVIEW
-    );
-
-    public ActivityRecordSummaryResDTO mapper5PinnedActivityRecord(List<ActivityRecord> records) {
+    public ActivityRecordSummaryResDTO mapPinnedActivityRecord(List<ActivityRecord> records) {
         Map<ActivityType, Long> countMap = records.stream()
                 .collect(Collectors.groupingBy(ActivityRecord::getActivityType, Collectors.counting()));
 
-        List<ActivityTypeCountResDTO> singleList = SINGLE_RECORDS.stream()
+        ActivityRewardGroupReqDTO rewards = makeRewardGroupReqDTO(countMap);
+        ActivityPenaltyGroupReqDTO penalties = makePenaltiesGroup(countMap);
+
+        return ActivityRecordSummaryResDTO.of(rewards, penalties);
+    }
+
+    /*
+    * refactoring
+    *
+    * TODO 반복되는 코드가 많아서 개선 필요.
+    * OOP, Design 패턴을 고려하면 좋을 듯.
+    * */
+
+    private ActivityRewardGroupReqDTO makeRewardGroupReqDTO(Map<ActivityType, Long> countMap) {
+        List<ActivityTypeCountResDTO> taveActivities = getActivityTypeCountDTO(countMap, TAVE_ACTIVITIES_RECORDS);
+        List<ActivityTypeCountResDTO> blogs = getActivityTypeCountDTO(countMap, BLOG_GROUP_RECORDS);
+        return ActivityRewardGroupReqDTO.of(taveActivities, ActivityTypeGroupCountResDTO.of(blogs));
+    }
+
+    private ActivityPenaltyGroupReqDTO makePenaltiesGroup(Map<ActivityType, Long> countMap) {
+        List<ActivityTypeCountResDTO> sessionLateGroup = getActivityTypeCountDTO(countMap, SESSION_LATE_GROUP);
+        List<ActivityTypeCountResDTO> teamLateGroup = getActivityTypeCountDTO(countMap, TEAM_LATE_GROUP);
+        List<ActivityTypeCountResDTO> lateList = Arrays.asList(
+                ActivityTypeCountResDTO.of(SESSION_LATE, sessionLateGroup.size()),
+                ActivityTypeCountResDTO.of(TEAM_LATE, teamLateGroup.size())
+        );
+
+        List<ActivityTypeCountResDTO> sessionAbsenceGroup = getActivityTypeCountDTO(countMap, SESSION_ABSENCE_GROUP);
+        List<ActivityTypeCountResDTO> teamAbsenceGroup = getActivityTypeCountDTO(countMap, TEAM_ABSENCE_GROUP);
+        List<ActivityTypeCountResDTO> absenceList = Arrays.asList(
+                ActivityTypeCountResDTO.of(SESSION_ABSENCE, sessionAbsenceGroup.size()),
+                ActivityTypeCountResDTO.of(TEAM_ABSENCE, teamAbsenceGroup.size())
+        );
+
+        return ActivityPenaltyGroupReqDTO.of(
+                ActivityTypeGroupCountResDTO.of(lateList),
+                ActivityTypeGroupCountResDTO.of(absenceList)
+        );
+    }
+
+    private List<ActivityTypeCountResDTO> getActivityTypeCountDTO(Map<ActivityType, Long> countMap, List<ActivityType> activityTypes) {
+        return activityTypes.stream()
                 .map(type -> ActivityTypeCountResDTO.of(type, countMap.getOrDefault(type, 0L)))
                 .toList();
-
-        List<ActivityTypeCountResDTO> group = GROUP_RECORDS.stream()
-                .map(type -> ActivityTypeCountResDTO.of(type, countMap.getOrDefault(type, 0L)))
-                .toList();
-
-        return ActivityRecordSummaryResDTO.of(singleList, group);
     }
 
 }
