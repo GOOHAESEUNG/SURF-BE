@@ -52,7 +52,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN") // 관리자 페이지 접근 제한 예시
                         .requestMatchers(permitUrlConfig.getPublicUrl()).permitAll() // 로그인, 회원가입은 모두 허용
                         .requestMatchers(permitUrlConfig.getMemberUrl()).hasRole("MEMBER")
-                        .requestMatchers(permitUrlConfig.getAdminUrl()).hasRole("ADMIN") // 관리자 페이지 접근 제한 예시
+                        .requestMatchers(permitUrlConfig.getAdminUrl()).hasAnyRole("ROOT", "PRESIDENT", "MANAGER")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable()) // 우리는 소셜 로그인 + JWT 사용 → formLogin 비활성화

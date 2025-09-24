@@ -162,7 +162,10 @@ public class Member extends BaseEntity {
     }
 
     //유저 권한 변경
-    public void exchangeRole(MemberRole role) {
-        this.role = role;
+    public void exchangeRole(MemberRole newRole) {
+        if (newRole == null) {
+            return;
+        }
+        this.role = newRole;
     }
 }
