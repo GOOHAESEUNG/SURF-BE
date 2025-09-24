@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "scrap",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"member_id","post_id"}))
 public class Scrap extends BaseEntity {
 
     @Id

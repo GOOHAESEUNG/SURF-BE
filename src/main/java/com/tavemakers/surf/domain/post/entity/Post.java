@@ -36,6 +36,9 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private long scrapCount = 0L;
 
+    @Version
+    private Long version;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;
@@ -74,7 +77,4 @@ public class Post extends BaseEntity {
         this.postedAt = req.postedAt() != null ? req.postedAt() : this.postedAt;
         this.board = board;
     }
-
-    public void increaseScrapCount() { this.scrapCount++; }
-    public void decreaseScrapCount() { if (this.scrapCount > 0) this.scrapCount--; }
 }

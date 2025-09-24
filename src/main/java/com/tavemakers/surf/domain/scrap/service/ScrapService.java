@@ -11,6 +11,7 @@ import com.tavemakers.surf.domain.post.service.PostService;
 import com.tavemakers.surf.domain.scrap.entity.Scrap;
 import com.tavemakers.surf.domain.scrap.exception.ScrapNotFoundException;
 import com.tavemakers.surf.domain.scrap.repository.ScrapRepository;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,25 +29,33 @@ public class ScrapService {
 
     @Transactional
     public void addScrap(Long memberId, Long postId) {
-        if (scrapRepository.existsByMemberIdAndPostId(memberId, postId)) {
-            return;
+        Member memberRef = memberRepository.getReferenceById(memberId);
+        Post   postRef   = postRepository.getReferenceById(postId);
+        try {
+            scrapRepository.save(Scrap.of(memberRef, postRef)); // (member_id, post_id) UNIQUE
+            // 버전 기반 단일 UPDATE (+재시도)
+            for (int i = 0; i < 3; i++) {
+                Long v = postRepository.findVersionById(postId);
+                if (v == null) throw new PostNotFoundException();
+                if (postRepository.increaseScrapCount(postId, v) > 0) break;
+                if (i == 2) throw new OptimisticLockException("scrapCount 증가 충돌");
+            }
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            // 이미 스크랩되어 있으면 무시(멱등)
         }
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(MemberNotFoundException::new);
-        Post post = postRepository.findById(postId)
-                .orElseThrow(PostNotFoundException::new);
-
-        scrapRepository.save(Scrap.of(member, post));
-        post.increaseScrapCount();
     }
 
     @Transactional
     public void removeScrap(Long memberId, Long postId) {
-        Scrap scrap = scrapRepository.findByMemberIdAndPostId(memberId, postId)
-                .orElseThrow(ScrapNotFoundException::new);
-
-        scrapRepository.delete(scrap);
-        scrap.getPost().decreaseScrapCount();
+        int deleted = scrapRepository.deleteByMemberIdAndPostId(memberId, postId);
+        if (deleted > 0) {
+            for (int i = 0; i < 3; i++) {
+                Long v = postRepository.findVersionById(postId);
+                if (v == null) throw new PostNotFoundException();
+                if (postRepository.decreaseScrapCount(postId, v) > 0) break;
+                if (i == 2) throw new OptimisticLockException("scrapCount 감소 충돌");
+            }
+        }
     }
 
     public Page<PostResDTO> getMyScraps(Long memberId, Pageable pageable) {

@@ -13,7 +13,7 @@ public interface ScrapRepository extends JpaRepository<Scrap, Long> {
 
     boolean existsByMemberIdAndPostId(Long memberId, Long postId);
 
-    Optional<Scrap> findByMemberIdAndPostId(Long memberId, Long postId);
+    int deleteByMemberIdAndPostId(Long memberId, Long postId);
 
     @Query(
             value = """
