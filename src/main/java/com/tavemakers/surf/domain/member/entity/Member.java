@@ -93,8 +93,7 @@ public class Member extends BaseEntity {
     /** ===== [정적 팩토리 메서드] ===== */
     public static Member create(MemberSignupReqDTO request,
                                 String normalizedEmail,
-                                String normalizedPhone,
-                                List<Track> tracks) {
+                                String normalizedPhone) {
         Member member = Member.builder()
                 .name(request.getName())
                 .university(request.getUniversity())
@@ -108,11 +107,15 @@ public class Member extends BaseEntity {
                 .activityStatus(true)
                 .build();
 
-        if (tracks != null) {
-            tracks.forEach(member::addTrack); // 연관관계 편의 메서드로 추가
+        // DTO의 TrackInfo → Track 엔티티 변환
+        if (request.getTracks() != null) {
+            request.getTracks().forEach(t ->
+                    member.addTrack(t.getGeneration(), t.getPart())
+            );
         }
+
         return member;
-        }
+    }
 
     public static Member createRegisteringFromKakao(KakaoUserInfoDto info) {
         var acc = info.kakaoAccount();
@@ -164,17 +167,9 @@ public class Member extends BaseEntity {
         boolean exists = this.tracks.stream()
                 .anyMatch(t -> t.getGeneration().equals(generation));
 
-        if (!exists) {
-            Track track = new Track(generation, part);
-            track.setMember(this);
-            this.tracks.add(track);
-        }
-    }
+        if (exists) return; // 같은 기수 이미 있으면 추가 안 함
 
-    // 트랙 추가 (이미 만들어진 객체 사용)
-    public void addTrack(Track track) {
-        track.setMember(this);
-        this.tracks.add(track);
+        Track track = new Track(generation, part);
+        track.setMember(this); // 여기서만 add 수행
     }
-
 }
