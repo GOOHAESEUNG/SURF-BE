@@ -13,8 +13,9 @@ public class MemberSignupReqDTO {
     @NotBlank(message = "이름은 필수 입력값입니다.")
     private String name;
 
-    //** ==== 트랙 정보 (기수 + 파트) ==== */
+    // ==== 트랙 정보 (기수 + 파트) ====
     @NotEmpty(message = "트랙 정보는 최소 1개 이상 필요합니다.")
+    @jakarta.validation.Valid
     private List<TrackInfo> tracks;
 
     @Getter
