@@ -9,7 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.YearMonth;
 
 @Entity
@@ -64,7 +63,7 @@ public class Career extends BaseEntity {
     }
 
     //정적 팩토리 메소드 - 생성
-    public static Career from(CareerCreateReqDTO dto, Member member) {
+    public static Career of(CareerCreateReqDTO dto, Member member) {
         return Career.builder()
                 .companyName(dto.getCompanyName())
                 .position(dto.getPosition())
