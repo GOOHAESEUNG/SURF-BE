@@ -12,7 +12,7 @@ import java.util.List;
 public class ProfileUpdateReqDTO {
 
     @Pattern(regexp = "^[0-9]{10,11}$", message = "전화번호 형식이 올바르지 않습니다.")
-    @Schema(description = "변경할 전화번호 (선택)", example = "010-5678-1234")
+    @Schema(description = "변경할 전화번호 (선택)", example = "01056781234")
     private String phoneNumber;
 
     @Email(message = "올바른 이메일 형식을 입력하세요.")

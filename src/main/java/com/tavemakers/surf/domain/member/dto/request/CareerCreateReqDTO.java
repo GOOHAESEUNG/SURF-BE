@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.time.YearMonth;
 
 @Getter
 @Valid
@@ -21,10 +22,10 @@ public class CareerCreateReqDTO {
     @NotBlank(message = "직무는 필수입니다.")
     private String position;
 
-    @Schema(description = "근무 시작일", example = "2023-01-10")
+    @Schema(description = "근무 시작일", example = "2023-01")
     @NotNull(message = "근무 시작일은 필수입니다.")
-    private LocalDate startDate;
+    private YearMonth startDate;
 
-    @Schema(description = "근무 종료일 (재직 중일 경우 null 또는 미포함)", example = "2024-01-09")
-    private LocalDate endDate;
+    @Schema(description = "근무 종료일 (재직 중일 경우 null 또는 미포함)", example = "2024-01")
+    private YearMonth endDate;
 }

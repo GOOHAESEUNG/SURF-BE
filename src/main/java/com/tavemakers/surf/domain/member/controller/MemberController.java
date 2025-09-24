@@ -2,16 +2,11 @@ package com.tavemakers.surf.domain.member.controller;
 
 import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.dto.response.MemberSignupResDTO;
-import com.tavemakers.surf.domain.member.facade.MemberFacade;
-import com.tavemakers.surf.domain.member.service.MemberService;
-import com.tavemakers.surf.domain.member.service.MemberServiceImpl;
 import com.tavemakers.surf.domain.member.usecase.MemberUsecase;
 import com.tavemakers.surf.global.common.response.ApiResponse;
 import com.tavemakers.surf.domain.member.service.MemberService;
 import com.tavemakers.surf.global.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,7 +18,7 @@ import jakarta.validation.Valid;
 @RequiredArgsConstructor
 public class MemberController {
 
-    private final MemberFacade memberFacade;
+
     private final MemberService memberService;
     private final MemberUsecase memberUsecase;
 
@@ -32,7 +27,7 @@ public class MemberController {
         return ApiResponse.response(
                 HttpStatus.CREATED,
                 "회원가입 성공",
-                memberFacade.signup(SecurityUtils.getCurrentMemberId(), request)
+                memberUsecase.signup(SecurityUtils.getCurrentMemberId(), request)
             );
     }
 
