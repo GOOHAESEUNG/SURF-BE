@@ -21,4 +21,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Member> findByActivityStatusAndName(Boolean activityStatus, String name);
 
     Optional<Member> findByEmailAndStatus(String email, MemberStatus status);
+  
+    Optional<Member> findByKakaoId(Long kakaoId);
 }

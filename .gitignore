@@ -12,6 +12,9 @@ application.properties
 .idea/jarRepositories.xml
 .idea/compiler.xml
 .idea/libraries/
+.idea/*
+.idea
+
 *.iws
 *.iml
 *.ipr
@@ -51,3 +54,5 @@ src/main/resources/application-local.yml
 
 .env
 
+.idea/
+.idea

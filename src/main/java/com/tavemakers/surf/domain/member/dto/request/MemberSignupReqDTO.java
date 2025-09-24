@@ -1,5 +1,6 @@
 package com.tavemakers.surf.domain.member.dto.request;
 
+import jakarta.validation.Valid;
 import lombok.Getter;
 import jakarta.validation.constraints.*;
 import java.util.List;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
+@Valid
 public class MemberSignupReqDTO {
 
     private String profileImageUrl;

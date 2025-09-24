@@ -1,0 +1,47 @@
+package com.tavemakers.surf.domain.board.service;
+
+import com.tavemakers.surf.domain.board.dto.req.BoardCreateReqDTO;
+import com.tavemakers.surf.domain.board.dto.req.BoardUpdateReqDTO;
+import com.tavemakers.surf.domain.board.dto.res.BoardResDTO;
+import com.tavemakers.surf.domain.board.entity.Board;
+import com.tavemakers.surf.domain.board.exception.BoardNotFoundException;
+import com.tavemakers.surf.domain.board.repository.BoardRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class BoardService {
+    private final BoardRepository boardRepository;
+
+    @Transactional
+    public BoardResDTO createBoard(BoardCreateReqDTO req) {
+        Board board = Board.of(req);
+        Board saved = boardRepository.save(board);
+        return BoardResDTO.from(saved);
+    }
+
+    public BoardResDTO getBoard(Long id) {
+        Board board = boardRepository.findById(id)
+                .orElseThrow(BoardNotFoundException::new);
+        return BoardResDTO.from(board);
+    }
+
+    @Transactional
+    public BoardResDTO updateBoard(Long id, BoardUpdateReqDTO req) {
+        Board board = boardRepository.findById(id)
+                .orElseThrow(BoardNotFoundException::new);
+        board.changeType(req.type());
+        return BoardResDTO.from(board);
+    }
+
+    @Transactional
+    public void deleteBoard(Long id) {
+        if (!boardRepository.existsById(id)) {
+            throw new BoardNotFoundException();
+        }
+        boardRepository.deleteById(id);
+    }
+}
