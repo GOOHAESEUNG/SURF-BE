@@ -11,6 +11,7 @@ import com.tavemakers.surf.domain.member.exception.TrackNotFoundException;
 import com.tavemakers.surf.domain.member.service.*;
 import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MemberUsecase {
 
     private final MemberGetService memberGetService;
@@ -93,6 +95,7 @@ public class MemberUsecase {
     @Transactional
     public void updateProfile(Long memberId, ProfileUpdateRequestDTO dto) {
         Member member = memberGetService.getMember(memberId);
+        log.info(memberId.toString());
 
         memberPatchService.updateProfile(member, dto);
 

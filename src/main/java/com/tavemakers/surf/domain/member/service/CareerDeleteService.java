@@ -4,6 +4,7 @@ import com.tavemakers.surf.domain.member.entity.Career;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.exception.CareerNotFoundException;
 import com.tavemakers.surf.domain.member.repository.CareerRepository;
+import com.tavemakers.surf.domain.member.validator.CareerValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 public class CareerDeleteService {
 
     private final CareerRepository careerRepository;
+    private final CareerValidator careerValidator;
 
     //경력 삭제
     @Transactional
@@ -25,15 +27,7 @@ public class CareerDeleteService {
 
         Set<Long> requestedIds = new HashSet<>(careerIds);
         List<Career> careersToDelete = careerRepository.findAllByMemberAndIdIn(member, requestedIds);
-
-        if (careersToDelete.size() != requestedIds.size()) {
-            Set<Long> validIds = careersToDelete.stream()
-                    .map(Career::getId)
-                    .collect(Collectors.toSet());
-            Set<Long> InvalidIds = new HashSet<>(requestedIds);
-            InvalidIds.removeAll(validIds);
-            throw new CareerNotFoundException("잘못되었거나 권한이 없는 경력 ID: " + InvalidIds);
-        }
+        careerValidator.validateCareer(requestedIds, careersToDelete);
 
         careerRepository.deleteAll(careersToDelete);
     }

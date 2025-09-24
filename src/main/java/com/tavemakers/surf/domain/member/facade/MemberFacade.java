@@ -12,7 +12,7 @@ public class MemberFacade {
 
     private final MemberService memberService;
 
-    public MemberSignupResDTO signup(MemberSignupReqDTO request) {
-        return memberService.signup(request);
+    public MemberSignupResDTO signup(Long memberKakaoId,MemberSignupReqDTO request) {
+        return memberService.signup(memberKakaoId, request);
     }
 }

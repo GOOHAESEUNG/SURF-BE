@@ -19,16 +19,16 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public MemberSignupResDTO signup(MemberSignupReqDTO request) {
+    public MemberSignupResDTO signup(Long memberKakaoId, MemberSignupReqDTO request) {
 
         // 1) 정규화
-        final String normalizedEmail = request.getEmail().trim().toLowerCase(Locale.ROOT);
+        //final String normalizedEmail = request.getEmail().trim().toLowerCase(Locale.ROOT);
         final String normalizedPhone = request.getPhoneNumber() == null
                 ? null
                 : request.getPhoneNumber().replaceAll("\\D", "");
 
         // 2) 선조회
-        Member member = memberRepository.findByEmail(normalizedEmail).orElse(null);
+        Member member = memberRepository.findByKakaoId(memberKakaoId).orElse(null);
 
         // 3) 선행 조건 검증: 사전 등록(카카오 콜백) 미존재 시 에러
         if (member == null) {
@@ -46,5 +46,13 @@ public class MemberServiceImpl implements MemberService {
 
         // 6) 응답 변환 (영속 엔티티 → DTO)
         return MemberSignupResDTO.from(member);
+    }
+
+    @Transactional
+    public void validateMemberRegistering(Long memberKakaoId) {
+        Member member = memberRepository.findByKakaoId(memberKakaoId).orElse(null);
+        if(!member.getStatus().equals(MemberStatus.REGISTERING)) {
+            throw new MemberAlreadyExistsException();
+        }
     }
 }

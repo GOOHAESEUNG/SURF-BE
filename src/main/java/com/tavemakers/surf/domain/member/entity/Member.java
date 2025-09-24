@@ -25,6 +25,8 @@ public class Member extends BaseEntity {
     @Column(name = "member_id")
     private Long id;
 
+    private Long kakaoId;
+
     @Column(nullable = false)
     private String name;
 
@@ -45,8 +47,6 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private MemberStatus status; // 회원 상태 (가입중, 대기중, 승인)
 
-    private String kakaoId; // 카카오 ID는 보통 문자열로 관리
-
     @Enumerated(EnumType.STRING)
     private MemberRole role; // 역할 (루트, 회장, 매니저, 회원)
 
@@ -64,7 +64,8 @@ public class Member extends BaseEntity {
     }
 
     @Builder
-    public Member(String name,
+    public Member(Long kakaoId,
+                  String name,
                   String profileImageUrl,
                   String university,
                   String graduateSchool,
@@ -74,6 +75,7 @@ public class Member extends BaseEntity {
                   MemberRole role,
                   MemberType memberType,
                   boolean activityStatus) {
+        this.kakaoId = kakaoId;
         this.name = name;
         this.profileImageUrl = profileImageUrl;
         this.university = university;
@@ -113,6 +115,7 @@ public class Member extends BaseEntity {
         }
 
         return Member.builder()
+                .kakaoId(info.id())
                 .name(acc.profile().nickname())
                 .email(acc.email())
                 .profileImageUrl(acc.profile().profileImageUrl())
