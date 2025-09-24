@@ -15,15 +15,12 @@ public class MemberUpsertService {
 
     @Transactional
     public Member upsertRegisteringFromKakao(KakaoUserInfoDto info) {
-        var acc = info.kakaoAccount();
-        final String email = acc.email().trim().toLowerCase();
-
-        return memberRepository.findByEmail(email).orElseGet(() -> {
+        return memberRepository.findByKakaoId(info.id()).orElseGet(() -> {
             Member toSave = Member.createRegisteringFromKakao(info);
             try {
                 return memberRepository.save(toSave);
             } catch (org.springframework.dao.DataIntegrityViolationException e) {
-                return memberRepository.findByEmail(email)
+                return memberRepository.findByKakaoId(info.id())
                         .orElseThrow(() -> e);
             }
         });
