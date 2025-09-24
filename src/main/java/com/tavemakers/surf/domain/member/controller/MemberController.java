@@ -24,12 +24,11 @@ public class MemberController {
     private final MemberServiceImpl memberServiceImpl;
 
     @PostMapping("/signup")
-    public ApiResponse<MemberSignupResDTO> signup(@Valid @RequestBody MemberSignupReqDTO request,
-                                                  @Parameter Long memberKakaoId) {
+    public ApiResponse<MemberSignupResDTO> signup(@Valid @RequestBody MemberSignupReqDTO request) {
         return ApiResponse.response(
                 HttpStatus.CREATED,
                 "회원가입 성공",
-                memberFacade.signup(memberKakaoId, request)
+                memberFacade.signup(SecurityUtils.getCurrentMemberId(), request)
             );
     }
 
@@ -37,7 +36,7 @@ public class MemberController {
     @GetMapping("/valid-status")
     public ApiResponse<Boolean> checkOnboardingStatus(
             ) {
-        boolean needsOnboarding = memberServiceImpl.needsOnboarding(SecurityUtils.getCurrentKakaoId());
+        boolean needsOnboarding = memberServiceImpl.needsOnboarding(SecurityUtils.getCurrentMemberId());
         return ApiResponse.response(
                 HttpStatus.OK,
                 ResponseMessage.MEMBER_ONBOARDING_STATUS_CHECK_SUCCESS.getMessage(),
