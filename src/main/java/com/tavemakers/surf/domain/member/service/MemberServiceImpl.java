@@ -26,11 +26,13 @@ public class MemberServiceImpl implements MemberService {
 
         Member member = memberGetService.getMember(memberId);
 
+        final String normalizedEmail = request.getEmail().trim().toLowerCase(Locale.ROOT);
+
         final String normalizedPhone = request.getPhoneNumber() == null
                 ? null
                 : request.getPhoneNumber().replaceAll("\\D", "");
 
-        member.applySignup(request, normalizedPhone);
+        member.applySignup(request, normalizedEmail, normalizedPhone);
         return MemberSignupResDTO.from(member);
     }
 

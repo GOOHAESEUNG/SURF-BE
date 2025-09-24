@@ -126,10 +126,11 @@ public class Member extends BaseEntity {
                 .build();
     }
 
-    public void applySignup(MemberSignupReqDTO req, String normalizedPhone) {
+    public void applySignup(MemberSignupReqDTO req,String normalizedEmail, String normalizedPhone) {
         this.name = req.getName();
         this.university = req.getUniversity();
         this.graduateSchool = req.getGraduateSchool();
+        this.email = normalizedEmail;
         this.phoneNumber = normalizedPhone;
 
         // 기본 정책 보정 (비어있을 수 있는 값들)
