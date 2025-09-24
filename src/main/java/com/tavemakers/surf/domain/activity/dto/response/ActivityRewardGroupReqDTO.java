@@ -1,7 +1,5 @@
-package com.tavemakers.surf.domain.activity.dto.test;
+package com.tavemakers.surf.domain.activity.dto.response;
 
-import com.tavemakers.surf.domain.activity.dto.response.ActivityTypeCountResDTO;
-import com.tavemakers.surf.domain.activity.dto.response.ActivityTypeGroupCountResDTO;
 import lombok.Builder;
 
 import java.util.List;
