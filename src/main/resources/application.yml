@@ -7,7 +7,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
@@ -38,4 +38,7 @@ jwt:
   refresh:
     expiration: 86400000 # 1 day
     header: RefreshToken
-
+  data:
+    redis:
+      host: localhost
+      port: 6379
