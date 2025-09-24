@@ -19,9 +19,6 @@ public class CareerPostService {
     //경력 신규 생성
     @Transactional
     public void createCareer(Member member, List<CareerCreateReqDTO> dtos) {
-        if (dtos == null || dtos.isEmpty()) {
-            return;
-        }
         List<Career> newCareers = dtos.stream()
                 .map(dto -> Career.from(dto, member))
                 .toList();
