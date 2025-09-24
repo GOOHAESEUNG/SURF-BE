@@ -22,26 +22,8 @@ public class ActivityRecordGetService {
         return activityRecordRepository.findActivityRecordListByMemberId(memberId, scoreType, pageable);
     }
 
-    public Map<ActivityType, Long> findTopActivityRecord(Long memberId) {
-        List<ActivityRecord> activityRecordList = activityRecordRepository.findByMemberIdAndIsDeleted(memberId, false);
-        return countTop4ActivityRecord(activityRecordList);
-    }
-
-    private Map<ActivityType, Long> countTop4ActivityRecord(List<ActivityRecord> activityRecordList) {
-        return activityRecordList.stream()
-                .collect(Collectors.groupingBy(
-                        ActivityRecord::getActivityType,
-                        Collectors.counting()
-                ))
-                .entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())) // 개수 내림차순
-                .limit(4)
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (e1, e2) -> e1,
-                        LinkedHashMap::new
-                ));
+    public List<ActivityRecord> findAllByMemberId(Long memberId) {
+        return activityRecordRepository.findByMemberIdAndIsDeleted(memberId, false);
     }
 
 }
