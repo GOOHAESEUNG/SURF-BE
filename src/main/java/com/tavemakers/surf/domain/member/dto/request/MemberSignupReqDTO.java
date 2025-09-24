@@ -4,6 +4,8 @@ import lombok.Getter;
 import jakarta.validation.constraints.*;
 import java.util.List;
 import com.tavemakers.surf.domain.member.entity.enums.Part;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 public class MemberSignupReqDTO {
@@ -19,6 +21,8 @@ public class MemberSignupReqDTO {
     private List<TrackInfo> tracks;
 
     @Getter
+    @Setter
+    @NoArgsConstructor
     public static class TrackInfo {
         @NotNull(message = "기수는 필수 입력값입니다.")
         private Integer generation;
