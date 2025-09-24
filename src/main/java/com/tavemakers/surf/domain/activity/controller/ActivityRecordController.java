@@ -5,6 +5,8 @@ import com.tavemakers.surf.domain.activity.dto.response.ActivityRecordSliceResDT
 import com.tavemakers.surf.domain.activity.entity.enums.ScoreType;
 import com.tavemakers.surf.domain.activity.usecase.ActivityRecordUsecase;
 import com.tavemakers.surf.global.common.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,16 +16,19 @@ import static com.tavemakers.surf.domain.activity.controller.ResponseMessage.*;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "활동기록")
 public class ActivityRecordController {
 
     private final ActivityRecordUsecase activityRecordUsecase;
 
+    @Operation(summary = "활동 점수(기록) 부여")
     @PostMapping("/v1/manager/activity-record")
     public ApiResponse<Void> createActivityRecord(@RequestBody @Valid ActivityRecordReqDTO dto) {
         activityRecordUsecase.createActivityRecordList(dto);
         return ApiResponse.response(HttpStatus.CREATED, ACTIVITY_RECORD_CREATED.getMessage(), null);
     }
 
+    @Operation(summary = "활동 기록 조회(무한스크롤)")
     @GetMapping("/v1/member/{memberId}/activity-record")
     public ApiResponse<ActivityRecordSliceResDTO> getActivityRecord(
             @PathVariable Long memberId,
