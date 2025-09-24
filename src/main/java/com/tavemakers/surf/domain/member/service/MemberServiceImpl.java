@@ -49,10 +49,11 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Transactional
-    public void validateMemberRegistering(Long memberKakaoId) {
+    public Boolean needsOnboarding(Long memberKakaoId) {
         Member member = memberRepository.findByKakaoId(memberKakaoId).orElse(null);
-        if(!member.getStatus().equals(MemberStatus.REGISTERING)) {
-            throw new MemberAlreadyExistsException();
-        }
+        if(member.getStatus().equals(MemberStatus.REGISTERING)) {
+            return true;
+        }else
+            return false;
     }
 }
