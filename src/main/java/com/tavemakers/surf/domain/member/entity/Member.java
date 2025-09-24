@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
+import com.tavemakers.surf.domain.member.entity.enums.Part;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +72,6 @@ public class Member extends BaseEntity {
                   String graduateSchool,
                   String email,
                   String phoneNumber,
-                  List<Track> tracks,
                   MemberStatus status,
                   MemberRole role,
                   MemberType memberType,
@@ -82,34 +82,37 @@ public class Member extends BaseEntity {
         this.graduateSchool = graduateSchool;
         this.email = email;
         this.phoneNumber = phoneNumber;
-        this.tracks = (tracks != null) ? tracks : new ArrayList<>();
-        this.status = status;
-        this.role = role;
-        this.memberType = memberType;
+        this.status = status != null ? status : MemberStatus.WAITING;
+        this.role = role != null ? role : MemberRole.MEMBER;
+        this.memberType = memberType != null ? memberType : MemberType.YB;
         this.activityStatus = activityStatus;
         this.activityScore = 0;
+        this.tracks = new ArrayList<>();
     }
-
 
     /** ===== [정적 팩토리 메서드] ===== */
     public static Member create(MemberSignupReqDTO request,
                                 String normalizedEmail,
                                 String normalizedPhone,
                                 List<Track> tracks) {
-        return Member.builder()
+        Member member = Member.builder()
                 .name(request.getName())
                 .university(request.getUniversity())
                 .graduateSchool(request.getGraduateSchool())
                 .email(normalizedEmail)
                 .phoneNumber(normalizedPhone)
                 .profileImageUrl(request.getProfileImageUrl())
-                .tracks(tracks)
                 .status(MemberStatus.WAITING)
                 .role(MemberRole.MEMBER)
                 .memberType(MemberType.YB)
                 .activityStatus(true)
                 .build();
-    }
+
+        if (tracks != null) {
+            tracks.forEach(member::addTrack); // 연관관계 편의 메서드로 추가
+        }
+        return member;
+        }
 
     public static Member createRegisteringFromKakao(KakaoUserInfoDto info) {
         var acc = info.kakaoAccount();
@@ -144,8 +147,6 @@ public class Member extends BaseEntity {
         if (this.status == MemberStatus.REGISTERING) {
             this.status = MemberStatus.WAITING;
         }
-
-
     }
 
     /** ===== [도메인 행위 메서드] ===== */
@@ -156,4 +157,24 @@ public class Member extends BaseEntity {
     public void reject() {
         this.status = MemberStatus.REJECTED;
     }
+
+    /** ===== [연관관계 편의 메서드] ===== */
+    // 트랙 추가 (기수+파트로 생성)
+    public void addTrack(Integer generation, Part part) {
+        boolean exists = this.tracks.stream()
+                .anyMatch(t -> t.getGeneration().equals(generation));
+
+        if (!exists) {
+            Track track = new Track(generation, part);
+            track.setMember(this);
+            this.tracks.add(track);
+        }
+    }
+
+    // 트랙 추가 (이미 만들어진 객체 사용)
+    public void addTrack(Track track) {
+        track.setMember(this);
+        this.tracks.add(track);
+    }
+
 }
