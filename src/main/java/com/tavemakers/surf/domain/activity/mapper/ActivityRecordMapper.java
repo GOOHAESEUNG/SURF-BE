@@ -44,18 +44,14 @@ public class ActivityRecordMapper {
     }
 
     private ActivityPenaltyGroupReqDTO makePenaltiesGroup(Map<ActivityType, Long> countMap) {
-        List<ActivityTypeCountResDTO> sessionLateGroup = getActivityTypeCountDTO(countMap, SESSION_LATE_GROUP);
-        List<ActivityTypeCountResDTO> teamLateGroup = getActivityTypeCountDTO(countMap, TEAM_LATE_GROUP);
         List<ActivityTypeCountResDTO> lateList = Arrays.asList(
-                ActivityTypeCountResDTO.of(SESSION_LATE, sessionLateGroup.size()),
-                ActivityTypeCountResDTO.of(TEAM_LATE, teamLateGroup.size())
+                ActivityTypeCountResDTO.of(SESSION_LATE, getActivityTypeCount(countMap, SESSION_LATE_GROUP)),
+                ActivityTypeCountResDTO.of(TEAM_LATE, getActivityTypeCount(countMap, TEAM_LATE_GROUP))
         );
 
-        List<ActivityTypeCountResDTO> sessionAbsenceGroup = getActivityTypeCountDTO(countMap, SESSION_ABSENCE_GROUP);
-        List<ActivityTypeCountResDTO> teamAbsenceGroup = getActivityTypeCountDTO(countMap, TEAM_ABSENCE_GROUP);
         List<ActivityTypeCountResDTO> absenceList = Arrays.asList(
-                ActivityTypeCountResDTO.of(SESSION_ABSENCE, sessionAbsenceGroup.size()),
-                ActivityTypeCountResDTO.of(TEAM_ABSENCE, teamAbsenceGroup.size())
+                ActivityTypeCountResDTO.of(SESSION_ABSENCE, getActivityTypeCount(countMap, SESSION_ABSENCE_GROUP)),
+                ActivityTypeCountResDTO.of(TEAM_ABSENCE, getActivityTypeCount(countMap, TEAM_ABSENCE_GROUP))
         );
 
         return ActivityPenaltyGroupReqDTO.of(
@@ -68,6 +64,12 @@ public class ActivityRecordMapper {
         return activityTypes.stream()
                 .map(type -> ActivityTypeCountResDTO.of(type, countMap.getOrDefault(type, 0L)))
                 .toList();
+    }
+
+    private Long  getActivityTypeCount(Map<ActivityType, Long> countMap, List<ActivityType> activityTypeList) {
+        return activityTypeList.stream()
+                .mapToLong(type -> countMap.getOrDefault(type, 0L))
+                .sum();
     }
 
 }
