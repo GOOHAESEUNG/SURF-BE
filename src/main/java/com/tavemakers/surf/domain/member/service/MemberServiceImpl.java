@@ -18,6 +18,7 @@ import java.util.Locale;
 public class MemberServiceImpl implements MemberService {
 
     private final MemberGetService memberGetService;
+    private final MemberRepository memberRepository;
 
     //추가 정보 입력 회원가입
     @Transactional
