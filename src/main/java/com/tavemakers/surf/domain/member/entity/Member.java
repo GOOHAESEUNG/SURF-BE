@@ -12,7 +12,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
+import com.tavemakers.surf.domain.member.entity.enums.Part;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+
 
 @Entity
 @Getter
@@ -43,9 +47,13 @@ public class Member extends BaseEntity {
 
     private Integer activityScore;
 
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Track> tracks = new ArrayList<>();
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private MemberStatus status; // 회원 상태 (가입중, 대기중, 승인)
+
+    private MemberStatus status = MemberStatus.WAITING; // 회원 상태; // 회원 상태 (가입중, 대기중, 승인)
 
     @Enumerated(EnumType.STRING)
     private MemberRole role; // 역할 (루트, 회장, 매니저, 회원)
@@ -82,29 +90,39 @@ public class Member extends BaseEntity {
         this.graduateSchool = graduateSchool;
         this.email = email;
         this.phoneNumber = phoneNumber;
-        this.status = status;
-        this.role = role;
-        this.memberType = memberType;
+        this.status = status != null ? status : MemberStatus.WAITING;
+        this.role = role != null ? role : MemberRole.MEMBER;
+        this.memberType = memberType != null ? memberType : MemberType.YB;
         this.activityStatus = activityStatus;
-        this.activityScore = 0; // 기본값
+        this.activityScore = 0;
+        this.tracks = new ArrayList<>();
     }
 
     /** ===== [정적 팩토리 메서드] ===== */
     public static Member create(MemberSignupReqDTO request,
                                 String normalizedEmail,
                                 String normalizedPhone) {
-        return Member.builder()
+        Member member = Member.builder()
                 .name(request.getName())
                 .university(request.getUniversity())
                 .graduateSchool(request.getGraduateSchool())
                 .email(normalizedEmail)
                 .phoneNumber(normalizedPhone)
                 .profileImageUrl(request.getProfileImageUrl())
-                .status(MemberStatus.WAITING)   // 기본값
-                .role(MemberRole.MEMBER)        // 기본값
-                .memberType(MemberType.YB)      // 예시: 회원가입 시 기본 YB
-                .activityStatus(true)           // 기본값
+                .status(MemberStatus.WAITING)
+                .role(MemberRole.MEMBER)
+                .memberType(MemberType.YB)
+                .activityStatus(true)
                 .build();
+
+        // DTO의 TrackInfo → Track 엔티티 변환
+        if (request.getTracks() != null) {
+            request.getTracks().forEach(t ->
+                    member.addTrack(t.getGeneration(), t.getPart())
+            );
+        }
+
+        return member;
     }
 
     public static Member createRegisteringFromKakao(KakaoUserInfoDto info) {
@@ -143,6 +161,26 @@ public class Member extends BaseEntity {
             this.status = MemberStatus.WAITING;
         }
     }
+
+    /** ===== [도메인 행위 메서드] ===== */
+    public void approve() {
+        this.status = MemberStatus.APPROVED;
+    }
+
+    public void reject() {
+        this.status = MemberStatus.REJECTED;
+    }
+
+    /** ===== [연관관계 편의 메서드] ===== */
+    // 트랙 추가 (기수+파트로 생성)
+    public void addTrack(Integer generation, Part part) {
+        boolean exists = this.tracks.stream()
+                .anyMatch(t -> t.getGeneration().equals(generation));
+
+        if (exists) return; // 같은 기수 이미 있으면 추가 안 함
+
+        Track track = new Track(generation, part);
+        track.setMember(this); // 여기서만 add 수행
 
     //프로필 수정하기
     public void updateProfile(ProfileUpdateReqDTO request) {

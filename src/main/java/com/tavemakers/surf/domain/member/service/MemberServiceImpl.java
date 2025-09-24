@@ -6,12 +6,12 @@ import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.tavemakers.surf.domain.member.exception.MemberAlreadyExistsException;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import java.util.Locale;
-
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +31,28 @@ public class MemberServiceImpl implements MemberService {
 
         member.applySignup(request, normalizedEmail, normalizedPhone);
         return MemberSignupResDTO.from(member);
+    }
+
+    /** 회원 승인 */
+    @Override
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
+    public void approveMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberNotFoundException(memberId));
+
+        member.approve();
+    }
+
+    /** 회원 거절 */
+    @Override
+    @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
+    public void rejectMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberNotFoundException(memberId));
+
+        member.reject();
     }
 
     //추가 정보 회원가입 온보딩 필요 여부 확인
