@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,14 +23,16 @@ public class CareerDeleteService {
     @Transactional
     public void deleteCareer(Member member, List<Long> careerIds){
 
-        List<Career> careersToDelete = careerRepository.findAllByMemberAndIdIn(member, careerIds);
+        Set<Long> requestedIds = new HashSet<>(careerIds);
+        List<Career> careersToDelete = careerRepository.findAllByMemberAndIdIn(member, requestedIds);
 
-        if (careersToDelete.size() != careerIds.size()) {
+        if (careersToDelete.size() != requestedIds.size()) {
             Set<Long> validIds = careersToDelete.stream()
                     .map(Career::getId)
                     .collect(Collectors.toSet());
-            careerIds.removeAll(validIds);
-            throw new CareerNotFoundException("잘못되었거나 권한이 없는 경력 ID: " + careerIds);
+            Set<Long> InvalidIds = new HashSet<>(requestedIds);
+            InvalidIds.removeAll(validIds);
+            throw new CareerNotFoundException("잘못되었거나 권한이 없는 경력 ID: " + InvalidIds);
         }
 
         careerRepository.deleteAll(careersToDelete);
