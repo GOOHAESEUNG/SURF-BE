@@ -4,10 +4,12 @@ import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.dto.response.MemberSignupResDTO;
 import com.tavemakers.surf.domain.member.usecase.MemberUsecase;
 import com.tavemakers.surf.global.common.response.ApiResponse;
+import com.tavemakers.surf.domain.member.service.MemberService;
 import com.tavemakers.surf.global.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
@@ -16,6 +18,8 @@ import jakarta.validation.Valid;
 @RequiredArgsConstructor
 public class MemberController {
 
+
+    private final MemberService memberService;
     private final MemberUsecase memberUsecase;
 
     @PostMapping("/signup")
@@ -35,6 +39,24 @@ public class MemberController {
                 HttpStatus.OK,
                 ResponseMessage.MEMBER_ONBOARDING_STATUS_CHECK_SUCCESS.getMessage(),
                 memberUsecase.needsOnboarding(SecurityUtils.getCurrentMemberId())
+        );
+    }
+    @PatchMapping("/{id}/approve")
+    public ApiResponse<Void> approveMember(@PathVariable Long id) {
+        memberService.approveMember(id);
+        return ApiResponse.response(
+                HttpStatus.OK,
+                "승인되었습니다.",
+                null
+        );
+    }
+    @PatchMapping("/{id}/reject")
+    public ApiResponse<Void> rejectMember(@PathVariable Long id) {
+        memberService.rejectMember(id);
+        return ApiResponse.response(
+                HttpStatus.OK,
+                "거절되었습니다.",
+                null
         );
     }
 }

@@ -17,6 +17,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 /**
  * Spring Security 전역 설정
@@ -30,23 +35,56 @@ public class SecurityConfig {
     private final JwtService jwtService;
     private final MemberRepository memberRepository;
     private final RedisTemplate<String, String> redisTemplate;
+    private final PermitUrlConfig permitUrlConfig;
 
+
+    // 인증 없이 접근 가능한 URL 정의
+    private static final String[] PERMITTED_URLS = {
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/kakao/login",
+            "/login/oauth2/code/kakao",
+            "/login/**",
+            "/api/members/signup"
+    };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(
+                corsConfigurationSource()));
+
         http
                 .csrf(csrf -> csrf.disable()) // JWT 사용 시 CSRF 비활성화
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login/**").permitAll() // 로그인
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN") // 관리자 페이지 접근 제한 예시
+                        .requestMatchers(permitUrlConfig.getPublicUrl()).permitAll() // 로그인, 회원가입은 모두 허용
+                        .requestMatchers(permitUrlConfig.getMemberUrl()).hasRole("MEMBER")
+                        .requestMatchers(permitUrlConfig.getAdminUrl()).hasRole("ADMIN") // 관리자 페이지 접근 제한 예시
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable()) // 우리는 소셜 로그인 + JWT 사용 → formLogin 비활성화
-                .httpBasic(basic -> basic.disable()); // Basic Auth도 비활성화
+                .httpBasic(basic -> basic.disable()) // Basic Auth 비활성화
+                .headers(h -> h.frameOptions(f -> f.disable())); // H2 console 접근 허용 필요 시
 
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "RefreshToken", "Content-Type", "Set-Cookie"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
+        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", configuration);
+        return urlBasedCorsConfigurationSource;
     }
 
     @Bean
@@ -63,4 +101,5 @@ public class SecurityConfig {
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(jwtService, memberRepository, redisTemplate);
     }
+
 }

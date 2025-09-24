@@ -3,6 +3,8 @@ package com.tavemakers.surf.domain.member.usecase;
 import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.dto.response.*;
 import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateReqDTO;
+import com.tavemakers.surf.domain.member.dto.response.MyPageProfileResDTO;
+import com.tavemakers.surf.domain.member.dto.response.TrackResDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.Track;
 import com.tavemakers.surf.domain.member.exception.TrackNotFoundException;

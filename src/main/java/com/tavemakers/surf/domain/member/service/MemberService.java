@@ -5,6 +5,15 @@ import com.tavemakers.surf.domain.member.dto.response.MemberSignupResDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
 
 public interface MemberService {
+    /**
+     * 회원 승인 (ADMIN 전용)
+     */
+    void approveMember(Long memberId);
+
+    /**
+     * 회원 거절 (ADMIN 전용)
+     */
+    void rejectMember(Long memberId);
     MemberSignupResDTO signup(Member member, MemberSignupReqDTO request);
     Boolean needsOnboarding(Member member);
 }
