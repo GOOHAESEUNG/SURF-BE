@@ -7,21 +7,23 @@ import com.tavemakers.surf.global.common.response.ApiResponse;
 import com.tavemakers.surf.domain.member.service.MemberService;
 import com.tavemakers.surf.global.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/members")
+@RequestMapping("/v1/members")
 @RequiredArgsConstructor
+@Tag(name = "서비스 내 자체 회원가입 관련")
 public class MemberController {
 
 
     private final MemberService memberService;
     private final MemberUsecase memberUsecase;
 
+    @Operation(summary = "자체 회원가입 온보딩")
     @PostMapping("/signup")
     public ApiResponse<MemberSignupResDTO> signup(@Valid @RequestBody MemberSignupReqDTO request) {
         return ApiResponse.response(
