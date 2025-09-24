@@ -4,27 +4,39 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import com.tavemakers.surf.domain.member.entity.Member;
 
+import java.util.List;
+
 @Getter
 @AllArgsConstructor
 public class MemberSignupResDTO {
     private Long memberId;
+
+    private String profileImageUrl;
     private String name;
-    private String email;
-    private String phoneNumber;
+
+    private List<TrackResDTO> tracks;
+
     private String university;
     private String graduateSchool;
-    private String profileImageUrl;
+
+    private String email;
+    private String phoneNumber;
 
     // 정적 팩토리 메서드
     public static MemberSignupResDTO from(Member member) {
+        List<TrackResDTO> tracks = member.getTracks().stream()
+                .map(TrackResDTO::from)
+                .toList();
+
         return new MemberSignupResDTO(
                 member.getId(),
+                member.getProfileImageUrl(),
                 member.getName(),
-                member.getEmail(),
-                member.getPhoneNumber(),
+                tracks,
                 member.getUniversity(),
                 member.getGraduateSchool(),
-                member.getProfileImageUrl()
+                member.getEmail(),
+                member.getPhoneNumber()
         );
     }
 }

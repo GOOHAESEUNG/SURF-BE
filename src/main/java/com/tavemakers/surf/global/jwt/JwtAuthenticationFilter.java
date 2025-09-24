@@ -29,7 +29,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // 필요에 맞게 경로 조정
     private static final String LOGIN_URL = "/login/**";
-    private static final String SIGNUP_URL = "/api/members/signup";
     private static final String LOGOUT_URL = "/auth/logout";
 
     @Override
@@ -40,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String uri = request.getRequestURI();
 
         // 로그인/로그아웃 등은 패스
-        if (uri.startsWith(LOGIN_URL) || uri.startsWith(SIGNUP_URL) || uri.equals(LOGOUT_URL)) {
+        if (uri.startsWith(LOGIN_URL) || uri.equals(LOGOUT_URL)) {
             chain.doFilter(request, response);
             return;
         }

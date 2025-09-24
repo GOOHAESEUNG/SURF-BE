@@ -4,11 +4,13 @@ import com.tavemakers.surf.domain.login.AuthService;
 import com.tavemakers.surf.domain.login.LoginResDto;
 import com.tavemakers.surf.domain.login.kakao.dto.KakaoTokenResponseDto;
 import com.tavemakers.surf.domain.login.kakao.dto.KakaoUserInfoDto;
+import com.tavemakers.surf.global.common.exception.UnauthorizedException;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import com.tavemakers.surf.domain.member.service.MemberUpsertService;
 import com.tavemakers.surf.global.common.response.ApiResponse;
 import com.tavemakers.surf.global.jwt.JwtService;
+import com.tavemakers.surf.global.util.SecurityUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
+import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
+import com.tavemakers.surf.domain.member.repository.MemberRepository;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 
@@ -24,6 +29,7 @@ import java.io.IOException;
 public class AuthController {
 
     private final AuthService<KakaoTokenResponseDto, KakaoUserInfoDto> kakaoAuthService;
+    private final MemberRepository memberRepository;
     private final JwtService jwtService;
     private final MemberUpsertService memberUpsertService;
 
@@ -76,4 +82,6 @@ public class AuthController {
                                 })
                 );
     }
+
+
 }

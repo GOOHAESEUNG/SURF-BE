@@ -38,6 +38,16 @@ public class SecurityConfig {
     private final PermitUrlConfig permitUrlConfig;
 
 
+    // 인증 없이 접근 가능한 URL 정의
+    private static final String[] PERMITTED_URLS = {
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/kakao/login",
+            "/login/oauth2/code/kakao",
+            "/login/**",
+            "/api/members/signup"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -47,13 +57,17 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // JWT 사용 시 CSRF 비활성화
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/login/**").permitAll() // 로그인, 회원가입은 모두 허용
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN") // 관리자 페이지 접근 제한 예시
                         .requestMatchers(permitUrlConfig.getPublicUrl()).permitAll() // 로그인, 회원가입은 모두 허용
                         .requestMatchers(permitUrlConfig.getMemberUrl()).hasRole("MEMBER")
                         .requestMatchers(permitUrlConfig.getAdminUrl()).hasRole("ADMIN") // 관리자 페이지 접근 제한 예시
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable()) // 우리는 소셜 로그인 + JWT 사용 → formLogin 비활성화
-                .httpBasic(basic -> basic.disable()); // Basic Auth도 비활성화
+                .httpBasic(basic -> basic.disable()) // Basic Auth 비활성화
+                .headers(h -> h.frameOptions(f -> f.disable())); // H2 console 접근 허용 필요 시
 
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
