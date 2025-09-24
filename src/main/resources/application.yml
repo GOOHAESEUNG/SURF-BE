@@ -39,3 +39,6 @@ jwt:
     expiration: 86400000 # 1 day
     header: RefreshToken
 
+feedback:
+  hash:
+    secret: ${FEEDBACK_HASH_SECRET}
