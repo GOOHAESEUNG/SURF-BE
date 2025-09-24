@@ -9,7 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
 
 @Entity
 @Getter
@@ -28,9 +28,9 @@ public class Career extends BaseEntity {
     private String position; // 직무
 
     @Column(nullable = false)
-    private LocalDate startDate; // 근무 시작일
+    private YearMonth startDate; // 근무 시작일
 
-    private LocalDate endDate; // 근무 종료일 (진행 중일 경우 null)
+    private YearMonth endDate; // 근무 종료일 (진행 중일 경우 null)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
@@ -38,7 +38,7 @@ public class Career extends BaseEntity {
 
     // Builder 패턴을 사용하기 위해 생성자 추가
     @Builder
-    private Career(String companyName, String position, LocalDate startDate, LocalDate endDate, Member member) {
+    private Career(String companyName, String position, YearMonth startDate, YearMonth endDate, Member member) {
         this.companyName = companyName;
         this.position = position;
         this.startDate = startDate;
@@ -63,7 +63,7 @@ public class Career extends BaseEntity {
     }
 
     //정적 팩토리 메소드 - 생성
-    public static Career from(CareerCreateReqDTO dto, Member member) {
+    public static Career of(CareerCreateReqDTO dto, Member member) {
         return Career.builder()
                 .companyName(dto.getCompanyName())
                 .position(dto.getPosition())

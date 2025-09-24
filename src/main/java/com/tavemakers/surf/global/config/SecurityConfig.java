@@ -57,7 +57,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // JWT 사용 시 CSRF 비활성화
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login/**").permitAll() // 로그인, 회원가입은 모두 허용
+                        .requestMatchers("/login/**").permitAll() // 로그인
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN") // 관리자 페이지 접근 제한 예시
                         .requestMatchers(permitUrlConfig.getPublicUrl()).permitAll() // 로그인, 회원가입은 모두 허용

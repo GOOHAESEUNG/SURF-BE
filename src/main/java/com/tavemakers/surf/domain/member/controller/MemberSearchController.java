@@ -1,7 +1,7 @@
 package com.tavemakers.surf.domain.member.controller;
 
-import com.tavemakers.surf.domain.member.dto.MemberSearchResDTO;
-import com.tavemakers.surf.domain.member.dto.MemberSimpleResDTO;
+import com.tavemakers.surf.domain.member.dto.response.MemberSearchResDTO;
+import com.tavemakers.surf.domain.member.dto.response.MemberSimpleResDTO;
 import com.tavemakers.surf.domain.member.dto.response.MyPageProfileResDTO;
 import com.tavemakers.surf.domain.member.usecase.MemberUsecase;
 import com.tavemakers.surf.global.common.response.ApiResponse;

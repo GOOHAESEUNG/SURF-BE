@@ -13,12 +13,16 @@ public class PermitUrlConfig {
                 "/swagger-ui/**",
                 "/v3/api-docs/**",
                 "/swagger-resources/**",
+                "/v1/member/**",
+                "/score/test01",
+                "/v1/manager/**"
+
         };
     }
 
     public String[] getMemberUrl(){
         return new String[]{
-                "/v1/member/**",
+//                "/v1/member/**",
         };
     }
 

@@ -1,4 +1,4 @@
-package com.tavemakers.surf.domain.member.dto;
+package com.tavemakers.surf.domain.member.dto.response;
 
 import com.tavemakers.surf.domain.member.entity.Member;
 import io.swagger.v3.oas.annotations.media.Schema; // @Schema 임포트
