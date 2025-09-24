@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Schema(description = "프로필 수정 요청 DTO")
-public class ProfileUpdateRequestDTO {
+public class ProfileUpdateReqDTO {
 
     @Pattern(regexp = "^[0-9]{10,11}$", message = "전화번호 형식이 올바르지 않습니다.")
     @Schema(description = "변경할 전화번호 (선택)", example = "010-5678-1234")
