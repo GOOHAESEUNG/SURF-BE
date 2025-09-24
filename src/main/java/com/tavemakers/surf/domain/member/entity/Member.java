@@ -1,7 +1,7 @@
 package com.tavemakers.surf.domain.member.entity;
 
 import com.tavemakers.surf.domain.login.kakao.dto.KakaoUserInfoDto;
-import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateRequestDTO;
+import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateReqDTO;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
 import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.entity.enums.MemberType;
@@ -145,7 +145,7 @@ public class Member extends BaseEntity {
     }
 
     //프로필 수정하기
-    public void updateProfile(ProfileUpdateRequestDTO request) {
+    public void updateProfile(ProfileUpdateReqDTO request) {
         if (request.getPhoneNumber() != null) {
             this.phoneNumber = request.getPhoneNumber();
         }

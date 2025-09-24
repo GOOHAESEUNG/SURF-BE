@@ -1,8 +1,7 @@
 package com.tavemakers.surf.domain.member.service;
 
-import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateRequestDTO;
+import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateReqDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
-import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,7 @@ public class MemberPatchService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void updateProfile(Member member, ProfileUpdateRequestDTO request) {
+    public void updateProfile(Member member, ProfileUpdateReqDTO request) {
         member.updateProfile(request);
     }
 

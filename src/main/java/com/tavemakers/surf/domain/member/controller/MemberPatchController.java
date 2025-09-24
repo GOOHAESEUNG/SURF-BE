@@ -1,7 +1,6 @@
 package com.tavemakers.surf.domain.member.controller;
 
-import com.tavemakers.surf.domain.member.dto.MemberSearchResDTO;
-import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateRequestDTO;
+import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateReqDTO;
 import com.tavemakers.surf.domain.member.entity.CustomUserDetails;
 import com.tavemakers.surf.domain.member.usecase.MemberUsecase;
 import com.tavemakers.surf.global.common.response.ApiResponse;
@@ -27,12 +26,12 @@ public class MemberPatchController {
             summary = "회원 프로필 수정하기",
             description = "마이페이지에서 프로필을 수정하는 API 입니다.")
     @PatchMapping("/profile-update")
-    public ApiResponse<List<ProfileUpdateRequestDTO>> updateProfile(
+    public ApiResponse<List<ProfileUpdateReqDTO>> updateProfile(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Valid @RequestBody ProfileUpdateRequestDTO profileUpdateRequestDTO
+            @Valid @RequestBody ProfileUpdateReqDTO profileUpdateReqDTO
             )
     {
-        memberUsecase.updateProfile(userDetails.getId(), profileUpdateRequestDTO); //멤버 아이디 임시
+        memberUsecase.updateProfile(userDetails.getId(), profileUpdateReqDTO); //멤버 아이디 임시
         return ApiResponse.response(
                 HttpStatus.OK,
                 ResponseMessage.MYPAGE_PROFILE_UPDATE_SUCCESS.getMessage(),

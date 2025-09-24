@@ -1,10 +1,8 @@
 package com.tavemakers.surf.domain.member.usecase;
 
-import com.tavemakers.surf.domain.member.dto.MemberSearchResDTO;
-import com.tavemakers.surf.domain.member.dto.MemberSimpleResDTO;
-import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateRequestDTO;
-import com.tavemakers.surf.domain.member.dto.response.MyPageProfileResDTO;
-import com.tavemakers.surf.domain.member.dto.response.TrackResDTO;
+import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
+import com.tavemakers.surf.domain.member.dto.response.*;
+import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateReqDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.Track;
 import com.tavemakers.surf.domain.member.exception.TrackNotFoundException;
@@ -36,6 +34,8 @@ public class MemberUsecase {
     private final MemberPatchService memberPatchService;
     private final MemberUpsertService memberUpsertService;
     private final MemberServiceImpl memberServiceImpl;
+    private final MemberService memberService;
+
 
     public MyPageProfileResDTO getMyPageAndProfile(Long memberId) {
         Member member = memberGetService.getMemberByApprovedStatus(memberId);
@@ -94,7 +94,7 @@ public class MemberUsecase {
 
     //프로필 수정
     @Transactional
-    public void updateProfile(Long memberId, ProfileUpdateRequestDTO dto) {
+    public void updateProfile(Long memberId, ProfileUpdateReqDTO dto) {
         Member member = memberGetService.getMember(memberId);
         log.info(memberId.toString());
 
@@ -118,5 +118,10 @@ public class MemberUsecase {
     public Boolean needsOnboarding(Long memberId) {
         Member member = memberGetService.getMember(memberId);
         return memberServiceImpl.needsOnboarding(member);
+    }
+
+    public MemberSignupResDTO signup(Long memberId, MemberSignupReqDTO request) {
+        Member member = memberGetService.getMember(memberId);
+        return memberService.signup(member, request);
     }
 }
