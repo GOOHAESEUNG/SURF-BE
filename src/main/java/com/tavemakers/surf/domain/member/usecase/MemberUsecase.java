@@ -12,6 +12,7 @@ import com.tavemakers.surf.domain.member.service.*;
 import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -89,6 +90,7 @@ public class MemberUsecase {
     }
 
     //프로필 수정
+    @Transactional
     public void updateProfile(Long memberId, ProfileUpdateRequestDTO request) {
         Member member = memberGetService.getMember(memberId);
 
