@@ -5,6 +5,7 @@ import com.tavemakers.surf.domain.member.dto.response.MemberSignupResDTO;
 import com.tavemakers.surf.domain.member.facade.MemberFacade;
 import com.tavemakers.surf.domain.member.service.MemberService;
 import com.tavemakers.surf.domain.member.service.MemberServiceImpl;
+import com.tavemakers.surf.domain.member.usecase.MemberUsecase;
 import com.tavemakers.surf.global.common.response.ApiResponse;
 import com.tavemakers.surf.global.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,7 +22,7 @@ import jakarta.validation.Valid;
 public class MemberController {
 
     private final MemberFacade memberFacade;
-    private final MemberServiceImpl memberServiceImpl;
+    private final MemberUsecase memberUsecase;
 
     @PostMapping("/signup")
     public ApiResponse<MemberSignupResDTO> signup(@Valid @RequestBody MemberSignupReqDTO request) {
@@ -36,11 +37,10 @@ public class MemberController {
     @GetMapping("/valid-status")
     public ApiResponse<Boolean> checkOnboardingStatus(
             ) {
-        boolean needsOnboarding = memberServiceImpl.needsOnboarding(SecurityUtils.getCurrentMemberId());
         return ApiResponse.response(
                 HttpStatus.OK,
                 ResponseMessage.MEMBER_ONBOARDING_STATUS_CHECK_SUCCESS.getMessage(),
-                needsOnboarding
+                memberUsecase.needsOnboarding(SecurityUtils.getCurrentMemberId())
         );
     }
 }

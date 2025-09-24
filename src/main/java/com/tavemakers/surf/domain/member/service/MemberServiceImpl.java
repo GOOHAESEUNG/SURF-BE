@@ -17,16 +17,13 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
 
-    private final MemberRepository memberRepository;
     private final MemberGetService memberGetService;
 
     //추가 정보 입력 회원가입
     @Transactional
-    public MemberSignupResDTO signup(Long memberId, MemberSignupReqDTO request) {
-
-        Member member = memberGetService.getMember(memberId);
-
+    public MemberSignupResDTO signup(Member member, MemberSignupReqDTO request) {
         final String normalizedEmail = request.getEmail().trim().toLowerCase(Locale.ROOT);
+        //이메일 중복 체크 해야될거 같은데..프론트에 중복 체크 버튼이 없네..?
 
         final String normalizedPhone = request.getPhoneNumber() == null
                 ? null
@@ -38,8 +35,7 @@ public class MemberServiceImpl implements MemberService {
 
     //추가 정보 회원가입 온보딩 필요 여부 확인
     @Transactional
-    public Boolean needsOnboarding(Long memberId) {
-        Member member = memberGetService.getMember(memberId);
+    public Boolean needsOnboarding(Member member) {
         if(member.getStatus().equals(MemberStatus.REGISTERING)) {
             return true;
         }else

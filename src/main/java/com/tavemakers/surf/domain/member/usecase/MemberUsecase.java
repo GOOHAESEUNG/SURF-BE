@@ -35,6 +35,7 @@ public class MemberUsecase {
     private final CareerDeleteService careerDeleteService;
     private final MemberPatchService memberPatchService;
     private final MemberUpsertService memberUpsertService;
+    private final MemberServiceImpl memberServiceImpl;
 
     public MyPageProfileResDTO getMyPageAndProfile(Long memberId) {
         Member member = memberGetService.getMemberByApprovedStatus(memberId);
@@ -110,5 +111,12 @@ public class MemberUsecase {
         if (dto.getCareersToCreate() != null) {
             careerPostService.createCareer(member, dto.getCareersToCreate());
         }
+    }
+
+    //온보딩 필요 여부 확인
+    @Transactional
+    public Boolean needsOnboarding(Long memberId) {
+        Member member = memberGetService.getMember(memberId);
+        return memberServiceImpl.needsOnboarding(member);
     }
 }
