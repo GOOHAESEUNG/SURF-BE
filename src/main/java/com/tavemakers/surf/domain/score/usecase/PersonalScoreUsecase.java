@@ -20,7 +20,7 @@ public class PersonalScoreUsecase {
     private final ActivityRecordGetService activityRecordGetService;
     private final ActivityRecordMapper activityRecordMapper;
 
-    public PersonalScoreWithPinned5ResDto findPersonalScoreAndTop4(Long memberId) {
+    public PersonalScoreWithPinned5ResDto findPersonalScoreAndPinned5(Long memberId) {
         // 개인 점수, 고정 5개 활동기록 조회
         PersonalActivityScore personalScore = personalScoreGetService.getPersonalScore(memberId);
 
