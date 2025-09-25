@@ -1,7 +1,6 @@
 package com.tavemakers.surf.domain.board.dto.req;
 
 import com.tavemakers.surf.domain.board.entity.BoardType;
-import io.netty.channel.ChannelHandler;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
