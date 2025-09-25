@@ -20,7 +20,7 @@ public class PersonalScoreController {
 
     private final PersonalScoreUsecase personalScoreUsecase;
 
-    @Operation(summary = "활동점수 + 고정활동기록 개수 요약 조회)")
+    @Operation(summary = "활동점수 + 고정활동기록 개수 요약 조회")
     @GetMapping("/v1/member/{memberId}/personal-score/pin")
     public ApiResponse<PersonalScoreWithPinnedResDto> getScoreAndPinned5(@PathVariable Long memberId) {
         PersonalScoreWithPinnedResDto response = personalScoreUsecase.findPersonalScoreAndPinned(memberId);
