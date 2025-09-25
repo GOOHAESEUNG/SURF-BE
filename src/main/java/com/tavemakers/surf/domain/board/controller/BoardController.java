@@ -4,12 +4,15 @@ import com.tavemakers.surf.domain.board.dto.req.BoardCreateReqDTO;
 import com.tavemakers.surf.domain.board.dto.req.BoardUpdateReqDTO;
 import com.tavemakers.surf.domain.board.dto.res.BoardResDTO;
 import com.tavemakers.surf.domain.board.service.BoardService;
+import com.tavemakers.surf.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import static com.tavemakers.surf.domain.board.controller.ResponseMessage.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,31 +23,34 @@ public class BoardController {
 
     @Operation(summary = "게시판 생성", description = "새로운 게시판을 생성합니다.")
     @PostMapping
-    public ResponseEntity<BoardResDTO> createBoard(
+    public ApiResponse<BoardResDTO> createBoard(
             @Valid @RequestBody BoardCreateReqDTO req) {
-        return ResponseEntity.ok(boardService.createBoard(req));
+        BoardResDTO response = boardService.createBoard(req);
+        return ApiResponse.response(HttpStatus.CREATED, BOARD_CREATED.getMessage(), response);
     }
 
     @Operation(summary = "게시판 조회", description = "특정 ID의 게시판을 조회합니다.")
     @GetMapping("/{boardId}")
-    public ResponseEntity<BoardResDTO> getBoard(
+    public ApiResponse<BoardResDTO> getBoard(
             @PathVariable Long boardId) {
-        return ResponseEntity.ok(boardService.getBoard(boardId));
+        BoardResDTO response = boardService.getBoard(boardId);
+        return ApiResponse.response(HttpStatus.OK, BOARD_READ.getMessage(), response);
     }
 
     @Operation(summary = "게시판 수정", description = "특정 ID의 게시판을 수정합니다.")
     @PutMapping("/{boardId}")
-    public ResponseEntity<BoardResDTO> updateBoard(
+    public ApiResponse<BoardResDTO> updateBoard(
             @PathVariable Long boardId,
             @Valid @RequestBody BoardUpdateReqDTO req) {
-        return ResponseEntity.ok(boardService.updateBoard(boardId, req));
+        BoardResDTO response = boardService.updateBoard(boardId, req);
+        return ApiResponse.response(HttpStatus.OK, BOARD_UPDATED.getMessage(), response);
     }
 
     @Operation(summary = "게시판 삭제", description = "특정 ID의 게시판을 삭제합니다.")
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<Void> deleteBoard(
+    public ApiResponse<Void> deleteBoard(
             @PathVariable Long boardId) {
         boardService.deleteBoard(boardId);
-        return ResponseEntity.noContent().build();
+        return ApiResponse.response(HttpStatus.NO_CONTENT, BOARD_DELETED.getMessage());
     }
 }
