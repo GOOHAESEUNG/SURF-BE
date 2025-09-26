@@ -40,16 +40,6 @@ public class Career extends BaseEntity {
 
     private boolean isWorking;
 
-    // Builder 패턴을 사용하기 위해 생성자 추가
-    @Builder
-    private Career(String companyName, String position, YearMonth startDate, YearMonth endDate, Member member) {
-        this.companyName = companyName;
-        this.position = position;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.member = member;
-    }
-
     //경력 수정
     public void update(CareerUpdateReqDTO dto){
         if(dto.getCompanyName() != null){
@@ -74,6 +64,7 @@ public class Career extends BaseEntity {
                 .startDate(dto.getStartDate())
                 .endDate(dto.getEndDate())
                 .member(member)
+                .isWorking(dto.isWorking())
                 .build();
     }
 

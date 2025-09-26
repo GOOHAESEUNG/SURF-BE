@@ -28,4 +28,8 @@ public class CareerCreateReqDTO {
 
     @Schema(description = "근무 종료일 (재직 중일 경우 null 또는 미포함)", example = "2024-01")
     private YearMonth endDate;
+
+    @Schema(description = "재직 여부", example = "true or false")
+    private boolean isWorking;
+
 }
