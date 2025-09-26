@@ -13,15 +13,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
 import com.tavemakers.surf.domain.member.entity.enums.Part;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.Where;
 
 
 @Entity
 @Getter
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 기본 생성자 protected 설정
+@Where(clause = "is_deleted = false")
 public class Member extends BaseEntity {
 
     @Id
@@ -63,6 +67,11 @@ public class Member extends BaseEntity {
     private MemberType memberType; // OB, YB 구분
 
     private boolean activityStatus; // 활동/비활동 여부
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
+
+    private LocalDateTime deletedAt;
 
     public boolean isYB() {
         return memberType == MemberType.YB;
@@ -205,6 +214,14 @@ public class Member extends BaseEntity {
         if (request.getGraduateSchool() != null) {
             this.graduateSchool = request.getGraduateSchool();
         }
+    }
+
+    // 회원 탈퇴 처리
+    public void withdraw() {
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
+        this.activityStatus = false;
+        this.status = MemberStatus.WITHDRAWN;
     }
 }
 

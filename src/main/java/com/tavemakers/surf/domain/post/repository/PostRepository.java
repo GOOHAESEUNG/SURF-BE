@@ -8,10 +8,22 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface PostRepository extends JpaRepository<Post, Long> {
-    Page<Post> findByBoardId(Long boardId, Pageable pageable);
+import java.util.Optional;
 
-    Page<Post> findByMemberId(Long memberId, Pageable pageable);
+public interface PostRepository extends JpaRepository<Post, Long> {
+
+    @Query("select p from Post p join p.member m " +
+            "where p.id = :postId and m.isDeleted = false")
+    Optional<Post> findByIdAndMemberActive(@Param("postId") Long postId);
+
+    @Query("select p from Post p join p.member m " +
+            "where p.board.id = :boardId and m.isDeleted = false")
+    Page<Post> findByBoardId(@Param("boardId") Long boardId, Pageable pageable);
+
+    // 특정 회원 글 목록 → 탈퇴하지 않은 회원 글만
+    @Query("select p from Post p join p.member m " +
+            "where m.id = :memberId and m.isDeleted = false")
+    Page<Post> findByMemberId(@Param("memberId") Long memberId, Pageable pageable);
 
     @Query("select p.version from Post p where p.id = :id")
     Long findVersionById(@Param("id") Long id);

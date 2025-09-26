@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.tavemakers.surf.domain.member.exception.MemberAlreadyExistsException;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import java.util.Locale;
 
@@ -17,7 +16,6 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
 
-    private final MemberGetService memberGetService;
     private final MemberRepository memberRepository;
 
     //추가 정보 입력 회원가입

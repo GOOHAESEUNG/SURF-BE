@@ -10,6 +10,7 @@ import com.tavemakers.surf.domain.post.dto.req.PostCreateReqDTO;
 import com.tavemakers.surf.domain.post.dto.req.PostUpdateReqDTO;
 import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.entity.Post;
+import com.tavemakers.surf.domain.post.exception.NotMyPostException;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
 import com.tavemakers.surf.domain.scrap.service.ScrapService;
@@ -46,7 +47,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public PostResDTO getPost(Long postId, Long memberId) {
-        Post post = postRepository.findById(postId)
+        Post post = postRepository.findByIdAndMemberActive(postId)
                 .orElseThrow(PostNotFoundException::new);
 
         boolean scrappedByMe = scrapService.isScrappedByMe(memberId, postId);
@@ -68,7 +69,8 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public Page<PostResDTO> getPostsByMember(Long authorId, Long viewerId, Pageable pageable) {
-        if (!memberRepository.existsById(authorId)) throw new MemberNotFoundException();
+        if (!memberRepository.existsById(authorId))
+            throw new MemberNotFoundException();
 
         Page<Post> page = postRepository.findByMemberId(authorId, pageable);
         return page.map(p -> PostResDTO.from(
@@ -94,16 +96,23 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
 
+        if (!post.getMember().getId().equals(viewerId)) {
+            throw new NotMyPostException();
+        }
+
         post.update(req, post.getBoard());
         boolean scrappedByMe = scrapService.isScrappedByMe(viewerId, postId);
         return PostResDTO.from(post, scrappedByMe);
     }
 
     @Transactional
-    public void deletePost(Long postId) {
-        if (!postRepository.existsById(postId)) {
-            throw new PostNotFoundException();
+    public void deletePost(Long postId, Long viewerId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(PostNotFoundException::new);
+
+        if (!post.getMember().getId().equals(viewerId)) {
+            throw new NotMyPostException();
         }
-        postRepository.deleteById(postId);
+        postRepository.delete(post);
     }
 }
