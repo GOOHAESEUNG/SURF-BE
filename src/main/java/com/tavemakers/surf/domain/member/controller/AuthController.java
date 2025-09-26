@@ -11,6 +11,8 @@ import com.tavemakers.surf.domain.member.service.MemberUpsertService;
 import com.tavemakers.surf.global.common.response.ApiResponse;
 import com.tavemakers.surf.global.jwt.JwtService;
 import com.tavemakers.surf.global.util.SecurityUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,7 @@ import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "소셜 로그인 관련", description = "이 명세서를 통해서는 아무런 결과는 안나옵니다..")
 public class AuthController {
 
     private final AuthService<KakaoTokenResponseDto, KakaoUserInfoDto> kakaoAuthService;
@@ -36,6 +39,7 @@ public class AuthController {
     /**
      * 1) 카카오 인가 화면으로 리다이렉트
      */
+    @Operation(summary = "카카오 인가 화면으로 리다이렉트")
     @GetMapping("/login/kakao")
     public void redirectToKakao(HttpServletResponse response) throws IOException {
         String authorizeUrl = kakaoAuthService.buildAuthorizeUrl();
@@ -47,6 +51,7 @@ public class AuthController {
      *    - authCode → accessToken → userInfo 처리
      *    - refreshToken은 HttpOnly 쿠키로 전달
      */
+    @Operation(summary = "카카오 콜백")
     @GetMapping("/login/oauth2/code/kakao")
     public Mono<ApiResponse<LoginResDto>> kakaoCallback(
             @RequestParam("code") String code,

@@ -18,7 +18,7 @@ public class MemberUpsertService {
         return memberRepository.findByKakaoId(info.id()).orElseGet(() -> {
             Member toSave = Member.createRegisteringFromKakao(info);
             try {
-                return memberRepository.save(toSave);
+                return memberRepository.saveAndFlush(toSave);
             } catch (org.springframework.dao.DataIntegrityViolationException e) {
                 return memberRepository.findByKakaoId(info.id())
                         .orElseThrow(() -> e);

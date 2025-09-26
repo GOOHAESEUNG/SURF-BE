@@ -43,7 +43,7 @@ dependencies {
 
     testImplementation ("org.junit.jupiter:junit-jupiter-api:5.10.1")
 
-    implementation ("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+    implementation ("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
 
     // jwt
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
