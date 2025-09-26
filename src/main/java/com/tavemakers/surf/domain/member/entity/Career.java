@@ -5,12 +5,11 @@ import com.tavemakers.surf.domain.member.dto.request.CareerUpdateReqDTO;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.time.YearMonth;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -30,9 +29,9 @@ public class Career extends BaseEntity {
     private String position; // 직무
 
     @Column(nullable = false)
-    private YearMonth startDate; // 근무 시작일
+    private LocalDate startDate; // 근무 시작일
 
-    private YearMonth endDate; // 근무 종료일 (진행 중일 경우 null)
+    private LocalDate endDate; // 근무 종료일 (진행 중일 경우 null)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
@@ -49,10 +48,10 @@ public class Career extends BaseEntity {
             this.position = dto.getPosition();
         }
         if(dto.getStartDate() != null){
-            this.startDate = dto.getStartDate();
+            this.startDate = dto.getStartDate().atDay(1);
         }
         if(dto.getEndDate() != null){
-            this.endDate = dto.getEndDate();
+            this.endDate = dto.getEndDate().atDay(1);
         }
     }
 
@@ -61,8 +60,8 @@ public class Career extends BaseEntity {
         return Career.builder()
                 .companyName(dto.getCompanyName())
                 .position(dto.getPosition())
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
+                .startDate(dto.getStartDate().atDay(1))
+                .endDate(dto.getEndDate() != null ? dto.getEndDate().atDay(1) : null)
                 .member(member)
                 .isWorking(dto.isWorking())
                 .build();

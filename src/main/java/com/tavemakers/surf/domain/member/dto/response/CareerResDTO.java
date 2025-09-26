@@ -17,8 +17,8 @@ public record CareerResDTO(
         return CareerResDTO.builder()
                 .companyName(career.getCompanyName())
                 .position(career.getPosition())
-                .startDate(career.getStartDate())
-                .endDate(career.getEndDate())
+                .startDate(YearMonth.from(career.getStartDate()))
+                .endDate(career.getEndDate() != null ? YearMonth.from(career.getEndDate()) : null)
                 .isWorking(career.isWorking())
                 .build();
     }
