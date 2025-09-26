@@ -8,11 +8,13 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.YearMonth;
 
 @Entity
 @Getter
+@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Career extends BaseEntity {
 
@@ -35,6 +37,8 @@ public class Career extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
+
+    private boolean isWorking;
 
     // Builder 패턴을 사용하기 위해 생성자 추가
     @Builder
