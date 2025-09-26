@@ -15,4 +15,6 @@ public interface CareerRepository extends JpaRepository<Career,Long> {
 
     List<Career> findAllByMemberAndIdIn(Member member,  List<Long> ids);
 
+    List<Career> findByMemberId(Long memberId);
+
 }
