@@ -13,6 +13,7 @@ public record MyPageProfileResDTO(
         String email,
         String university,
         String graduateSchool,
+        String role,
         BigDecimal activityScore,
         List<TrackResDTO> trackList,
         List<CareerResDTO> careerList
@@ -24,6 +25,7 @@ public record MyPageProfileResDTO(
                 .email(member.getEmail())
                 .university(member.getUniversity())
                 .graduateSchool(member.getGraduateSchool())
+                .role(member.getRole().name())
                 .activityScore(activityScore)
                 .trackList(trackList)
                 .careerList(careerList)
