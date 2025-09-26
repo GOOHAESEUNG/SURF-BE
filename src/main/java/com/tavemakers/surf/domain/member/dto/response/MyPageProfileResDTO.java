@@ -14,9 +14,10 @@ public record MyPageProfileResDTO(
         String university,
         String graduateSchool,
         BigDecimal activityScore,
-        List<TrackResDTO> trackList
+        List<TrackResDTO> trackList,
+        List<CareerResDTO> careerList
 ) {
-    public static MyPageProfileResDTO of(Member member, List<TrackResDTO> trackList, BigDecimal activityScore) {
+    public static MyPageProfileResDTO of(Member member, List<TrackResDTO> trackList, BigDecimal activityScore, List<CareerResDTO> careerList) {
         return MyPageProfileResDTO.builder()
                 .username(member.getName())
                 .phoneNumber(member.getPhoneNumber())
@@ -25,6 +26,7 @@ public record MyPageProfileResDTO(
                 .graduateSchool(member.getGraduateSchool())
                 .activityScore(activityScore)
                 .trackList(trackList)
+                .careerList(careerList)
                 .build();
     }
 }
