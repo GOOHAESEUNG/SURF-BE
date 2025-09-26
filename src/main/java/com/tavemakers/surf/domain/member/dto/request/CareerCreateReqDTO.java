@@ -30,6 +30,7 @@ public class CareerCreateReqDTO {
     private YearMonth endDate;
 
     @Schema(description = "재직 여부", example = "true or false")
+    @NotNull
     private boolean isWorking;
 
 }
