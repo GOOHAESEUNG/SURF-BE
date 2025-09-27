@@ -46,6 +46,8 @@ public class Member extends BaseEntity {
 
     private String phoneNumber;
 
+    private Boolean phoneNumberPublic=false;
+
     private Integer activityScore;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -80,6 +82,7 @@ public class Member extends BaseEntity {
                   String graduateSchool,
                   String email,
                   String phoneNumber,
+                  Boolean phoneNumberPublic,
                   MemberStatus status,
                   MemberRole role,
                   MemberType memberType,
@@ -91,41 +94,13 @@ public class Member extends BaseEntity {
         this.graduateSchool = graduateSchool;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        this.phoneNumberPublic = phoneNumberPublic;
         this.status = status != null ? status : MemberStatus.WAITING;
         this.role = role != null ? role : MemberRole.MEMBER;
         this.memberType = memberType != null ? memberType : MemberType.YB;
         this.activityStatus = activityStatus;
         this.activityScore = 0;
         this.tracks = new ArrayList<>();
-    }
-
-    /**
-     * ===== [정적 팩토리 메서드] =====
-     */
-    public static Member create(MemberSignupReqDTO request,
-                                String normalizedEmail,
-                                String normalizedPhone) {
-        Member member = Member.builder()
-                .name(request.getName())
-                .university(request.getUniversity())
-                .graduateSchool(request.getGraduateSchool())
-                .email(normalizedEmail)
-                .phoneNumber(normalizedPhone)
-                .profileImageUrl(request.getProfileImageUrl())
-                .status(MemberStatus.WAITING)
-                .role(MemberRole.MEMBER)
-                .memberType(MemberType.YB)
-                .activityStatus(true)
-                .build();
-
-        // DTO의 TrackInfo → Track 엔티티 변환
-        if (request.getTracks() != null) {
-            request.getTracks().forEach(t ->
-                    member.addTrack(t.getGeneration(), t.getPart())
-            );
-        }
-
-        return member;
     }
 
     public static Member createRegisteringFromKakao(KakaoUserInfoDto info) {
