@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/scraps")
+@RequestMapping
 @Tag(name = "스크랩", description = "추후 MVP를 통해 디벨롭 될 예정")
 public class ScrapController {
 
@@ -23,7 +23,7 @@ public class ScrapController {
 
     /** 스크랩 추가 (현재 로그인 사용자 기준) */
     @Operation(summary = "스크랩 추가")
-    @PostMapping("/{postId}")
+    @PostMapping("/v1/user/scraps/{postId}")
     public ResponseEntity<Void> addScrap(@PathVariable Long postId) {
         Long me = SecurityUtils.getCurrentMemberId();
         scrapService.addScrap(me, postId);
@@ -32,7 +32,7 @@ public class ScrapController {
 
     /** 스크랩 삭제 (현재 로그인 사용자 기준) */
     @Operation(summary = "스크랩 삭제")
-    @DeleteMapping("/{postId}")
+    @DeleteMapping("/v1/user/scraps/{postId}")
     public ResponseEntity<Void> removeScrap(@PathVariable Long postId) {
         Long me = SecurityUtils.getCurrentMemberId();
         scrapService.removeScrap(me, postId);
@@ -41,7 +41,7 @@ public class ScrapController {
 
     /** 내가 스크랩한 게시글 목록 */
     @Operation(summary = "내가 스크랩한 게시글 목록")
-    @GetMapping("/me")
+    @GetMapping("/v1/user/scraps/me")
     public ResponseEntity<Page<PostResDTO>> myScraps(
             @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
             Pageable pageable

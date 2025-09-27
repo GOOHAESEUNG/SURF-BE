@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/posts")
+@RequestMapping
 @Tag(name = "게시물", description = "이번 MVP 게시물 조회를 위해 임의로 작성한 API입니다. 추후 MVP를 통해 변경예정")
 public class PostController {
 
@@ -26,7 +26,7 @@ public class PostController {
 
     /** 게시글 생성 (작성자 = 현재 로그인 사용자) */
     @Operation(summary = "게시글 생성 (작성자 = 현재 로그인 사용자)")
-    @PostMapping
+    @PostMapping("/v1/user/posts")
     public ResponseEntity<PostResDTO> createPost(
             @Valid @RequestBody PostCreateReqDTO req
     ) {
@@ -36,7 +36,7 @@ public class PostController {
 
     /** 게시글 단건 조회 (뷰어 = 현재 로그인 사용자; 스크랩 여부 등 계산용) */
     @Operation(summary = "게시글 단건 조회")
-    @GetMapping("/{postId}")
+    @GetMapping("/v1/user/posts/{postId}")
     public ResponseEntity<PostResDTO> getPost(
             @PathVariable Long postId
     ) {
@@ -46,7 +46,7 @@ public class PostController {
 
     /** 내가 작성한 게시글 목록 */
     @Operation(summary = "내가 작성한 게시글 목록")
-    @GetMapping("/me")
+    @GetMapping("/v1/user/posts/me")
     public ResponseEntity<Page<PostResDTO>> getMyPosts(
             @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
             Pageable pageable
@@ -57,7 +57,7 @@ public class PostController {
 
     /** 특정 작성자의 게시글 목록 (뷰어 = 현재 로그인 사용자) */
     @Operation(summary = "특정 작성사의 게시글 목록")
-    @GetMapping("/{authorId}/posts")
+    @GetMapping("/v1/user/posts/{authorId}/posts")
     public ResponseEntity<Page<PostResDTO>> getPostsByMember(
             @PathVariable Long authorId,
             @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
@@ -69,7 +69,7 @@ public class PostController {
 
     /** 게시판별 게시글 목록 (뷰어 = 현재 로그인 사용자) */
     @Operation(summary = "게시판별 게시글 목록")
-    @GetMapping
+    @GetMapping("/v1/user/posts")
     public ResponseEntity<Page<PostResDTO>> getPostsByBoard(
             @RequestParam Long boardId,
             @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
@@ -81,7 +81,7 @@ public class PostController {
 
     /** 게시글 수정 (작성자 검증은 서비스에서) */
     @Operation(summary = "게시글 수정")
-    @PutMapping("/{postId}")
+    @PutMapping("/v1/user/posts{postId}")
     public ResponseEntity<PostResDTO> updatePost(
             @PathVariable Long postId,
             @Valid @RequestBody PostUpdateReqDTO req
@@ -92,7 +92,7 @@ public class PostController {
 
     /** 게시글 삭제 (작성자/권한 검증은 서비스에서) */
     @Operation(summary = "게시글 삭제")
-    @DeleteMapping("/{postId}")
+    @DeleteMapping("/v1/user/posts/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
         postService.deletePost(postId);
         return ResponseEntity.noContent().build();

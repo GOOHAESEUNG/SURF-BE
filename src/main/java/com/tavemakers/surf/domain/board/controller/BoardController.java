@@ -12,31 +12,31 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/manager/boards")
+@RequestMapping
 @Tag(name = "게시판", description = "추후 MVP를 통해 디벨롭 될 예정")
 public class BoardController {
     private final BoardService boardService;
 
-    @PostMapping
+    @PostMapping("/v1/admin/boards/{boardId}")
     public ResponseEntity<BoardResDTO> createBoard(
             @Valid @RequestBody BoardCreateReqDTO req) {
         return ResponseEntity.ok(boardService.createBoard(req));
     }
 
-    @GetMapping("/{boardId}")
+    @GetMapping("/v1/admin/boards/{boardId}")
     public ResponseEntity<BoardResDTO> getBoard(
             @PathVariable Long boardId) {
         return ResponseEntity.ok(boardService.getBoard(boardId));
     }
 
-    @PutMapping("/{boardId}")
+    @PutMapping("/v1/admin/boards/{boardId}")
     public ResponseEntity<BoardResDTO> updateBoard(
             @PathVariable Long boardId,
             @Valid @RequestBody BoardUpdateReqDTO req) {
         return ResponseEntity.ok(boardService.updateBoard(boardId, req));
     }
 
-    @DeleteMapping("/{boardId}")
+    @DeleteMapping("/v1/admin/boards/{boardId}")
     public ResponseEntity<Void> deleteBoard(
             @PathVariable Long boardId) {
         boardService.deleteBoard(boardId);

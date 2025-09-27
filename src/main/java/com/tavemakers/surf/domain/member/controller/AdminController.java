@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "관리자", description = "관리자용 API")
 @RestController
-@RequestMapping("/v1/admin/members")
+@RequestMapping
 @RequiredArgsConstructor
 public class AdminController {
 
     private final MemberAdminUsecase memberAdminUsecase;
 
     @Operation(summary = "회원 역할 변경", description = "특정 회원의 역할을 변경합니다.")
-    @PatchMapping("/{memberId}/role")
+    @PatchMapping("/v1/admin/members/{memberId}/role")
     public ApiResponse<Void> changeMemberRole(
             @PathVariable Long memberId,
             @RequestBody @Valid RoleChangeRequestDto request) {

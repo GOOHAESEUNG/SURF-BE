@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/feedback")
+@RequestMapping
 @Tag(name = "피드백")
 public class FeedbackController {
 
@@ -27,7 +27,7 @@ public class FeedbackController {
 
     /** 피드백 생성 (로그인 사용자) */
     @Operation(summary = "피드백 생성")
-    @PostMapping
+    @PostMapping("/v1/user/feedbacks")
     public ResponseEntity<FeedbackResDTO> createFeedback(
             @Valid @RequestBody FeedbackCreateReqDTO req
     ) {
@@ -37,7 +37,7 @@ public class FeedbackController {
 
     /** 피드백 조회 (운영진 전용) */
     @Operation(summary = "피드백 조회")
-    @GetMapping
+    @GetMapping("/v1/admin/feedbacks")
     @PreAuthorize("hasAnyRole('ROOT','MANAGER','PRESIDENT')")
     public ResponseEntity<Page<FeedbackResDTO>> getFeedbacks(
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)

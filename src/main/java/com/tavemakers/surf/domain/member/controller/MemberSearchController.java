@@ -19,7 +19,7 @@ import static com.tavemakers.surf.domain.member.controller.ResponseMessage.MYPAG
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/member")
+@RequestMapping
 @Tag(name = "회원 조회", description = "회원 조회 관련 API")
 public class MemberSearchController {
 
@@ -29,7 +29,7 @@ public class MemberSearchController {
     @Operation(
             summary = "이름 기반 회원 조회",
             description = "파라미터로 특정 이름을 받아 해당하는 회원 리스트를 반환합니다.")
-    @GetMapping("/search")
+    @GetMapping("/v1/admin/members/search")
     public ApiResponse<List<MemberSearchResDTO>> searchMemberByName(
             @RequestParam @NotBlank(message = "검색어(name)은 필수입니다.") String name) {
 
@@ -43,7 +43,7 @@ public class MemberSearchController {
     @Operation(
             summary = "활동 중인 회원 전체 출력시 트랙+기수별로 출력 ",
             description = "활동 중인 회원 전체 출력시 트랙+기수별로 출력")
-    @GetMapping("/grouped-by-track")
+    @GetMapping("/v1/admin/members/search/grouped-by-track")
     public ApiResponse<Map<String, List<MemberSimpleResDTO>>> getGroupedMembers() {
         return ApiResponse.response(
                 HttpStatus.OK,
@@ -54,7 +54,7 @@ public class MemberSearchController {
     @Operation(
             summary = "마이페이지에서 프로필 정보 조회",
             description = "마이페이지에서 프로필 정보 조회")
-    @GetMapping("/mypage/profile/{memberId}")
+    @GetMapping("/v1/user/members/{memberId}/profile")
     public ApiResponse<MyPageProfileResDTO> getMyPageAndProfile(
             @PathVariable Long memberId
             // TODO 추후 Pathvariable이 아닌 인증 객체에서 추출한 memberId 사용
