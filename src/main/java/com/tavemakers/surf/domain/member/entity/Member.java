@@ -163,6 +163,13 @@ public class Member extends BaseEntity {
         if (this.status == MemberStatus.REGISTERING) {
             this.status = MemberStatus.WAITING;
         }
+
+        //트랙 저장
+        if (req.getTracks() != null) {
+            req.getTracks().forEach(t ->
+                    this.addTrack(t.getGeneration(), t.getPart())
+            );
+        }
     }
 
     /**
