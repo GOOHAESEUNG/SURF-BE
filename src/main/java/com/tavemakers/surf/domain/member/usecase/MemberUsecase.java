@@ -33,6 +33,7 @@ public class MemberUsecase {
     private final CareerPostService careerPostService;
     private final CareerPatchService careerPatchService;
     private final CareerDeleteService careerDeleteService;
+    private final CareerGetService careerGetService;
     private final MemberPatchService memberPatchService;
     private final MemberUpsertService memberUpsertService;
     private final MemberServiceImpl memberServiceImpl;
@@ -41,15 +42,15 @@ public class MemberUsecase {
 
     public MyPageProfileResDTO getMyPageAndProfile(Long memberId) {
         Member member = memberGetService.getMemberByApprovedStatus(memberId);
-        List<TrackResDTO> trackList = trackGetService.getTrack(memberId)
-                .stream().map(TrackResDTO::from).toList();
+        List<TrackResDTO> trackList = getMyTracks(memberId);
+        List<CareerResDTO> myCareers = getMyCareers(memberId);
 
         BigDecimal score = null;
         if (member.isActive()) {
             score = personalScoreGetService.getPersonalScore(memberId).getScore();
         }
 
-        return MyPageProfileResDTO.of(member, trackList, score);
+        return MyPageProfileResDTO.of(member, trackList, score, myCareers);
     }
 
     // 여러 명의 회원을 조회하고, 각 회원의 트랙 정보를 DTO로 반환하는 메소드
@@ -127,4 +128,19 @@ public class MemberUsecase {
         Member member = memberGetService.getMember(memberId);
         return memberService.signup(member, request);
     }
+
+    /*
+    * refactoring
+    * */
+
+    private List<CareerResDTO> getMyCareers(Long memberId) {
+        return careerGetService.getMyCareers(memberId)
+                .stream().map(CareerResDTO::from).toList();
+    }
+
+    private List<TrackResDTO> getMyTracks(Long memberId) {
+        return trackGetService.getTrack(memberId)
+                .stream().map(TrackResDTO::from).toList();
+    }
+
 }
