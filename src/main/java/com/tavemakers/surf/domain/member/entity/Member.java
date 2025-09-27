@@ -114,6 +114,7 @@ public class Member extends BaseEntity {
                 .kakaoId(info.id())
                 .name(acc.profile().nickname())
                 .email(acc.email())
+                .phoneNumberPublic(false)
                 .profileImageUrl(acc.profile().profileImageUrl())
                 .status(MemberStatus.REGISTERING)
                 .role(MemberRole.MEMBER)
@@ -186,6 +187,9 @@ public class Member extends BaseEntity {
         }
         if (request.getGraduateSchool() != null) {
             this.graduateSchool = request.getGraduateSchool();
+        }
+        if (request.getPhoneNumberPublic() != null) {
+            this.phoneNumberPublic = request.getPhoneNumberPublic();
         }
     }
 
