@@ -1,7 +1,7 @@
 package com.tavemakers.surf.domain.member.entity.enums;
 
 public enum MemberRole {
-    ROOT,       // 루트
+    ADMIN,       // 루트
     PRESIDENT,  // 회장
     MANAGER,    // 매니저
     MEMBER      // 일반 회원
