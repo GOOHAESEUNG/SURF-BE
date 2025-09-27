@@ -59,7 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/login/**").permitAll() // 로그인
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
                         .requestMatchers(permitUrlConfig.getPublicUrl()).permitAll()
-                        .requestMatchers(permitUrlConfig.getMemberUrl()).hasRole("MEMBER")
+                        .requestMatchers(permitUrlConfig.getMemberUrl()).hasAnyRole("MEMBER", "ADMIN", "PRESIDENT", "MANAGER")
                         .requestMatchers(permitUrlConfig.getAdminUrl()).hasAnyRole("ADMIN", "PRESIDENT", "MANAGER")
                         .anyRequest().authenticated()
                 )
