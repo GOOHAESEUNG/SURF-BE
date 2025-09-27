@@ -12,8 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MemberPatchService {
 
-    private final MemberRepository memberRepository;
-
     @Transactional
     public void updateProfile(Member member, ProfileUpdateReqDTO dto) {
         member.updateProfile(dto);
