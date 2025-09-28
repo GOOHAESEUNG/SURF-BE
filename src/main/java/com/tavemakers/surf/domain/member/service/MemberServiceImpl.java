@@ -38,10 +38,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('ADMIN')")
-    public void approveMember(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberNotFoundException(memberId));
-
+    public void approveMember(Member member) {
         member.approve();
     }
 

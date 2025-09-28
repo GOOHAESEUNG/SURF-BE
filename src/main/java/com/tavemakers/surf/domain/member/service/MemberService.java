@@ -8,7 +8,7 @@ public interface MemberService {
     /**
      * 회원 승인 (ADMIN 전용)
      */
-    void approveMember(Long memberId);
+    void approveMember(Member member);
 
     /**
      * 회원 거절 (ADMIN 전용)

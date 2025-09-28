@@ -2,6 +2,7 @@ package com.tavemakers.surf.domain.member.controller;
 
 import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.dto.response.MemberSignupResDTO;
+import com.tavemakers.surf.domain.member.usecase.MemberAdminUsecase;
 import com.tavemakers.surf.domain.member.usecase.MemberUsecase;
 import com.tavemakers.surf.global.common.response.ApiResponse;
 import com.tavemakers.surf.domain.member.service.MemberService;
@@ -19,9 +20,9 @@ import jakarta.validation.Valid;
 @Tag(name = "서비스 내 자체 회원가입 관련")
 public class MemberController {
 
-
     private final MemberService memberService;
     private final MemberUsecase memberUsecase;
+    private final MemberAdminUsecase memberAdminUsecase;
 
     @Operation(summary = "자체 회원가입 온보딩")
     @PostMapping("/v1/user/members/signup")
@@ -47,7 +48,7 @@ public class MemberController {
     @Operation(summary = "회원 가입 승인")
     @PatchMapping("/v1/admin/members/{memberId}/approve")
     public ApiResponse<Void> approveMember(@PathVariable Long memberId) {
-        memberService.approveMember(memberId);
+        memberAdminUsecase.approveUser(memberId);
         return ApiResponse.response(
                 HttpStatus.OK,
                 "승인되었습니다.",
