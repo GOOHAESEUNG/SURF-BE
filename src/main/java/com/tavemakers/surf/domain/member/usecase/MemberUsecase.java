@@ -50,14 +50,17 @@ public class MemberUsecase {
             score = personalScoreGetService.getPersonalScore(memberId).getScore();
         }
 
-        return MyPageProfileResDTO.MeOf(member, myTracks, score, myCareers);
+        return MyPageProfileResDTO.of(member, myTracks, score, myCareers, member.getPhoneNumber());
     }
 
     public MyPageProfileResDTO getOthersMyPageAndProfile(Long memberId) {
         Member member = memberGetService.getMemberByApprovedStatus(memberId);
         List<TrackResDTO> othersTracks = getMyTracks(memberId);
         List<CareerResDTO> othersCareers = getMyCareers(memberId);
-        return MyPageProfileResDTO.OtherOf(member, othersTracks, null, othersCareers);
+
+        String phoneNumberToShow = member.getPhoneNumberPublic() ? member.getPhoneNumber() : null;
+
+        return MyPageProfileResDTO.of(member, othersTracks, null, othersCareers, phoneNumberToShow);
     }
 
 
@@ -150,5 +153,6 @@ public class MemberUsecase {
         return trackGetService.getTrack(memberId)
                 .stream().map(TrackResDTO::from).toList();
     }
+
 
 }
