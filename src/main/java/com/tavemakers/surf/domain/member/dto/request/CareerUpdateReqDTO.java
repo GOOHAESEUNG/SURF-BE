@@ -25,6 +25,6 @@ public class CareerUpdateReqDTO {
     @Schema(description = "변경할 근무 종료일 (선택, 재직 중일 경우 null 또는 미포함)", example = "2025-08")
     private YearMonth endDate;
 
-    @Schema(description = "재직 중 여부")
+    @Schema(description = "재직 중 여부", example = "true")
     private Boolean isWorking;
 }
