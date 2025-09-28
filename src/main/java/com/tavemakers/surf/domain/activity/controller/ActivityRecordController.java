@@ -22,14 +22,14 @@ public class ActivityRecordController {
     private final ActivityRecordUsecase activityRecordUsecase;
 
     @Operation(summary = "활동 점수(기록) 부여")
-    @PostMapping("/v1/manager/activity-record")
+    @PostMapping("/v1/admin/activity-records")
     public ApiResponse<Void> createActivityRecord(@RequestBody @Valid ActivityRecordReqDTO dto) {
         activityRecordUsecase.createActivityRecordList(dto);
         return ApiResponse.response(HttpStatus.CREATED, ACTIVITY_RECORD_CREATED.getMessage(), null);
     }
 
     @Operation(summary = "활동 기록 조회(무한스크롤)")
-    @GetMapping("/v1/member/{memberId}/activity-record")
+    @GetMapping("/v1/user/members/{memberId}/activity-records")
     public ApiResponse<ActivityRecordSliceResDTO> getActivityRecord(
             @PathVariable Long memberId,
             @RequestParam ScoreType scoreType,

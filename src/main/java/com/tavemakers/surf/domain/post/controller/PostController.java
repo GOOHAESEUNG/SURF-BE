@@ -21,7 +21,7 @@ import static com.tavemakers.surf.domain.post.controller.ResponseMessage.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/posts")
+@RequestMapping
 @Tag(name = "게시물", description = "이번 MVP 게시물 조회를 위해 임의로 작성한 API입니다. 추후 MVP를 통해 변경예정")
 public class PostController {
 
@@ -29,7 +29,7 @@ public class PostController {
 
     /** 게시글 생성 (작성자 = 현재 로그인 사용자) */
     @Operation(summary = "게시글 생성", description = "게시글을 생성합니다.")
-    @PostMapping
+    @PostMapping("/v1/user/posts")
     public ApiResponse<PostResDTO> createPost(
             @Valid @RequestBody PostCreateReqDTO req
     ) {
@@ -40,7 +40,7 @@ public class PostController {
 
     /** 게시글 단건 조회 (뷰어 = 현재 로그인 사용자; 스크랩 여부 등 계산용) */
     @Operation(summary = "게시글 단건 조회", description = "특정 ID의 게시글을 조회합니다.")
-    @GetMapping("/{postId}")
+    @GetMapping("/v1/user/posts/{postId}")
     public ApiResponse<PostResDTO> getPost(
             @PathVariable Long postId
     ) {
@@ -51,7 +51,7 @@ public class PostController {
 
     /** 내가 작성한 게시글 목록 */
     @Operation(summary = "내가 작성한 게시글", description = "본인이 작성한 게시글 목록을 조회합니다.")
-    @GetMapping("/me")
+    @GetMapping("/v1/user/posts/me")
     public ApiResponse<Page<PostResDTO>> getMyPosts(
             @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
             Pageable pageable
@@ -63,7 +63,7 @@ public class PostController {
 
     /** 특정 작성자의 게시글 목록 (뷰어 = 현재 로그인 사용자) */
     @Operation(summary = "특정 작성자의 게시글 목록", description = "특정 작성자가 작성한 게시글 목록을 조회합니다.")
-    @GetMapping("/{authorId}/posts")
+    @GetMapping("/v1/user/posts/{authorId}/posts")
     public ApiResponse<Page<PostResDTO>> getPostsByMember(
             @PathVariable Long authorId,
             @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
@@ -76,7 +76,7 @@ public class PostController {
 
     /** 게시판별 게시글 목록 (뷰어 = 현재 로그인 사용자) */
     @Operation(summary = "게시판별 게시글 목록", description = "특정 게시판에 속한 게시글 목록을 조회합니다.")
-    @GetMapping
+    @GetMapping("/v1/user/posts")
     public ApiResponse<Page<PostResDTO>> getPostsByBoard(
             @RequestParam Long boardId,
             @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
@@ -89,7 +89,7 @@ public class PostController {
 
     /** 게시글 수정 (작성자 검증은 서비스에서) */
     @Operation(summary = "게시글 수정", description = "본인이 작성한 게시글을 수정합니다.")
-    @PutMapping("/{postId}")
+    @PutMapping("/v1/user/posts{postId}")
     public ApiResponse<PostResDTO> updatePost(
             @PathVariable Long postId,
             @Valid @RequestBody PostUpdateReqDTO req
@@ -101,7 +101,7 @@ public class PostController {
 
     /** 게시글 삭제 (작성자/권한 검증은 서비스에서) */
     @Operation(summary = "게시글 삭제", description = "본인이 작성한 게시글을 삭제합니다.")
-    @DeleteMapping("/{postId}")
+    @DeleteMapping("/v1/user/posts/{postId}")
     public ApiResponse<Void> deletePost(@PathVariable Long postId) {
         postService.deletePost(postId);
         return ApiResponse.response(HttpStatus.NO_CONTENT, POST_DELETED.getMessage());

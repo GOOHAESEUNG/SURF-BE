@@ -23,14 +23,14 @@ public class MemberBadgeController {
     private final MemberBadgeUsecase memberBadgeusecase;
 
     @Operation(summary = "활동 뱃지 부여")
-    @PostMapping("/v1/manager/member-badge")
+    @PostMapping("/v1/admin/members/badges")
     public ApiResponse<Void> createBadge(@RequestBody @Valid MemberBadgeReqDTO dto) {
         memberBadgeusecase.saveMemberBadgeList(dto);
         return ApiResponse.response(HttpStatus.CREATED, MEMBER_BADGE_LIST_CREATED.getMessage(), null);
     }
 
     @Operation(summary = "마이페이지 활동 뱃지 조회")
-    @GetMapping("/v1/member/{memberId}/member-badge")
+    @GetMapping("/v1/user/members/{memberId}/badges")
     public ApiResponse<MemberBadgeSliceResDTO> getBadge(
             @PathVariable("memberId") Long memberId,
             @RequestParam int pageSize,

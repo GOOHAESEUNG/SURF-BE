@@ -22,7 +22,7 @@ import static com.tavemakers.surf.domain.feedback.controller.ResponseMessage.FEE
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/feedback")
+@RequestMapping
 @Tag(name = "피드백")
 public class FeedbackController {
 
@@ -30,7 +30,7 @@ public class FeedbackController {
 
     /** 피드백 생성 (로그인 사용자) */
     @Operation(summary = "피드백 생성", description = "익명의 피드백을 생성합니다. (하루 3회 제한)")
-    @PostMapping
+    @PostMapping("/v1/user/feedbacks")
     public ApiResponse<FeedbackResDTO> createFeedback(
             @Valid @RequestBody FeedbackCreateReqDTO req
     ) {
@@ -41,7 +41,7 @@ public class FeedbackController {
 
     /** 피드백 조회 (운영진 전용) */
     @Operation(summary = "피드백 조회", description = "운영진이 피드백을 조회합니다.")
-    @GetMapping
+    @GetMapping("/v1/admin/feedbacks")
     @PreAuthorize("hasAnyRole('ROOT','MANAGER','PRESIDENT')")
     public ApiResponse<Page<FeedbackResDTO>> getFeedbacks(
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)

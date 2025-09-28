@@ -19,7 +19,7 @@ import static com.tavemakers.surf.domain.scrap.controller.ResponseMessage.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/scraps")
+@RequestMapping
 @Tag(name = "스크랩", description = "추후 MVP를 통해 디벨롭 될 예정")
 public class ScrapController {
 
@@ -27,7 +27,7 @@ public class ScrapController {
 
     /** 스크랩 추가 (현재 로그인 사용자 기준) */
     @Operation(summary = "스크랩 추가", description = "특정 게시글을 스크랩합니다.")
-    @PostMapping("/{postId}")
+    @PostMapping("/v1/user/scraps/{postId}")
     public ApiResponse<Void> addScrap(@PathVariable Long postId) {
         Long me = SecurityUtils.getCurrentMemberId();
         scrapService.addScrap(me, postId);
@@ -36,7 +36,7 @@ public class ScrapController {
 
     /** 스크랩 삭제 (현재 로그인 사용자 기준) */
     @Operation(summary = "스크랩 삭제", description = "특정 게시글의 스크랩을 취소합니다.")
-    @DeleteMapping("/{postId}")
+    @DeleteMapping("/v1/user/scraps/{postId}")
     public ApiResponse<Void> removeScrap(@PathVariable Long postId) {
         Long me = SecurityUtils.getCurrentMemberId();
         scrapService.removeScrap(me, postId);
@@ -45,7 +45,7 @@ public class ScrapController {
 
     /** 내가 스크랩한 게시글 목록 */
     @Operation(summary = "내가 스크랩한 게시글 목록", description = "본인이 스크랩한 게시글 목록을 조회합니다.")
-    @GetMapping("/me")
+    @GetMapping("/v1/user/scraps/me")
     public ApiResponse<Page<PostResDTO>> myScraps(
             @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
             Pageable pageable

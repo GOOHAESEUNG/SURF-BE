@@ -16,21 +16,21 @@ import static com.tavemakers.surf.domain.board.controller.ResponseMessage.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/manager/boards")
-@Tag(name = "게시판 관리", description = "추후 MVP를 통해 디벨롭 될 예정")
+@RequestMapping
+@Tag(name = "게시판", description = "추후 MVP를 통해 디벨롭 될 예정")
 public class BoardController {
     private final BoardService boardService;
 
-    @Operation(summary = "게시판 생성", description = "새로운 게시판을 생성합니다.")
-    @PostMapping
+    @PostMapping("/v1/admin/boards/{boardId}")
     public ApiResponse<BoardResDTO> createBoard(
             @Valid @RequestBody BoardCreateReqDTO req) {
         BoardResDTO response = boardService.createBoard(req);
         return ApiResponse.response(HttpStatus.CREATED, BOARD_CREATED.getMessage(), response);
     }
 
+
     @Operation(summary = "게시판 조회", description = "특정 ID의 게시판을 조회합니다.")
-    @GetMapping("/{boardId}")
+    @GetMapping("/v1/admin/boards/{boardId}")
     public ApiResponse<BoardResDTO> getBoard(
             @PathVariable Long boardId) {
         BoardResDTO response = boardService.getBoard(boardId);
@@ -38,7 +38,7 @@ public class BoardController {
     }
 
     @Operation(summary = "게시판 수정", description = "특정 ID의 게시판을 수정합니다.")
-    @PutMapping("/{boardId}")
+    @PutMapping("/v1/admin/boards/{boardId}")
     public ApiResponse<BoardResDTO> updateBoard(
             @PathVariable Long boardId,
             @Valid @RequestBody BoardUpdateReqDTO req) {
@@ -47,7 +47,7 @@ public class BoardController {
     }
 
     @Operation(summary = "게시판 삭제", description = "특정 ID의 게시판을 삭제합니다.")
-    @DeleteMapping("/{boardId}")
+    @DeleteMapping("/v1/admin/boards/{boardId}")
     public ApiResponse<Void> deleteBoard(
             @PathVariable Long boardId) {
         boardService.deleteBoard(boardId);

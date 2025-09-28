@@ -206,5 +206,13 @@ public class Member extends BaseEntity {
             this.graduateSchool = request.getGraduateSchool();
         }
     }
+
+    //유저 권한 변경
+    public void exchangeRole(MemberRole newRole) {
+        if (newRole == null) {
+            return;
+        }
+        this.role = newRole;
+    }
 }
 
