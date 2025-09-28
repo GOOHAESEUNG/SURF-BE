@@ -53,23 +53,13 @@ public class MemberSearchController {
     }
 
     @Operation(
-            summary = "[본인] 마이페이지에서 프로필 정보 조회",
-            description = "[본인] 마이페이지에서 프로필 정보 조회")
-        @GetMapping("/v1/user/members/me/{memberId}/profile")
-    public ApiResponse<MyPageProfileResDTO> getMyPageAndProfile() {
-        Long memberId = SecurityUtils.getCurrentMemberId();
+            summary = "마이페이지에서 프로필 정보 조회",
+            description = "마이페이지에서 프로필 정보 조회")
+        @GetMapping("/v1/user/members/profile")
+    public ApiResponse<MyPageProfileResDTO> getMyPageAndProfile(@RequestParam(required = false) Long memberId) {
+        memberId = (memberId == null ? SecurityUtils.getCurrentMemberId() : memberId);
         MyPageProfileResDTO response = memberUsecase.getMyPageAndProfile(memberId);
         return ApiResponse.response(HttpStatus.OK, MYPAGE_MY_PROFILE_READ.getMessage(), response);
     }
 
-    @Operation(
-            summary = "[타인] 마이페이지에서 프로필 정보 조회",
-            description = "[타인] 마이페이지에서 프로필 정보 조회")
-    @GetMapping("v1/user/members/others/{memberId}/profile")
-    public ApiResponse<MyPageProfileResDTO> getOthersMyPageAndProfile(
-            @PathVariable Long memberId
-    ) {
-        MyPageProfileResDTO response = memberUsecase.getOthersMyPageAndProfile(memberId);
-        return ApiResponse.response(HttpStatus.OK, MYPAGE_OTHERS_PROFILE_READ.getMessage(), response);
-    }
 }
