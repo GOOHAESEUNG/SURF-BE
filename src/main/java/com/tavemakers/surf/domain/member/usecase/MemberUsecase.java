@@ -7,6 +7,7 @@ import com.tavemakers.surf.domain.member.dto.response.MyPageProfileResDTO;
 import com.tavemakers.surf.domain.member.dto.response.TrackResDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.Track;
+import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.exception.TrackNotFoundException;
 import com.tavemakers.surf.domain.member.service.*;
 import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
@@ -41,7 +42,7 @@ public class MemberUsecase {
 
 
     public MyPageProfileResDTO getMyPageAndProfile(Long memberId) {
-        Member member = memberGetService.getMemberByApprovedStatus(memberId);
+        Member member = memberGetService.getMemberByStatus(memberId, MemberStatus.APPROVED);
         List<TrackResDTO> myTracks = getMyTracks(memberId);
         List<CareerResDTO> myCareers = getMyCareers(memberId);
 
@@ -54,7 +55,7 @@ public class MemberUsecase {
     }
 
     public MyPageProfileResDTO getOthersMyPageAndProfile(Long memberId) {
-        Member member = memberGetService.getMemberByApprovedStatus(memberId);
+        Member member = memberGetService.getMemberByStatus(memberId, MemberStatus.APPROVED);
         List<TrackResDTO> othersTracks = getMyTracks(memberId);
         List<CareerResDTO> othersCareers = getMyCareers(memberId);
 

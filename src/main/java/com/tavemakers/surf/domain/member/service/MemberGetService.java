@@ -19,8 +19,8 @@ public class MemberGetService {
 
     private final MemberRepository memberRepository;
 
-    public Member getMemberByApprovedStatus(Long memberId) {
-        return memberRepository.findByIdAndStatus(memberId, MemberStatus.APPROVED)
+    public Member getMemberByStatus(Long memberId, MemberStatus memberStatus) {
+        return memberRepository.findByIdAndStatus(memberId, memberStatus)
                 .orElseThrow(MemberNotFoundException::new);
     }
 
