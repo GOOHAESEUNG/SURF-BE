@@ -7,6 +7,7 @@ import java.time.YearMonth;
 
 @Builder
 public record CareerResDTO(
+        Long careerId,
         String companyName,
         String position,
         YearMonth startDate,
@@ -15,6 +16,7 @@ public record CareerResDTO(
 ) {
     public static CareerResDTO from(Career career) {
         return CareerResDTO.builder()
+                .careerId(career.getId())
                 .companyName(career.getCompanyName())
                 .position(career.getPosition())
                 .startDate(YearMonth.from(career.getStartDate()))
