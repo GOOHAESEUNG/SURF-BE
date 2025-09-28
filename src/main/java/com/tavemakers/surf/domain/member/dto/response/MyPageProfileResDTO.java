@@ -18,10 +18,31 @@ public record MyPageProfileResDTO(
         List<TrackResDTO> trackList,
         List<CareerResDTO> careerList
 ) {
-    public static MyPageProfileResDTO of(Member member, List<TrackResDTO> trackList, BigDecimal activityScore, List<CareerResDTO> careerList) {
+
+    public static MyPageProfileResDTO MeOf(Member member, List<TrackResDTO> trackList, BigDecimal activityScore, List<CareerResDTO> careerList) {
         return MyPageProfileResDTO.builder()
                 .username(member.getName())
                 .phoneNumber(member.getPhoneNumber())
+                .email(member.getEmail())
+                .university(member.getUniversity())
+                .graduateSchool(member.getGraduateSchool())
+                .role(member.getRole().name())
+                .activityScore(activityScore)
+                .trackList(trackList)
+                .careerList(careerList)
+                .build();
+    }
+
+    public static MyPageProfileResDTO OtherOf(Member member, List<TrackResDTO> trackList, BigDecimal activityScore, List<CareerResDTO> careerList) {
+
+        String phoneNumber = null;
+        if(member.getPhoneNumberPublic()){
+           phoneNumber = member.getPhoneNumber();
+       }
+
+        return MyPageProfileResDTO.builder()
+                .username(member.getName())
+                .phoneNumber(phoneNumber)
                 .email(member.getEmail())
                 .university(member.getUniversity())
                 .graduateSchool(member.getGraduateSchool())

@@ -50,14 +50,14 @@ public class MemberUsecase {
             score = personalScoreGetService.getPersonalScore(memberId).getScore();
         }
 
-        return MyPageProfileResDTO.of(member, myTracks, score, myCareers);
+        return MyPageProfileResDTO.MeOf(member, myTracks, score, myCareers);
     }
 
     public MyPageProfileResDTO getOthersMyPageAndProfile(Long memberId) {
         Member member = memberGetService.getMemberByApprovedStatus(memberId);
         List<TrackResDTO> othersTracks = getMyTracks(memberId);
         List<CareerResDTO> othersCareers = getMyCareers(memberId);
-        return MyPageProfileResDTO.of(member, othersTracks, null, othersCareers);
+        return MyPageProfileResDTO.OtherOf(member, othersTracks, null, othersCareers);
     }
 
 
