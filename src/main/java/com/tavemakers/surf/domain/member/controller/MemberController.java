@@ -46,8 +46,8 @@ public class MemberController {
 
     @Operation(summary = "회원 가입 승인")
     @PatchMapping("/v1/admin/members/{memberId}/approve")
-    public ApiResponse<Void> approveMember(@PathVariable Long id) {
-        memberService.approveMember(id);
+    public ApiResponse<Void> approveMember(@PathVariable Long memberId) {
+        memberService.approveMember(memberId);
         return ApiResponse.response(
                 HttpStatus.OK,
                 "승인되었습니다.",
@@ -57,8 +57,8 @@ public class MemberController {
 
     @Operation(summary = "회원 가입 거절")
     @PatchMapping("/v1/admin/members/{memberId}/reject")
-    public ApiResponse<Void> rejectMember(@PathVariable Long id) {
-        memberService.rejectMember(id);
+    public ApiResponse<Void> rejectMember(@PathVariable Long memberId) {
+        memberService.rejectMember(memberId);
         return ApiResponse.response(
                 HttpStatus.OK,
                 "거절되었습니다.",
