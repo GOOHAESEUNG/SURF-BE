@@ -57,6 +57,8 @@ public class Career extends BaseEntity {
         }
         if(dto.getIsWorking() != null){
             this.isWorking = dto.getIsWorking();
+             if(this.isWorking)
+                 this.endDate = null;
         }
     }
 
