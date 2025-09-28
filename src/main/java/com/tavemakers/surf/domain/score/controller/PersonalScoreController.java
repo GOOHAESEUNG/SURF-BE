@@ -28,10 +28,9 @@ public class PersonalScoreController {
     )
     @GetMapping("/v1/user/members/personal-score/pinned5")
     public ApiResponse<PersonalScoreWithPinned5ResDto> getScoreAndPinned5(
-            @RequestParam(required = false) Long memberId
     ) {
-        memberId = memberId == null ? SecurityUtils.getCurrentMemberId() : memberId;
-        PersonalScoreWithPinned5ResDto response = personalScoreUsecase.findPersonalScoreAndPinned5(memberId);
+        PersonalScoreWithPinned5ResDto response =
+                personalScoreUsecase.findPersonalScoreAndPinned5(SecurityUtils.getCurrentMemberId());
         return ApiResponse.response(HttpStatus.OK, SCORE_AND_PINNED_5_READ.getMessage(), response);
     }
 
