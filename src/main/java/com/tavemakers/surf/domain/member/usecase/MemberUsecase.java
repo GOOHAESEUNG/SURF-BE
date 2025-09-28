@@ -40,10 +40,10 @@ public class MemberUsecase {
     private final MemberService memberService;
 
 
-    public MyPageProfileResDTO getMyPageAndProfile(Long memberId) {
-        Member member = memberGetService.getMemberByApprovedStatus(memberId);
-        List<TrackResDTO> myTracks = getMyTracks(memberId);
-        List<CareerResDTO> myCareers = getMyCareers(memberId);
+    public MyPageProfileResDTO getMyPageAndProfile(Long targetId) {
+        Member member = memberGetService.getMemberByApprovedStatus(targetId);
+        List<TrackResDTO> myTracks = getMyTracks(targetId);
+        List<CareerResDTO> myCareers = getMyCareers(targetId);
 
         if (member.isNotOwner()) { // SURF Rule - 타인의 활동점수는 조회 불가
             return MyPageProfileResDTO.of(member, myTracks, null, myCareers);
@@ -51,7 +51,7 @@ public class MemberUsecase {
 
         BigDecimal score = null;
         if (member.isActive()) { // SURF Rule - 활동 중인 회원만 활동점수를 보여준다.
-            score = personalScoreGetService.getPersonalScore(memberId).getScore();
+            score = personalScoreGetService.getPersonalScore(targetId).getScore();
         }
 
         return MyPageProfileResDTO.of(member, myTracks, score, myCareers);
