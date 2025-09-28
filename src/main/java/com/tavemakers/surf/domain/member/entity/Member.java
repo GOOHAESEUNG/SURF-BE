@@ -74,6 +74,9 @@ public class Member extends BaseEntity {
         return activityStatus;
     }
 
+    private static final int YB_INITIAL_SCORE = 100;
+    private static final int OB_INITIAL_SCORE = 50;
+
     @Builder
     public Member(Long kakaoId,
                   String name,
@@ -199,6 +202,23 @@ public class Member extends BaseEntity {
             return;
         }
         this.role = newRole;
+    }
+
+    // YB인지 OB 판단 후 점수 부여
+    public void grantInitialActivityScore() {
+        if (isYB()) {
+            grantYBActivityScore();
+        } else {
+            grantOBActivityScore();
+        }
+    }
+
+    private void grantYBActivityScore() {
+        this.activityScore = YB_INITIAL_SCORE;
+    }
+
+    private void grantOBActivityScore() {
+        this.activityScore = OB_INITIAL_SCORE;
     }
 }
 
