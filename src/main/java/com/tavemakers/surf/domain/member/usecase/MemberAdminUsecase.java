@@ -5,6 +5,7 @@ import com.tavemakers.surf.domain.member.entity.enums.MemberRole;
 import com.tavemakers.surf.domain.member.service.MemberGetService;
 import com.tavemakers.surf.domain.member.service.MemberPatchService;
 import com.tavemakers.surf.domain.member.service.MemberService;
+import com.tavemakers.surf.domain.score.service.PersonalScoreSaveService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ public class MemberAdminUsecase {
     private final MemberPatchService memberPatchService;
     private final MemberGetService memberGetService;
     private final MemberService memberService;
+    private final PersonalScoreSaveService personalScoreSaveService;
 
     @Transactional
     public void changeRole (Long memberId, MemberRole role) {
@@ -29,7 +31,7 @@ public class MemberAdminUsecase {
     public void approveMember(Long memberId) {
         Member member = memberGetService.getMember(memberId);
         memberService.approveMember(member);
-        memberPatchService.grantInitScore(member);
+        personalScoreSaveService.savePersonalScore(member);
     }
 
     @Transactional

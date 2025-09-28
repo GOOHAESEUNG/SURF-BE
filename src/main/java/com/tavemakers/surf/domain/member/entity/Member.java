@@ -48,8 +48,6 @@ public class Member extends BaseEntity {
 
     private Boolean phoneNumberPublic=false;
 
-    private Integer activityScore;
-
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Track> tracks = new ArrayList<>();
 
@@ -73,9 +71,6 @@ public class Member extends BaseEntity {
     public boolean isActive() {
         return activityStatus;
     }
-
-    private static final int YB_INITIAL_SCORE = 100;
-    private static final int OB_INITIAL_SCORE = 50;
 
     @Builder
     public Member(Long kakaoId,
@@ -102,7 +97,6 @@ public class Member extends BaseEntity {
         this.role = role != null ? role : MemberRole.MEMBER;
         this.memberType = memberType != null ? memberType : MemberType.YB;
         this.activityStatus = activityStatus;
-        this.activityScore = 0;
         this.tracks = new ArrayList<>();
     }
 
@@ -202,23 +196,6 @@ public class Member extends BaseEntity {
             return;
         }
         this.role = newRole;
-    }
-
-    // YB인지 OB 판단 후 점수 부여
-    public void grantInitialActivityScore() {
-        if (isYB()) {
-            grantYBActivityScore();
-        } else {
-            grantOBActivityScore();
-        }
-    }
-
-    private void grantYBActivityScore() {
-        this.activityScore = YB_INITIAL_SCORE;
-    }
-
-    private void grantOBActivityScore() {
-        this.activityScore = OB_INITIAL_SCORE;
     }
 }
 

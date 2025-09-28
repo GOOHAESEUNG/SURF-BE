@@ -38,7 +38,7 @@ public class PersonalActivityScore extends BaseEntity implements ScoreComputable
         return this.score;
     }
 
-    public static PersonalActivityScore from(Member member) {
+    public static PersonalActivityScore of(Member member) {
         return PersonalActivityScore.builder()
                 .member(member)
                 .score(member.isYB() ? BigDecimal.valueOf(100) : BigDecimal.valueOf(50)) // 기본 점수 100

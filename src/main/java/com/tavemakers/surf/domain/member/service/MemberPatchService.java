@@ -22,9 +22,4 @@ public class MemberPatchService {
         //유저 권한 부여
         member.exchangeRole(role);
     }
-
-    @Transactional
-    public void grantInitScore(Member member) {
-        member.grantInitialActivityScore();
-    }
 }
