@@ -42,7 +42,7 @@ public class MemberUsecase {
 
     public MyPageProfileResDTO getMyPageAndProfile(Long memberId) {
         Member member = memberGetService.getMemberByApprovedStatus(memberId);
-        List<TrackResDTO> trackList = getMyTracks(memberId);
+        List<TrackResDTO> myTracks = getMyTracks(memberId);
         List<CareerResDTO> myCareers = getMyCareers(memberId);
 
         BigDecimal score = null;
@@ -50,8 +50,16 @@ public class MemberUsecase {
             score = personalScoreGetService.getPersonalScore(memberId).getScore();
         }
 
-        return MyPageProfileResDTO.of(member, trackList, score, myCareers);
+        return MyPageProfileResDTO.of(member, myTracks, score, myCareers);
     }
+
+    public MyPageProfileResDTO getOthersMyPageAndProfile(Long memberId) {
+        Member member = memberGetService.getMemberByApprovedStatus(memberId);
+        List<TrackResDTO> othersTracks = getMyTracks(memberId);
+        List<CareerResDTO> othersCareers = getMyCareers(memberId);
+        return MyPageProfileResDTO.of(member, othersTracks, null, othersCareers);
+    }
+
 
     // 여러 명의 회원을 조회하고, 각 회원의 트랙 정보를 DTO로 반환하는 메소드
     public List<MemberSearchResDTO> findMemberByNameAndTrack(String name) {

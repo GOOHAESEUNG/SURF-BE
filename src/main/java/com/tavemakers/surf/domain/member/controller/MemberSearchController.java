@@ -5,6 +5,7 @@ import com.tavemakers.surf.domain.member.dto.response.MemberSimpleResDTO;
 import com.tavemakers.surf.domain.member.dto.response.MyPageProfileResDTO;
 import com.tavemakers.surf.domain.member.usecase.MemberUsecase;
 import com.tavemakers.surf.global.common.response.ApiResponse;
+import com.tavemakers.surf.global.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotBlank;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-import static com.tavemakers.surf.domain.member.controller.ResponseMessage.MYPAGE_PROFILE_READ;
+import static com.tavemakers.surf.domain.member.controller.ResponseMessage.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,14 +53,23 @@ public class MemberSearchController {
     }
 
     @Operation(
-            summary = "마이페이지에서 프로필 정보 조회",
-            description = "마이페이지에서 프로필 정보 조회")
-    @GetMapping("/mypage/profile/{memberId}")
-    public ApiResponse<MyPageProfileResDTO> getMyPageAndProfile(
-            @PathVariable Long memberId
-            // TODO 추후 Pathvariable이 아닌 인증 객체에서 추출한 memberId 사용
-    ) {
+            summary = "[본인] 마이페이지에서 프로필 정보 조회",
+            description = "[본인] 마이페이지에서 프로필 정보 조회")
+    @GetMapping("/me/mypage/profile")
+    public ApiResponse<MyPageProfileResDTO> getMyPageAndProfile() {
+        Long memberId = SecurityUtils.getCurrentMemberId();
         MyPageProfileResDTO response = memberUsecase.getMyPageAndProfile(memberId);
-        return ApiResponse.response(HttpStatus.OK, MYPAGE_PROFILE_READ.getMessage(), response);
+        return ApiResponse.response(HttpStatus.OK, MYPAGE_MY_PROFILE_READ.getMessage(), response);
+    }
+
+    @Operation(
+            summary = "[타인] 마이페이지에서 프로필 정보 조회",
+            description = "[타인] 마이페이지에서 프로필 정보 조회")
+    @GetMapping("/others/{memberId}/mypage/profile")
+    public ApiResponse<MyPageProfileResDTO> getOthersMyPageAndProfile(
+            @PathVariable Long memberId
+    ) {
+        MyPageProfileResDTO response = memberUsecase.getOthersMyPageAndProfile(memberId);
+        return ApiResponse.response(HttpStatus.OK, MYPAGE_OTHERS_PROFILE_READ.getMessage(), response);
     }
 }
