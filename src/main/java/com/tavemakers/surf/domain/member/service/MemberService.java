@@ -13,7 +13,7 @@ public interface MemberService {
     /**
      * 회원 거절 (ADMIN 전용)
      */
-    void rejectMember(Long memberId);
+    void rejectMember(Member member);
     MemberSignupResDTO signup(Member member, MemberSignupReqDTO request);
     Boolean needsOnboarding(Member member);
 }

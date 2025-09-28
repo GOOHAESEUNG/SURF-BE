@@ -140,10 +140,6 @@ public class MemberUsecase {
         return memberService.signup(member, request);
     }
 
-    /*
-    * refactoring
-    * */
-
     private List<CareerResDTO> getMyCareers(Long memberId) {
         return careerGetService.getMyCareers(memberId)
                 .stream().map(CareerResDTO::from).toList();

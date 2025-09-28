@@ -26,9 +26,15 @@ public class MemberAdminUsecase {
     }
 
     @Transactional
-    public void approveUser(Long memberId) {
+    public void approveMember(Long memberId) {
         Member member = memberGetService.getMember(memberId);
         memberService.approveMember(member);
         memberPatchService.grantInitScore(member);
+    }
+
+    @Transactional
+    public void rejectMember(Long memberId) {
+        Member member = memberGetService.getMember(memberId);
+        memberService.rejectMember(member);
     }
 }
