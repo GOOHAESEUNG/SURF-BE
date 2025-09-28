@@ -45,12 +45,12 @@ public class MemberUsecase {
         List<TrackResDTO> myTracks = getMyTracks(memberId);
         List<CareerResDTO> myCareers = getMyCareers(memberId);
 
-        if (member.isNotOwner()) {
+        if (member.isNotOwner()) { // SURF Rule - 타인의 활동점수는 조회 불가
             return MyPageProfileResDTO.of(member, myTracks, null, myCareers);
         }
 
         BigDecimal score = null;
-        if (member.isActive()) {
+        if (member.isActive()) { // SURF Rule - 활동 중인 회원만 활동점수를 보여준다.
             score = personalScoreGetService.getPersonalScore(memberId).getScore();
         }
 
