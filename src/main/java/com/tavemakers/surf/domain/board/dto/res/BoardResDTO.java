@@ -2,10 +2,18 @@ package com.tavemakers.surf.domain.board.dto.res;
 
 import com.tavemakers.surf.domain.board.entity.Board;
 import com.tavemakers.surf.domain.board.entity.BoardType;
+import io.swagger.v3.oas.annotations.media.Schema;
 
+@Schema(description = "게시판 응답 DTO")
 public record BoardResDTO(
+
+        @Schema(description = "게시판 ID", example = "1")
         Long id,
+
+        @Schema(description = "게시판 이름", example = "공지사항")
         String name,
+
+        @Schema(description = "게시판 타입", example = "NOTICE")
         BoardType type
 ) {
     public static BoardResDTO from(Board board) {
