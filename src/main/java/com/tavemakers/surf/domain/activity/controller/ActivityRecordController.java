@@ -5,6 +5,7 @@ import com.tavemakers.surf.domain.activity.dto.response.ActivityRecordSliceResDT
 import com.tavemakers.surf.domain.activity.entity.enums.ScoreType;
 import com.tavemakers.surf.domain.activity.usecase.ActivityRecordUsecase;
 import com.tavemakers.surf.global.common.response.ApiResponse;
+import com.tavemakers.surf.global.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -29,14 +30,15 @@ public class ActivityRecordController {
     }
 
     @Operation(summary = "활동 기록 조회(무한스크롤)")
-    @GetMapping("/v1/user/members/{memberId}/activity-records")
+    @GetMapping("/v1/user/members/activity-records")
     public ApiResponse<ActivityRecordSliceResDTO> getActivityRecord(
-            @PathVariable Long memberId,
             @RequestParam ScoreType scoreType,
             @RequestParam int pageSize,
             @RequestParam int pageNum
     ) {
-        ActivityRecordSliceResDTO response = activityRecordUsecase.getActivityRecordList(memberId, scoreType, pageSize, pageNum);
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        ActivityRecordSliceResDTO response =
+                activityRecordUsecase.getActivityRecordList(memberId, scoreType, pageSize, pageNum);
         return ApiResponse.response(HttpStatus.OK, ACTIVITY_RECORD_READ.getMessage(), response);
     }
 
