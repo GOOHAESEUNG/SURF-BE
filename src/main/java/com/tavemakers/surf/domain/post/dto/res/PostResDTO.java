@@ -30,7 +30,10 @@ public record PostResDTO(
         boolean scrappedByMe,
 
         @Schema(description = "게시글이 스크랩된 수", example = "10")
-        long scrapCount
+        long scrapCount,
+
+        @Schema(description = "게시글 작성자 닉네임", example = "홍길동")
+        String nickname
 ) {
     public static PostResDTO from(Post post, boolean scrappedByMe) {
         return new PostResDTO(
@@ -41,7 +44,9 @@ public record PostResDTO(
                 post.getPostedAt(),
                 post.getBoard().getId(),
                 scrappedByMe,
-                post.getScrapCount()
+                post.getScrapCount(),
+                post.getMember().getName()
+
         );
     }
 }
