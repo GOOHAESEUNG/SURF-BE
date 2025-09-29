@@ -6,7 +6,9 @@ import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
+import com.tavemakers.surf.domain.post.repository.PostLikeRepository;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
+import com.tavemakers.surf.domain.post.service.PostLikeService;
 import com.tavemakers.surf.domain.scrap.entity.Scrap;
 import com.tavemakers.surf.domain.scrap.repository.ScrapRepository;
 import jakarta.persistence.OptimisticLockException;
@@ -17,6 +19,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -25,6 +31,7 @@ public class ScrapService {
     private final ScrapRepository scrapRepository;
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final PostLikeRepository postLikeRepository;
 
     @Transactional
     public void addScrap(Long memberId, Long postId) {
@@ -61,7 +68,16 @@ public class ScrapService {
 
     public Page<PostResDTO> getMyScraps(Long memberId, Pageable pageable) {
         Page<Post> page = scrapRepository.findPostsByMemberId(memberId, pageable);
-        return page.map(post -> PostResDTO.from(post, true));
+
+        List<Long> postIds = page.getContent().stream()
+                .map(Post::getId)
+                .toList();
+
+        Set<Long> likedIds = new HashSet<>(postLikeRepository.findLikedPostIdsByMemberAndPostIds(memberId, postIds));
+
+        return page.map(post ->
+                PostResDTO.from(post, true, likedIds.contains(post.getId()))
+        );
     }
 
     public boolean isScrappedByMe(Long memberId, Long postId) {

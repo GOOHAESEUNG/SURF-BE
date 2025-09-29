@@ -29,6 +29,7 @@ public class PostService {
     private final MemberRepository memberRepository;
 
     private final ScrapService scrapService;
+    private final PostLikeService postLikeService;
 
     @Transactional
     public PostResDTO createPost(PostCreateReqDTO req, Long memberId) {
@@ -41,7 +42,7 @@ public class PostService {
         Post post = Post.of(req, board, member);
         Post saved = postRepository.save(post);
 
-        return PostResDTO.from(saved, false);
+        return PostResDTO.from(saved, false, false);
     }
 
     @Transactional(readOnly = true)
@@ -50,8 +51,9 @@ public class PostService {
                 .orElseThrow(PostNotFoundException::new);
 
         boolean scrappedByMe = scrapService.isScrappedByMe(memberId, postId);
+        boolean likedByMe = postLikeService.isLikedByMe(memberId, postId);
 
-        return PostResDTO.from(post, scrappedByMe);
+        return PostResDTO.from(post, scrappedByMe, likedByMe);
     }
 
     @Transactional(readOnly = true)
@@ -62,7 +64,8 @@ public class PostService {
         Page<Post> page = postRepository.findByMemberId(myId, pageable);
         return page.map(p -> PostResDTO.from(
                 p,
-                scrapService.isScrappedByMe(myId, p.getId())
+                scrapService.isScrappedByMe(myId, p.getId()),
+                postLikeService.isLikedByMe(myId, p.getId())
         ));
     }
 
@@ -73,7 +76,8 @@ public class PostService {
         Page<Post> page = postRepository.findByMemberId(authorId, pageable);
         return page.map(p -> PostResDTO.from(
                 p,
-                scrapService.isScrappedByMe(viewerId, p.getId())
+                scrapService.isScrappedByMe(viewerId, p.getId()),
+                postLikeService.isLikedByMe(viewerId, p.getId())
         ));
     }
 
@@ -85,7 +89,8 @@ public class PostService {
         Page<Post> page = postRepository.findByBoardId(boardId, pageable);
         return page.map(p -> PostResDTO.from(
                 p,
-                scrapService.isScrappedByMe(viewerId, p.getId())
+                scrapService.isScrappedByMe(viewerId, p.getId()),
+                postLikeService.isLikedByMe(viewerId, p.getId())
         ));
     }
 
@@ -96,7 +101,8 @@ public class PostService {
 
         post.update(req, post.getBoard());
         boolean scrappedByMe = scrapService.isScrappedByMe(viewerId, postId);
-        return PostResDTO.from(post, scrappedByMe);
+        boolean likedByMe = postLikeService.isLikedByMe(viewerId, postId);
+        return PostResDTO.from(post, scrappedByMe, likedByMe);
     }
 
     @Transactional

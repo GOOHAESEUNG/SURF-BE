@@ -50,11 +50,12 @@ public class Post extends BaseEntity {
     private Member member;
 
     @Builder
-    private Post(String title, String content, boolean pinned, long scrapCount, LocalDateTime postedAt, Board board, Member member) {
+    private Post(String title, String content, boolean pinned, long scrapCount, long likeCount, LocalDateTime postedAt, Board board, Member member) {
         this.title = title;
         this.content = content;
         this.pinned = pinned;
         this.scrapCount = scrapCount;
+        this.likeCount = likeCount;
         this.postedAt = postedAt;
         this.board = board;
         this.member = member;
@@ -69,6 +70,7 @@ public class Post extends BaseEntity {
                 .board(board)
                 .member(member)
                 .scrapCount(0L)
+                .likeCount(0L)
                 .build();
     }
 

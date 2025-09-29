@@ -1,10 +1,10 @@
 package com.tavemakers.surf.domain.post.controller;
 
 import com.tavemakers.surf.domain.post.service.PostLikeService;
-import com.tavemakers.surf.global.common.response.ApiResponse;
 import com.tavemakers.surf.global.util.SecurityUtils;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,13 +14,19 @@ public class PostLikeController {
 
     private final PostLikeService postLikeService;
 
-    @PostMapping
-    public ApiResponse<LikeToggleRes> toggle(@PathVariable Long postId) {
+    @Operation(summary = "좋아요 설정", description = "이미 좋아요 상태여도 204(No Content) 반환")
+    @PutMapping
+    public ResponseEntity<Void> like(@PathVariable Long postId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        boolean liked = postLikeService.toggleLike(postId, memberId);
-        return ApiResponse.response(HttpStatus.OK, liked ? "좋아요" : "좋아요 취소",
-                new LikeToggleRes(liked));
+        postLikeService.like(postId, memberId);
+        return ResponseEntity.noContent().build();
     }
 
-    public record LikeToggleRes(boolean liked) {}
+    @Operation(summary = "좋아요 해제", description = "이미 해제 상태여도 204(No Content) 반환")
+    @DeleteMapping
+    public ResponseEntity<Void> unlike(@PathVariable Long postId) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        postLikeService.unlike(postId, memberId);
+        return ResponseEntity.noContent().build();
+    }
 }
