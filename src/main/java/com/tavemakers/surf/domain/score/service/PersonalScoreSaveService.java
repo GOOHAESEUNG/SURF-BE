@@ -13,7 +13,7 @@ public class PersonalScoreSaveService {
     private final PersonalActivityScoreRepository personalScoreRepository;
 
     public void savePersonalScore(Member savedMember) {
-        personalScoreRepository.save(PersonalActivityScore.of(savedMember));
+        personalScoreRepository.save(PersonalActivityScore.from(savedMember));
     }
 
 }
