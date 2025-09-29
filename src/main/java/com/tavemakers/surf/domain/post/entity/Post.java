@@ -38,6 +38,8 @@ public class Post extends BaseEntity {
 
     private long likeCount = 0L;
 
+    private long commentCount = 0L;
+
     @Version
     private Long version;
 
@@ -50,12 +52,13 @@ public class Post extends BaseEntity {
     private Member member;
 
     @Builder
-    private Post(String title, String content, boolean pinned, long scrapCount, long likeCount, LocalDateTime postedAt, Board board, Member member) {
+    private Post(String title, String content, boolean pinned, long scrapCount, long likeCount, long commentCount, LocalDateTime postedAt, Board board, Member member) {
         this.title = title;
         this.content = content;
         this.pinned = pinned;
         this.scrapCount = scrapCount;
         this.likeCount = likeCount;
+        this.commentCount = commentCount;
         this.postedAt = postedAt;
         this.board = board;
         this.member = member;
@@ -71,6 +74,7 @@ public class Post extends BaseEntity {
                 .member(member)
                 .scrapCount(0L)
                 .likeCount(0L)
+                .commentCount(0L)
                 .build();
     }
 
@@ -83,4 +87,7 @@ public class Post extends BaseEntity {
 
     public void increaseLikeCount() { this.likeCount++; }
     public void decreaseLikeCount() { if (this.likeCount > 0) this.likeCount--; }
+
+    public void increaseCommentCount() { this.commentCount++; }
+    public void decreaseCommentCount() { if (this.commentCount > 0) this.commentCount--; }
 }

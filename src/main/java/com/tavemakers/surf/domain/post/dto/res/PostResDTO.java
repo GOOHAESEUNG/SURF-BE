@@ -38,6 +38,9 @@ public record PostResDTO(
         @Schema(description = "게시글이 좋아요된 수", example = "5")
         long likeCount,
 
+        @Schema(description = "게시글 댓글 수", example = "0")
+        long commentCount,
+
         @Schema(description = "게시글 작성자 닉네임", example = "홍길동")
         String nickname
 ) {
@@ -53,8 +56,8 @@ public record PostResDTO(
                 post.getScrapCount(),
                 likedByMe,
                 post.getLikeCount(),
+                post.getCommentCount(),
                 post.getMember().getName()
-
         );
     }
 }
