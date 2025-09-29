@@ -31,6 +31,6 @@ public class CareerCreateReqDTO {
 
     @Schema(description = "재직 여부", example = "true or false")
     @NotNull
-    private boolean isWorking;
+    private Boolean isWorking;
 
 }
