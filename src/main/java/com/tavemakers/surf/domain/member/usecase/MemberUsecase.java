@@ -7,6 +7,7 @@ import com.tavemakers.surf.domain.member.dto.response.MyPageProfileResDTO;
 import com.tavemakers.surf.domain.member.dto.response.TrackResDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.Track;
+import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.exception.TrackNotFoundException;
 import com.tavemakers.surf.domain.member.service.*;
 import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
@@ -48,14 +49,17 @@ public class MemberUsecase {
         if (member.isNotOwner()) { // SURF Rule - 타인의 활동점수는 조회 불가
             return MyPageProfileResDTO.of(member, myTracks, null, myCareers);
         }
+}
+    public MyPageProfileResDTO getOthersMyPageAndProfile(Long memberId) {
+        Member member = memberGetService.getMemberByStatus(memberId, MemberStatus.APPROVED);
+        List<TrackResDTO> othersTracks = getMyTracks(memberId);
+        List<CareerResDTO> othersCareers = getMyCareers(memberId);
 
-        BigDecimal score = null;
-        if (member.isActive()) { // SURF Rule - 활동 중인 회원만 활동점수를 보여준다.
-            score = personalScoreGetService.getPersonalScore(targetId).getScore();
-        }
+        String phoneNumberToShow = member.getPhoneNumberPublic() ? member.getPhoneNumber() : null;
 
-        return MyPageProfileResDTO.of(member, myTracks, score, myCareers);
+        return MyPageProfileResDTO.of(member, othersTracks, null, othersCareers, phoneNumberToShow);
     }
+
 
     // 여러 명의 회원을 조회하고, 각 회원의 트랙 정보를 DTO로 반환하는 메소드
     public List<MemberSearchResDTO> findMemberByNameAndTrack(String name) {
@@ -133,10 +137,6 @@ public class MemberUsecase {
         return memberService.signup(member, request);
     }
 
-    /*
-    * refactoring
-    * */
-
     private List<CareerResDTO> getMyCareers(Long memberId) {
         return careerGetService.getMyCareers(memberId)
                 .stream().map(CareerResDTO::from).toList();
@@ -146,5 +146,6 @@ public class MemberUsecase {
         return trackGetService.getTrack(memberId)
                 .stream().map(TrackResDTO::from).toList();
     }
+
 
 }
