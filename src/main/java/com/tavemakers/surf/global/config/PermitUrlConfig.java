@@ -8,7 +8,6 @@ public class PermitUrlConfig {
     public String[] getPublicUrl(){
         return new String[]{
                 "/login/**",
-                "/api/members/signup",
 
                 "/swagger-ui/**",
                 "/v3/api-docs/**",
@@ -21,13 +20,12 @@ public class PermitUrlConfig {
 
     public String[] getMemberUrl(){
         return new String[]{
-                "/v1/member/**",
+                "/v1/user/**"
         };
     }
 
     public String[] getAdminUrl(){
         return new String[]{
-                "/api/admin/**",
                 "/v1/admin/**"
         };
     }
