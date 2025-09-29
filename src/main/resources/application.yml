@@ -33,10 +33,10 @@ kakao:
 jwt:
   secret: ${JWT_SECRET}
   access:
-    expiration: 3600000 # 1 hour
+    expiration: ${JWT_EXPIRATION}
     header: Authorization
   refresh:
-    expiration: 86400000 # 1 day
+    expiration: ${JWT_REFRESH_EXPIRATION}
     header: RefreshToken
 
 feedback:
