@@ -7,6 +7,7 @@ import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.entity.enums.MemberType;
 import com.tavemakers.surf.domain.member.entity.enums.MemberRole;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
+import com.tavemakers.surf.global.util.SecurityUtils;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -15,6 +16,8 @@ import lombok.Builder;
 import com.tavemakers.surf.domain.member.entity.enums.Part;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -197,5 +200,10 @@ public class Member extends BaseEntity {
         }
         this.role = newRole;
     }
+
+    public boolean isNotOwner() {
+        return !Objects.equals(this.id, SecurityUtils.getCurrentMemberId());
+    }
+
 }
 

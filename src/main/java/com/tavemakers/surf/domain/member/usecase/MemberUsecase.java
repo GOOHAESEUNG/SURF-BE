@@ -41,19 +41,15 @@ public class MemberUsecase {
     private final MemberService memberService;
 
 
-    public MyPageProfileResDTO getMyPageAndProfile(Long memberId) {
-        Member member = memberGetService.getMemberByStatus(memberId, MemberStatus.APPROVED);
-        List<TrackResDTO> myTracks = getMyTracks(memberId);
-        List<CareerResDTO> myCareers = getMyCareers(memberId);
+    public MyPageProfileResDTO getMyPageAndProfile(Long targetId) {
+        Member member = memberGetService.getMemberByApprovedStatus(targetId);
+        List<TrackResDTO> myTracks = getMyTracks(targetId);
+        List<CareerResDTO> myCareers = getMyCareers(targetId);
 
-        BigDecimal score = null;
-        if (member.isActive()) {
-            score = personalScoreGetService.getPersonalScore(memberId).getScore();
+        if (member.isNotOwner()) { // SURF Rule - 타인의 활동점수는 조회 불가
+            return MyPageProfileResDTO.of(member, myTracks, null, myCareers);
         }
-
-        return MyPageProfileResDTO.of(member, myTracks, score, myCareers, member.getPhoneNumber());
-    }
-
+}
     public MyPageProfileResDTO getOthersMyPageAndProfile(Long memberId) {
         Member member = memberGetService.getMemberByStatus(memberId, MemberStatus.APPROVED);
         List<TrackResDTO> othersTracks = getMyTracks(memberId);
