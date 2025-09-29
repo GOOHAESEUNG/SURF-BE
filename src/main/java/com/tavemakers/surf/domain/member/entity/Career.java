@@ -70,7 +70,7 @@ public class Career extends BaseEntity {
                 .startDate(dto.getStartDate().atDay(1))
                 .endDate(dto.getEndDate() != null ? dto.getEndDate().atDay(1) : null)
                 .member(member)
-                .isWorking(dto.isWorking())
+                .isWorking(dto.getIsWorking())
                 .build();
     }
 
