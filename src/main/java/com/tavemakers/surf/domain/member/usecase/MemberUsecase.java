@@ -7,6 +7,7 @@ import com.tavemakers.surf.domain.member.dto.response.MyPageProfileResDTO;
 import com.tavemakers.surf.domain.member.dto.response.TrackResDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.Track;
+import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.exception.TrackNotFoundException;
 import com.tavemakers.surf.domain.member.service.*;
 import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
@@ -41,7 +42,7 @@ public class MemberUsecase {
 
 
     public MyPageProfileResDTO getMyPageAndProfile(Long memberId) {
-        Member member = memberGetService.getMemberByApprovedStatus(memberId);
+        Member member = memberGetService.getMemberByStatus(memberId, MemberStatus.APPROVED);
         List<TrackResDTO> myTracks = getMyTracks(memberId);
         List<CareerResDTO> myCareers = getMyCareers(memberId);
 
@@ -50,14 +51,17 @@ public class MemberUsecase {
             score = personalScoreGetService.getPersonalScore(memberId).getScore();
         }
 
-        return MyPageProfileResDTO.of(member, myTracks, score, myCareers);
+        return MyPageProfileResDTO.of(member, myTracks, score, myCareers, member.getPhoneNumber());
     }
 
     public MyPageProfileResDTO getOthersMyPageAndProfile(Long memberId) {
-        Member member = memberGetService.getMemberByApprovedStatus(memberId);
+        Member member = memberGetService.getMemberByStatus(memberId, MemberStatus.APPROVED);
         List<TrackResDTO> othersTracks = getMyTracks(memberId);
         List<CareerResDTO> othersCareers = getMyCareers(memberId);
-        return MyPageProfileResDTO.of(member, othersTracks, null, othersCareers);
+
+        String phoneNumberToShow = member.getPhoneNumberPublic() ? member.getPhoneNumber() : null;
+
+        return MyPageProfileResDTO.of(member, othersTracks, null, othersCareers, phoneNumberToShow);
     }
 
 
@@ -137,10 +141,6 @@ public class MemberUsecase {
         return memberService.signup(member, request);
     }
 
-    /*
-    * refactoring
-    * */
-
     private List<CareerResDTO> getMyCareers(Long memberId) {
         return careerGetService.getMyCareers(memberId)
                 .stream().map(CareerResDTO::from).toList();
@@ -150,5 +150,6 @@ public class MemberUsecase {
         return trackGetService.getTrack(memberId)
                 .stream().map(TrackResDTO::from).toList();
     }
+
 
 }

@@ -15,6 +15,9 @@ public class ProfileUpdateReqDTO {
     @Schema(description = "변경할 전화번호 (선택)", example = "01056781234")
     private String phoneNumber;
 
+    @Schema(description = "전화번호 공개 유무", example = "true")
+    private Boolean phoneNumberPublic;
+
     @Email(message = "올바른 이메일 형식을 입력하세요.")
     @Schema(description = "변경할 이메일 (선택)", example = "new.email@example.com")
     private String email;

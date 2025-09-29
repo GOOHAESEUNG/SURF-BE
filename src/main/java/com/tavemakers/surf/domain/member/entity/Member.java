@@ -46,7 +46,7 @@ public class Member extends BaseEntity {
 
     private String phoneNumber;
 
-    private Integer activityScore;
+    private Boolean phoneNumberPublic=false;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Track> tracks = new ArrayList<>();
@@ -80,6 +80,7 @@ public class Member extends BaseEntity {
                   String graduateSchool,
                   String email,
                   String phoneNumber,
+                  Boolean phoneNumberPublic,
                   MemberStatus status,
                   MemberRole role,
                   MemberType memberType,
@@ -91,41 +92,12 @@ public class Member extends BaseEntity {
         this.graduateSchool = graduateSchool;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        this.phoneNumberPublic = phoneNumberPublic;
         this.status = status != null ? status : MemberStatus.WAITING;
         this.role = role != null ? role : MemberRole.MEMBER;
         this.memberType = memberType != null ? memberType : MemberType.YB;
         this.activityStatus = activityStatus;
-        this.activityScore = 0;
         this.tracks = new ArrayList<>();
-    }
-
-    /**
-     * ===== [정적 팩토리 메서드] =====
-     */
-    public static Member create(MemberSignupReqDTO request,
-                                String normalizedEmail,
-                                String normalizedPhone) {
-        Member member = Member.builder()
-                .name(request.getName())
-                .university(request.getUniversity())
-                .graduateSchool(request.getGraduateSchool())
-                .email(normalizedEmail)
-                .phoneNumber(normalizedPhone)
-                .profileImageUrl(request.getProfileImageUrl())
-                .status(MemberStatus.WAITING)
-                .role(MemberRole.MEMBER)
-                .memberType(MemberType.YB)
-                .activityStatus(true)
-                .build();
-
-        // DTO의 TrackInfo → Track 엔티티 변환
-        if (request.getTracks() != null) {
-            request.getTracks().forEach(t ->
-                    member.addTrack(t.getGeneration(), t.getPart())
-            );
-        }
-
-        return member;
     }
 
     public static Member createRegisteringFromKakao(KakaoUserInfoDto info) {
@@ -139,6 +111,7 @@ public class Member extends BaseEntity {
                 .kakaoId(info.id())
                 .name(acc.profile().nickname())
                 .email(acc.email())
+                .phoneNumberPublic(false)
                 .profileImageUrl(acc.profile().profileImageUrl())
                 .status(MemberStatus.REGISTERING)
                 .role(MemberRole.MEMBER)
@@ -162,6 +135,13 @@ public class Member extends BaseEntity {
         // 상태 전이: REGISTERING -> WAITING (또는 정책상 APPROVED)
         if (this.status == MemberStatus.REGISTERING) {
             this.status = MemberStatus.WAITING;
+        }
+
+        //트랙 저장
+        if (req.getTracks() != null) {
+            req.getTracks().forEach(t ->
+                    this.addTrack(t.getGeneration(), t.getPart())
+            );
         }
     }
 
@@ -204,6 +184,9 @@ public class Member extends BaseEntity {
         }
         if (request.getGraduateSchool() != null) {
             this.graduateSchool = request.getGraduateSchool();
+        }
+        if (request.getPhoneNumberPublic() != null) {
+            this.phoneNumberPublic = request.getPhoneNumberPublic();
         }
     }
 

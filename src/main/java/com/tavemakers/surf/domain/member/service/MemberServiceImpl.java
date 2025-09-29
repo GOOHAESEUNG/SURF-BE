@@ -37,22 +37,14 @@ public class MemberServiceImpl implements MemberService {
     /** 회원 승인 */
     @Override
     @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
-    public void approveMember(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberNotFoundException(memberId));
-
+    public void approveMember(Member member) {
         member.approve();
     }
 
     /** 회원 거절 */
     @Override
     @Transactional
-    @PreAuthorize("hasRole('ADMIN')")
-    public void rejectMember(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberNotFoundException(memberId));
-
+    public void rejectMember(Member member) {
         member.reject();
     }
 
