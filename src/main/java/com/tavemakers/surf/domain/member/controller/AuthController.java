@@ -51,7 +51,9 @@ public class AuthController {
      *    - authCode → accessToken → userInfo 처리
      *    - refreshToken은 HttpOnly 쿠키로 전달
      */
-    @Operation(summary = "카카오 콜백")
+    @Operation(
+            summary = "카카오 로그인 콜백",
+            description = "인가 코드(code)를 받아 JWT AccessToken과 사용자 정보를 반환합니다.")
     @GetMapping("/login/oauth2/code/kakao")
     public Mono<ApiResponse<LoginResDto>> kakaoCallback(
             @RequestParam("code") String code,
