@@ -55,8 +55,10 @@ public class MemberSearchController {
     @Operation(
             summary = "마이페이지에서 프로필 정보 조회",
             description = "마이페이지에서 프로필 정보 조회")
-        @GetMapping("/v1/user/members/profile")
-    public ApiResponse<MyPageProfileResDTO> getMyPageAndProfile(@RequestParam(required = false) Long memberId) {
+    @GetMapping("/v1/user/members/profile")
+    public ApiResponse<MyPageProfileResDTO> getMyPageAndProfile(
+            @RequestParam(required = false) Long memberId
+    ) {
         memberId = (memberId == null ? SecurityUtils.getCurrentMemberId() : memberId);
         MyPageProfileResDTO response = memberUsecase.getMyPageAndProfile(memberId);
         return ApiResponse.response(HttpStatus.OK, MYPAGE_MY_PROFILE_READ.getMessage(), response);

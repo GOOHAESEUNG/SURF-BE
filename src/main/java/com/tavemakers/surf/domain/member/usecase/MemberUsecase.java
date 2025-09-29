@@ -36,7 +36,6 @@ public class MemberUsecase {
     private final CareerDeleteService careerDeleteService;
     private final CareerGetService careerGetService;
     private final MemberPatchService memberPatchService;
-    private final MemberUpsertService memberUpsertService;
     private final MemberServiceImpl memberServiceImpl;
     private final MemberService memberService;
 
@@ -47,11 +46,15 @@ public class MemberUsecase {
         List<CareerResDTO> myCareers = getMyCareers(targetId);
 
         if (member.isNotOwner()) { // SURF Rule - 타인의 활동점수는 조회 불가
-            String phoneNumberToShow = member.getPhoneNumberPublic() ? member.getPhoneNumber() : null;
-
-            return MyPageProfileResDTO.of(member, myTracks, null, myCareers, phoneNumberToShow);
+            return MyPageProfileResDTO.of(member, myTracks, null, myCareers);
         }
-        return MyPageProfileResDTO.of(member, myTracks, null, myCareers, member.getPhoneNumber());
+
+        BigDecimal score = null;
+        if (member.isActive()) { // SURF Rule - 활동 중인 회원만 활동점수를 보여준다.
+            score = personalScoreGetService.getPersonalScore(targetId).getScore();
+        }
+
+        return MyPageProfileResDTO.of(member, myTracks, score, myCareers);
     }
 
 
@@ -64,7 +67,7 @@ public class MemberUsecase {
 
         List<Long> memberIds = members.stream().map(Member::getId).collect(Collectors.toList());
 
-       List<Track> latestTracks = trackGetService.getTrack(memberIds);
+        List<Track> latestTracks = trackGetService.getTrack(memberIds);
 
         // 조회된 최신 트랙들을 Member ID를 Key로 하는 Map으로 변환
         Map<Long, Track> trackMap = latestTracks.stream()
