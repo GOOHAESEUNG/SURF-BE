@@ -36,6 +36,8 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private long scrapCount = 0L;
 
+    private long likeCount = 0L;
+
     @Version
     private Long version;
 
@@ -76,4 +78,7 @@ public class Post extends BaseEntity {
         this.pinned = req.pinned() != null ? req.pinned() : this.pinned;
         this.board = board;
     }
+
+    public void increaseLikeCount() { this.likeCount++; }
+    public void decreaseLikeCount() { if (this.likeCount > 0) this.likeCount--; }
 }
