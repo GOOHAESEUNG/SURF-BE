@@ -27,10 +27,13 @@ public enum ActivityType {
     // PENALTY
     SESSION_ABSENCE("정규 세션 결석", -30,PENALTY),
     SESSION_TRUANCY("정규 세션 무단 결석", -100, PENALTY),
+
+    SESSION_LATE("정규 세션 지각", 0, PENALTY),
     SESSION_LATE_1_TO_10("정규 세션 지각", -10, PENALTY),
     SESSION_LATE_11_TO_20("정규 세션 지각", -20, PENALTY),
     SESSION_LATE_21_TO_30("정규 세션 지각", -30, PENALTY),
 
+    TEAM_LATE("스터디/프로젝트 지각", 0, PENALTY),
     STUDY_LATE_5_TO_9("스터디 지각", -5, PENALTY),
     STUDY_LATE_10_TO_19("스터디 지각", -10, PENALTY),
     STUDY_LATE_20_TO_29("스터디 지각", -15, PENALTY),
@@ -40,6 +43,7 @@ public enum ActivityType {
     PROJECT_LATE_10_TO_19("프로젝트 지각", -10, PENALTY),
     PROJECT_LATE_20_TO_29("프로젝트 지각", -15, PENALTY),
     PROJECT_ABSENCE("프로젝트 결석", -30, PENALTY),
+    TEAM_ABSENCE("스터디/프로젝트 결석", 0, PENALTY),
 
     NO_VOTE("투표 미참여", -15, PENALTY),
     DELAY_DEPOSIT("보증금 입금 지연", -5, PENALTY),
