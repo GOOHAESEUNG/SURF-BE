@@ -42,22 +42,16 @@ public class MemberUsecase {
 
 
     public MyPageProfileResDTO getMyPageAndProfile(Long targetId) {
-        Member member = memberGetService.getMemberByApprovedStatus(targetId);
+        Member member = memberGetService.getMemberByStatus(targetId,MemberStatus.APPROVED);
         List<TrackResDTO> myTracks = getMyTracks(targetId);
         List<CareerResDTO> myCareers = getMyCareers(targetId);
 
         if (member.isNotOwner()) { // SURF Rule - 타인의 활동점수는 조회 불가
-            return MyPageProfileResDTO.of(member, myTracks, null, myCareers);
+            String phoneNumberToShow = member.getPhoneNumberPublic() ? member.getPhoneNumber() : null;
+
+            return MyPageProfileResDTO.of(member, myTracks, null, myCareers, phoneNumberToShow);
         }
-}
-    public MyPageProfileResDTO getOthersMyPageAndProfile(Long memberId) {
-        Member member = memberGetService.getMemberByStatus(memberId, MemberStatus.APPROVED);
-        List<TrackResDTO> othersTracks = getMyTracks(memberId);
-        List<CareerResDTO> othersCareers = getMyCareers(memberId);
-
-        String phoneNumberToShow = member.getPhoneNumberPublic() ? member.getPhoneNumber() : null;
-
-        return MyPageProfileResDTO.of(member, othersTracks, null, othersCareers, phoneNumberToShow);
+        return MyPageProfileResDTO.of(member, myTracks, null, myCareers, member.getPhoneNumber());
     }
 
 
