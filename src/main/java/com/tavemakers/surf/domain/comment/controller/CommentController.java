@@ -29,7 +29,7 @@ public class CommentController {
                                                     @Valid @RequestBody CommentCreateReqDTO req) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         CommentResDTO response = commentService.createComment(postId, memberId, req);
-        return ApiResponse.response(HttpStatus.CREATED, "댓글이 생성되었습니다.", response);
+        return ApiResponse.response(HttpStatus.CREATED, COMMENT_CREATED.getMessage(), response);
     }
 
     @Operation(summary = "댓글 목록 조회 (페이징)", description = "루트 댓글과 대댓글 모두 포함. 페이징 처리")
