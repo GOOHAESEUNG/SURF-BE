@@ -26,11 +26,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             "where p.id = :id and p.version = :version and p.scrapCount > 0")
     int decreaseScrapCount(@Param("id") Long id, @Param("version") Long version);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("update Post p set p.likeCount = p.likeCount + 1 where p.id = :postId")
     void increaseLikeCount(@Param("postId") Long postId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("update Post p set p.likeCount = case when p.likeCount > 0 then p.likeCount - 1 else 0 end where p.id = :postId")
     void decreaseLikeCount(@Param("postId") Long postId);
 }

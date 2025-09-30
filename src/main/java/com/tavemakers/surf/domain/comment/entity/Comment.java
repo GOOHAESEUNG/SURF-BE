@@ -9,10 +9,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Where(clause="deleted=false")
 public class Comment extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
