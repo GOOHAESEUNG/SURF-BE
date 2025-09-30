@@ -15,6 +15,7 @@ public record MyPageProfileResDTO(
         String graduateSchool,
         String role,
         BigDecimal activityScore,
+        boolean isActive,
         List<TrackResDTO> trackList,
         List<CareerResDTO> careerList
 ) {
@@ -28,6 +29,7 @@ public record MyPageProfileResDTO(
                 .graduateSchool(member.getGraduateSchool())
                 .role(member.getRole().name())
                 .activityScore(activityScore)
+                .isActive((member.isActivityStatus()))
                 .trackList(trackList)
                 .careerList(careerList)
                 .build();
