@@ -42,7 +42,7 @@ public class PostController {
     @Operation(summary = "게시글 단건 조회", description = "특정 ID의 게시글을 조회합니다.")
     @GetMapping("/v1/user/posts/{postId}")
     public ApiResponse<PostResDTO> getPost(
-            @PathVariable Long postId
+            @PathVariable(name = "postId") Long postId
     ) {
         Long viewerId = SecurityUtils.getCurrentMemberId();
         PostResDTO response = postService.getPost(postId, viewerId);
@@ -63,9 +63,9 @@ public class PostController {
 
     /** 특정 작성자의 게시글 목록 (뷰어 = 현재 로그인 사용자) */
     @Operation(summary = "특정 작성자의 게시글 목록", description = "특정 작성자가 작성한 게시글 목록을 조회합니다.")
-    @GetMapping("/v1/user/posts/{authorId}/posts")
+    @GetMapping("/v1/user/posts/author/{authorId}")
     public ApiResponse<Page<PostResDTO>> getPostsByMember(
-            @PathVariable Long authorId,
+            @PathVariable (name = "authorId") Long authorId,
             @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
@@ -76,9 +76,9 @@ public class PostController {
 
     /** 게시판별 게시글 목록 (뷰어 = 현재 로그인 사용자) */
     @Operation(summary = "게시판별 게시글 목록", description = "특정 게시판에 속한 게시글 목록을 조회합니다.")
-    @GetMapping("/v1/user/posts")
+    @GetMapping("/v1/user/posts/board/{boardId}")
     public ApiResponse<Page<PostResDTO>> getPostsByBoard(
-            @RequestParam Long boardId,
+            @PathVariable(name = "boardId") Long boardId,
             @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
@@ -89,9 +89,9 @@ public class PostController {
 
     /** 게시글 수정 (작성자 검증은 서비스에서) */
     @Operation(summary = "게시글 수정", description = "본인이 작성한 게시글을 수정합니다.")
-    @PutMapping("/v1/user/posts{postId}")
+    @PutMapping("/v1/user/posts/{postId}")
     public ApiResponse<PostResDTO> updatePost(
-            @PathVariable Long postId,
+            @PathVariable(name = "postId") Long postId,
             @Valid @RequestBody PostUpdateReqDTO req
     ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
@@ -102,7 +102,8 @@ public class PostController {
     /** 게시글 삭제 (작성자/권한 검증은 서비스에서) */
     @Operation(summary = "게시글 삭제", description = "본인이 작성한 게시글을 삭제합니다.")
     @DeleteMapping("/v1/user/posts/{postId}")
-    public ApiResponse<Void> deletePost(@PathVariable Long postId) {
+    public ApiResponse<Void> deletePost(
+            @PathVariable(name = "postId") Long postId) {
         postService.deletePost(postId);
         return ApiResponse.response(HttpStatus.NO_CONTENT, POST_DELETED.getMessage());
     }

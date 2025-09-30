@@ -69,7 +69,7 @@ public class Post extends BaseEntity {
                 .title(req.title())
                 .content(req.content())
                 .pinned(req.pinned() != null ? req.pinned() : false)
-                .postedAt(req.postedAt() != null ? req.postedAt() : LocalDateTime.now())
+                .postedAt(LocalDateTime.now())
                 .board(board)
                 .member(member)
                 .scrapCount(0L)

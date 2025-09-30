@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -23,6 +25,13 @@ public class BoardService {
         return BoardResDTO.from(saved);
     }
 
+    public List<BoardResDTO> getBoards() {
+        List<Board> boards = boardRepository.findAll();
+        return boards.stream()
+                .map(BoardResDTO::from)
+                .toList();
+    }
+
     public BoardResDTO getBoard(Long id) {
         Board board = boardRepository.findById(id)
                 .orElseThrow(BoardNotFoundException::new);
@@ -33,7 +42,7 @@ public class BoardService {
     public BoardResDTO updateBoard(Long id, BoardUpdateReqDTO req) {
         Board board = boardRepository.findById(id)
                 .orElseThrow(BoardNotFoundException::new);
-        board.changeType(req.type());
+        board.update(req.name(), req.type());
         return BoardResDTO.from(board);
     }
 

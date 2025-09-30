@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static com.tavemakers.surf.domain.board.controller.ResponseMessage.*;
 
 @RestController
@@ -21,13 +23,18 @@ import static com.tavemakers.surf.domain.board.controller.ResponseMessage.*;
 public class BoardController {
     private final BoardService boardService;
 
-    @PostMapping("/v1/admin/boards/{boardId}")
+    @PostMapping("/v1/admin/boards")
     public ApiResponse<BoardResDTO> createBoard(
             @Valid @RequestBody BoardCreateReqDTO req) {
         BoardResDTO response = boardService.createBoard(req);
         return ApiResponse.response(HttpStatus.CREATED, BOARD_CREATED.getMessage(), response);
     }
 
+    @GetMapping("/v1/users/boards")
+    public ApiResponse<List<BoardResDTO>> getBoards() {
+        List<BoardResDTO> response = boardService.getBoards();
+        return ApiResponse.response(HttpStatus.OK, BOARD_READ.getMessage(), response);
+    }
 
     @Operation(summary = "게시판 조회", description = "특정 ID의 게시판을 조회합니다.")
     @GetMapping("/v1/admin/boards/{boardId}")

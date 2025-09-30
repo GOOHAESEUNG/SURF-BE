@@ -20,6 +20,7 @@ public interface ScrapRepository extends JpaRepository<Scrap, Long> {
             select s.post
             from Scrap s
             where s.member.id = :memberId
+            order by s.createdAt desc
             """,
             countQuery = """
             select count(s)

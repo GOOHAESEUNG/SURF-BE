@@ -47,7 +47,7 @@ public class ScrapController {
     @Operation(summary = "내가 스크랩한 게시글 목록", description = "본인이 스크랩한 게시글 목록을 조회합니다.")
     @GetMapping("/v1/user/scraps/me")
     public ApiResponse<Page<PostResDTO>> myScraps(
-            @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
+            @PageableDefault(size = 12, sort = "createdAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
         Long me = SecurityUtils.getCurrentMemberId();
