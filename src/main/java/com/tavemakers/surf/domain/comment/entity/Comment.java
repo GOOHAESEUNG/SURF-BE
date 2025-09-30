@@ -92,6 +92,10 @@ public class Comment extends BaseEntity {
     }
 
     public void update(String content) {
+        if (this.deleted) {
+            throw new IllegalStateException("삭제된 댓글은 수정할 수 없습니다.");
+        }
+
         this.content = content;
     }
 }

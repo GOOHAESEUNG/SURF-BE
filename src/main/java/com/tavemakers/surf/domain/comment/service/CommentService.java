@@ -6,6 +6,7 @@ import com.tavemakers.surf.domain.comment.dto.res.CommentResDTO;
 import com.tavemakers.surf.domain.comment.entity.Comment;
 import com.tavemakers.surf.domain.comment.exception.CommentDepthExceedException;
 import com.tavemakers.surf.domain.comment.exception.CommentNotFoundException;
+import com.tavemakers.surf.domain.comment.exception.InvalidBlankCommentException;
 import com.tavemakers.surf.domain.comment.exception.NotMyCommentException;
 import com.tavemakers.surf.domain.comment.repository.CommentRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
@@ -32,6 +33,9 @@ public class CommentService {
     public CommentResDTO createComment(Long postId, Long memberId, CommentCreateReqDTO req) {
         Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
         Member member = memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
+        if (req.content() == null || req.content().isEmpty()) {
+            throw new InvalidBlankCommentException();
+        }
 
         Comment saved;
         if (req.parentId() == null) {
@@ -62,6 +66,9 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
         if (!comment.getPost().getId().equals(postId) || !comment.getMember().getId().equals(memberId)) {
             throw new NotMyCommentException();
+        }
+        if (req.content() == null || req.content().isEmpty()) {
+            throw new InvalidBlankCommentException();
         }
         comment.update(req.content());
 
