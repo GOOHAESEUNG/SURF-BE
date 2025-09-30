@@ -37,6 +37,14 @@ public class Comment extends BaseEntity {
     @Column(nullable = false, length = 1000)
     private String content;
 
+    @Column(nullable = false)
+    private boolean deleted = false;
+
+    public void softDelete() {
+        this.deleted = true;
+        this.content = "(삭제된 댓글입니다.)";
+    }
+
     @Builder
     private Comment(Post post, Member member, String content, Comment parent, Long rootId, int depth) {
         this.post = post;

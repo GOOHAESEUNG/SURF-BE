@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
+    boolean existsByParentId(Long parentId);
+
     long deleteByIdAndPostIdAndMemberId(Long id, Long postId, Long memberId);
 
     Slice<Comment> findByPostId(Long postId, Pageable pageable);

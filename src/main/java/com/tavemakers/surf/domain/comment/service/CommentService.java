@@ -70,6 +70,23 @@ public class CommentService {
 
     @Transactional
     public void deleteComment(Long postId, Long commentId, Long memberId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(CommentNotFoundException::new);
+        if (!comment.getPost().getId().equals(postId) || !comment.getMember().getId().equals(memberId)) {
+            throw new NotMyCommentException();
+        }
+
+        boolean hasChild = commentRepository.existsByParentId(commentId);
+
+        if (hasChild) {
+            // 자식이 있으면 소프트 삭제 (count는 그대로 유지)
+            if (!comment.isDeleted()) {
+                comment.softDelete();
+            }
+            return;
+        }
+
+        // 자식이 없으면 하드 삭제 + 카운트 감소
         long deleted = commentRepository.deleteByIdAndPostIdAndMemberId(commentId, postId, memberId);
         if (deleted > 0) {
             Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
