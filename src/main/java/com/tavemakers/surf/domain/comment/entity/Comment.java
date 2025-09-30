@@ -1,5 +1,6 @@
 package com.tavemakers.surf.domain.comment.entity;
 
+import com.tavemakers.surf.domain.comment.exception.AlreadyDeletedCommentException;
 import com.tavemakers.surf.domain.comment.exception.CommentDepthExceedException;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.post.entity.Post;
@@ -93,9 +94,8 @@ public class Comment extends BaseEntity {
 
     public void update(String content) {
         if (this.deleted) {
-            throw new IllegalStateException("삭제된 댓글은 수정할 수 없습니다.");
+            throw new AlreadyDeletedCommentException();
         }
-
         this.content = content;
     }
 }

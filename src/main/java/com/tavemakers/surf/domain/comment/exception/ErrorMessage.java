@@ -10,7 +10,8 @@ public enum ErrorMessage {
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 [댓글]입니다."),
     COMMENT_DEPTH_EXCEEDED(HttpStatus.BAD_REQUEST, "[댓글]의 최대 깊이(2)를 초과했습니다."),
     NOT_MY_COMMENT(HttpStatus.FORBIDDEN, "본인의 [댓글]이 아닙니다."),
-    INVALID_BLANK_COMMENT(HttpStatus.BAD_REQUEST, "[댓글] 내용은 공백일 수 없습니다.");
+    INVALID_BLANK_COMMENT(HttpStatus.BAD_REQUEST, "[댓글] 내용은 공백일 수 없습니다."),
+    ALREADY_DELETED_COMMENT(HttpStatus.BAD_REQUEST, "이미 삭제된 [댓글]입니다.");
 
 
 
