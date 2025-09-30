@@ -52,7 +52,7 @@ public class PostLikeService {
     }
 
     @Transactional(readOnly = true)
-    public boolean isLikedByMe(Long postId, Long memberId) {
+    public boolean isLikedByMe(Long memberId, Long postId) {
         return postLikeRepository.existsByPostIdAndMemberId(postId, memberId);
     }
 }
