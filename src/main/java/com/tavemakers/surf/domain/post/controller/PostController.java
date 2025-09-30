@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -52,38 +53,38 @@ public class PostController {
     /** 내가 작성한 게시글 목록 */
     @Operation(summary = "내가 작성한 게시글", description = "본인이 작성한 게시글 목록을 조회합니다.")
     @GetMapping("/v1/user/posts/me")
-    public ApiResponse<Page<PostResDTO>> getMyPosts(
+    public ApiResponse<Slice<PostResDTO>> getMyPosts(
             @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
         Long me = SecurityUtils.getCurrentMemberId();
-        Page<PostResDTO> response = postService.getMyPosts(me, pageable);
+        Slice<PostResDTO> response = postService.getMyPosts(me, pageable);
         return ApiResponse.response(HttpStatus.OK, MY_POSTS_READ.getMessage(), response);
     }
 
     /** 특정 작성자의 게시글 목록 (뷰어 = 현재 로그인 사용자) */
     @Operation(summary = "특정 작성자의 게시글 목록", description = "특정 작성자가 작성한 게시글 목록을 조회합니다.")
     @GetMapping("/v1/user/posts/author/{authorId}")
-    public ApiResponse<Page<PostResDTO>> getPostsByMember(
+    public ApiResponse<Slice<PostResDTO>> getPostsByMember(
             @PathVariable (name = "authorId") Long authorId,
             @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
         Long viewerId = SecurityUtils.getCurrentMemberId();
-        Page<PostResDTO> response = postService.getPostsByMember(authorId, viewerId, pageable);
+        Slice<PostResDTO> response = postService.getPostsByMember(authorId, viewerId, pageable);
         return ApiResponse.response(HttpStatus.OK, POSTS_BY_MEMBER_READ.getMessage(), response);
     }
 
     /** 게시판별 게시글 목록 (뷰어 = 현재 로그인 사용자) */
     @Operation(summary = "게시판별 게시글 목록", description = "특정 게시판에 속한 게시글 목록을 조회합니다.")
     @GetMapping("/v1/user/posts/board/{boardId}")
-    public ApiResponse<Page<PostResDTO>> getPostsByBoard(
+    public ApiResponse<Slice<PostResDTO>> getPostsByBoard(
             @PathVariable(name = "boardId") Long boardId,
             @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
         Long viewerId = SecurityUtils.getCurrentMemberId();
-        Page<PostResDTO> response = postService.getPostsByBoard(boardId, viewerId, pageable);
+        Slice<PostResDTO> response = postService.getPostsByBoard(boardId, viewerId, pageable);
         return ApiResponse.response(HttpStatus.OK, POSTS_BY_BOARD_READ.getMessage(), response);
     }
 

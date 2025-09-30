@@ -3,15 +3,16 @@ package com.tavemakers.surf.domain.post.repository;
 import com.tavemakers.surf.domain.post.entity.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
-    Page<Post> findByBoardId(Long boardId, Pageable pageable);
+    Slice<Post> findByBoardId(Long boardId, Pageable pageable);
 
-    Page<Post> findByMemberId(Long memberId, Pageable pageable);
+    Slice<Post> findByMemberId(Long memberId, Pageable pageable);
 
     @Query("select p.version from Post p where p.id = :id")
     Long findVersionById(@Param("id") Long id);

@@ -16,6 +16,7 @@ import com.tavemakers.surf.domain.scrap.service.ScrapService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,12 +58,12 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostResDTO> getMyPosts(Long myId, Pageable pageable) {
+    public Slice<PostResDTO> getMyPosts(Long myId, Pageable pageable) {
         if (!memberRepository.existsById(myId))
             throw new MemberNotFoundException();
 
-        Page<Post> page = postRepository.findByMemberId(myId, pageable);
-        return page.map(p -> PostResDTO.from(
+        Slice<Post> slice = postRepository.findByMemberId(myId, pageable);
+        return slice.map(p -> PostResDTO.from(
                 p,
                 scrapService.isScrappedByMe(myId, p.getId()),
                 postLikeService.isLikedByMe(myId, p.getId())
@@ -70,11 +71,11 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostResDTO> getPostsByMember(Long authorId, Long viewerId, Pageable pageable) {
+    public Slice<PostResDTO> getPostsByMember(Long authorId, Long viewerId, Pageable pageable) {
         if (!memberRepository.existsById(authorId)) throw new MemberNotFoundException();
 
-        Page<Post> page = postRepository.findByMemberId(authorId, pageable);
-        return page.map(p -> PostResDTO.from(
+        Slice<Post> slice = postRepository.findByMemberId(authorId, pageable);
+        return slice.map(p -> PostResDTO.from(
                 p,
                 scrapService.isScrappedByMe(viewerId, p.getId()),
                 postLikeService.isLikedByMe(viewerId, p.getId())
@@ -82,12 +83,12 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostResDTO> getPostsByBoard(Long boardId, Long viewerId, Pageable pageable) {
+    public Slice<PostResDTO> getPostsByBoard(Long boardId, Long viewerId, Pageable pageable) {
         if (!boardRepository.existsById(boardId)) {
             throw new BoardNotFoundException();
         }
-        Page<Post> page = postRepository.findByBoardId(boardId, pageable);
-        return page.map(p -> PostResDTO.from(
+        Slice<Post> slice = postRepository.findByBoardId(boardId, pageable);
+        return slice.map(p -> PostResDTO.from(
                 p,
                 scrapService.isScrappedByMe(viewerId, p.getId()),
                 postLikeService.isLikedByMe(viewerId, p.getId())
