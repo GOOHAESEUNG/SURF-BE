@@ -89,7 +89,7 @@ public class PostController {
 
     /** 게시글 수정 (작성자 검증은 서비스에서) */
     @Operation(summary = "게시글 수정", description = "본인이 작성한 게시글을 수정합니다.")
-    @PutMapping("/v1/user/posts/{postId}")
+    @PatchMapping("/v1/user/posts/{postId}")
     public ApiResponse<PostResDTO> updatePost(
             @PathVariable(name = "postId") Long postId,
             @Valid @RequestBody PostUpdateReqDTO req

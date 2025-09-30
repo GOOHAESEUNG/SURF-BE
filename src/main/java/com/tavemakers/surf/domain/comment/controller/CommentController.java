@@ -42,7 +42,7 @@ public class CommentController {
     }
 
     @Operation(summary = "댓글 수정 (내 댓글만)", description = "본인이 작성한 댓글만 수정 가능")
-    @PutMapping("/v1/user/posts/{postId}/comments/{commentId}")
+    @PatchMapping("/v1/user/posts/{postId}/comments/{commentId}")
     public ApiResponse<CommentResDTO> updateComment(@PathVariable Long postId,
                                               @PathVariable Long commentId,
                                               @Valid @RequestBody CommentUpdateReqDTO req) {

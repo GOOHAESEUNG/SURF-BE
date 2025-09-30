@@ -47,7 +47,7 @@ public class BoardController {
     }
 
     @Operation(summary = "게시판 수정", description = "특정 ID의 게시판을 수정합니다.")
-    @PutMapping("/v1/admin/boards/{boardId}")
+    @PatchMapping("/v1/admin/boards/{boardId}")
     public ApiResponse<BoardResDTO> updateBoard(
             @PathVariable Long boardId,
             @Valid @RequestBody BoardUpdateReqDTO req) {
