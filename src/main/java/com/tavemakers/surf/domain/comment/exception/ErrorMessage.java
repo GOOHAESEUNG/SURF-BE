@@ -13,8 +13,6 @@ public enum ErrorMessage {
     INVALID_BLANK_COMMENT(HttpStatus.BAD_REQUEST, "[댓글] 내용은 공백일 수 없습니다."),
     ALREADY_DELETED_COMMENT(HttpStatus.BAD_REQUEST, "이미 삭제된 [댓글]입니다.");
 
-
-
     private final HttpStatus status;
     private final String message;
 

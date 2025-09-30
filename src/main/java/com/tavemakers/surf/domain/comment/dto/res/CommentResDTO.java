@@ -3,7 +3,6 @@ package com.tavemakers.surf.domain.comment.dto.res;
 import com.tavemakers.surf.domain.comment.entity.Comment;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import java.time.LocalDateTime;
 
 @Schema(description = "댓글 응답 DTO")
 public record CommentResDTO(
@@ -14,9 +13,7 @@ public record CommentResDTO(
         int depth,
         String content,
         Long memberId,
-        String nickname,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        String nickname
 ) {
     public static CommentResDTO from(Comment comment) {
         return new CommentResDTO(
@@ -27,9 +24,7 @@ public record CommentResDTO(
                 comment.getDepth(),
                 comment.getContent(),
                 comment.getMember().getId(),
-                comment.getMember().getName(),
-                comment.getCreatedAt(),
-                comment.getUpdatedAt()
+                comment.getMember().getName()
         );
     }
 }
