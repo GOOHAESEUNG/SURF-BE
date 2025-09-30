@@ -7,6 +7,7 @@ import com.tavemakers.surf.domain.comment.service.CommentService;
 import com.tavemakers.surf.global.common.response.ApiResponse;
 import com.tavemakers.surf.global.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,7 @@ import static com.tavemakers.surf.domain.comment.controller.ResponseMessage.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping
+@Tag(name = "댓글", description = "댓글 CRUD 관련 API, 대댓글 1단계 가능")
 public class CommentController {
 
     private final CommentService commentService;
@@ -49,7 +51,7 @@ public class CommentController {
         return ApiResponse.response(HttpStatus.OK, COMMENT_UPDATED.getMessage(), response);
     }
 
-    @Operation(summary = "댓글 삭제 (내 댓글만)", description = "본인이 작성한 댓글만 삭제 가능")
+    @Operation(summary = "댓글 삭제 (내 댓글만)", description = "본인이 작성한 댓글만 삭제 가능, 대댓글 존재 시 내용만 삭제(삭제된 댓글입니다 처리)")
     @DeleteMapping("/v1/user/posts/{postId}/comments/{commentId}")
     public ApiResponse<Void> deleteComment(@PathVariable Long postId,
                                     @PathVariable Long commentId) {

@@ -4,6 +4,7 @@ import com.tavemakers.surf.domain.post.service.PostLikeService;
 import com.tavemakers.surf.global.common.response.ApiResponse;
 import com.tavemakers.surf.global.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import static com.tavemakers.surf.domain.post.controller.ResponseMessage.POST_LI
 @RestController
 @RequiredArgsConstructor
 @RequestMapping
+@Tag(name = "게시물 좋아요", description = "게시물 좋아요 기능 관련 API")
 public class PostLikeController {
 
     private final PostLikeService postLikeService;
