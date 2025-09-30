@@ -34,7 +34,7 @@ public class PostLikeService {
 
         try {
             postLikeRepository.save(PostLike.of(post, member));
-            post.increaseLikeCount();
+            postRepository.increaseLikeCount(postId);
         } catch (DataIntegrityViolationException e) {
             // 이미 좋아요 되어 있으면 무시(멱등)
         }
@@ -47,7 +47,7 @@ public class PostLikeService {
         if (deleted > 0) {
             Post post = postRepository.findById(postId)
                     .orElseThrow(PostNotFoundException::new);
-            post.decreaseLikeCount();
+            postRepository.decreaseLikeCount(postId);
         }
     }
 
