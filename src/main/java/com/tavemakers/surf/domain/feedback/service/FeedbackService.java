@@ -6,8 +6,8 @@ import com.tavemakers.surf.domain.feedback.entity.Feedback;
 import com.tavemakers.surf.domain.feedback.exception.TooManyFeedbackException;
 import com.tavemakers.surf.domain.feedback.repository.FeedbackRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +40,7 @@ public class FeedbackService {
         return FeedbackResDTO.from(saved);
     }
 
-    public Page<FeedbackResDTO> getFeedbacks(Pageable pageable) {
+    public Slice<FeedbackResDTO> getFeedbacks(Pageable pageable) {
         return feedbackRepository.findAllByOrderByCreatedAtDesc(pageable)
                 .map(FeedbackResDTO::from);
     }

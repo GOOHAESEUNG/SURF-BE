@@ -30,9 +30,21 @@ public record PostResDTO(
         boolean scrappedByMe,
 
         @Schema(description = "게시글이 스크랩된 수", example = "10")
-        long scrapCount
+        long scrapCount,
+
+        @Schema(description = "내가 좋아요한 게시글인지 여부", example = "true")
+        boolean likedByMe,
+
+        @Schema(description = "게시글이 좋아요된 수", example = "5")
+        long likeCount,
+
+        @Schema(description = "게시글 댓글 수", example = "0")
+        long commentCount,
+
+        @Schema(description = "게시글 작성자 닉네임", example = "홍길동")
+        String nickname
 ) {
-    public static PostResDTO from(Post post, boolean scrappedByMe) {
+    public static PostResDTO from(Post post, boolean scrappedByMe, boolean likedByMe) {
         return new PostResDTO(
                 post.getId(),
                 post.getTitle(),
@@ -41,7 +53,11 @@ public record PostResDTO(
                 post.getPostedAt(),
                 post.getBoard().getId(),
                 scrappedByMe,
-                post.getScrapCount()
+                post.getScrapCount(),
+                likedByMe,
+                post.getLikeCount(),
+                post.getCommentCount(),
+                post.getMember().getName()
         );
     }
 }

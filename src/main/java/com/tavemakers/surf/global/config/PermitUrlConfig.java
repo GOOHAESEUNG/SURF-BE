@@ -12,6 +12,9 @@ public class PermitUrlConfig {
                 "/swagger-ui/**",
                 "/v3/api-docs/**",
                 "/swagger-resources/**",
+//                "/v1/member/**",
+//                "/v1/manager/**"
+
         };
     }
 

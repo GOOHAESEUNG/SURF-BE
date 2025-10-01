@@ -2,6 +2,7 @@ package com.tavemakers.surf.domain.member.controller;
 
 import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.dto.response.MemberSignupResDTO;
+import com.tavemakers.surf.domain.member.usecase.MemberAdminUsecase;
 import com.tavemakers.surf.domain.member.usecase.MemberUsecase;
 import com.tavemakers.surf.global.common.response.ApiResponse;
 import com.tavemakers.surf.domain.member.service.MemberService;
@@ -20,6 +21,7 @@ public class MemberController {
 
     private final MemberService memberService;
     private final MemberUsecase memberUsecase;
+    private final MemberAdminUsecase memberAdminUsecase;
 
     @Operation(
             summary = "자체 회원가입 온보딩",
@@ -51,7 +53,7 @@ public class MemberController {
             description = "관리자가 회원의 회원가입을 승인합니다.")
     @PatchMapping("/v1/admin/members/{memberId}/approve")
     public ApiResponse<Void> approveMember(@PathVariable Long memberId) {
-        memberService.approveMember(memberId);
+        memberAdminUsecase.approveMember(memberId);
         return ApiResponse.response(
                 HttpStatus.OK,
                 "승인되었습니다.",
@@ -64,7 +66,7 @@ public class MemberController {
             description = "관리자가 회원의 회원가입을 거절합니다.")
     @PatchMapping("/v1/admin/members/{memberId}/reject")
     public ApiResponse<Void> rejectMember(@PathVariable Long memberId) {
-        memberService.rejectMember(memberId);
+        memberAdminUsecase.rejectMember(memberId);
         return ApiResponse.response(
                 HttpStatus.OK,
                 "거절되었습니다.",

@@ -19,9 +19,6 @@ public record PostCreateReqDTO(
         @NotBlank String content,
 
         @Schema(description = "게시글 상단 고정 여부", example = "true")
-        Boolean pinned,
-
-        @Schema(description = "게시글 작성 일시", example = "2023-10-05T14:48:00")
-        LocalDateTime postedAt
+        Boolean pinned
 ) {
 }

@@ -7,6 +7,7 @@ import com.tavemakers.surf.domain.member.dto.response.MyPageProfileResDTO;
 import com.tavemakers.surf.domain.member.dto.response.TrackResDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.Track;
+import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.exception.TrackNotFoundException;
 import com.tavemakers.surf.domain.member.service.*;
 import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
@@ -35,29 +36,25 @@ public class MemberUsecase {
     private final CareerDeleteService careerDeleteService;
     private final CareerGetService careerGetService;
     private final MemberPatchService memberPatchService;
-    private final MemberUpsertService memberUpsertService;
     private final MemberServiceImpl memberServiceImpl;
     private final MemberService memberService;
 
 
-    public MyPageProfileResDTO getMyPageAndProfile(Long memberId) {
-        Member member = memberGetService.getMemberByApprovedStatus(memberId);
-        List<TrackResDTO> myTracks = getMyTracks(memberId);
-        List<CareerResDTO> myCareers = getMyCareers(memberId);
+    public MyPageProfileResDTO getMyPageAndProfile(Long targetId) {
+        Member member = memberGetService.getMemberByStatus(targetId,MemberStatus.APPROVED);
+        List<TrackResDTO> myTracks = getMyTracks(targetId);
+        List<CareerResDTO> myCareers = getMyCareers(targetId);
+
+        if (member.isNotOwner()) { // SURF Rule - 타인의 활동점수는 조회 불가
+            return MyPageProfileResDTO.of(member, myTracks, null, myCareers);
+        }
 
         BigDecimal score = null;
-        if (member.isActive()) {
-            score = personalScoreGetService.getPersonalScore(memberId).getScore();
+        if (member.isActive()) { // SURF Rule - 활동 중인 회원만 활동점수를 보여준다.
+            score = personalScoreGetService.getPersonalScore(targetId).getScore();
         }
 
         return MyPageProfileResDTO.of(member, myTracks, score, myCareers);
-    }
-
-    public MyPageProfileResDTO getOthersMyPageAndProfile(Long memberId) {
-        Member member = memberGetService.getMemberByApprovedStatus(memberId);
-        List<TrackResDTO> othersTracks = getMyTracks(memberId);
-        List<CareerResDTO> othersCareers = getMyCareers(memberId);
-        return MyPageProfileResDTO.of(member, othersTracks, null, othersCareers);
     }
 
 
@@ -70,7 +67,7 @@ public class MemberUsecase {
 
         List<Long> memberIds = members.stream().map(Member::getId).collect(Collectors.toList());
 
-       List<Track> latestTracks = trackGetService.getTrack(memberIds);
+        List<Track> latestTracks = trackGetService.getTrack(memberIds);
 
         // 조회된 최신 트랙들을 Member ID를 Key로 하는 Map으로 변환
         Map<Long, Track> trackMap = latestTracks.stream()
@@ -137,10 +134,6 @@ public class MemberUsecase {
         return memberService.signup(member, request);
     }
 
-    /*
-    * refactoring
-    * */
-
     private List<CareerResDTO> getMyCareers(Long memberId) {
         return careerGetService.getMyCareers(memberId)
                 .stream().map(CareerResDTO::from).toList();
@@ -150,5 +143,6 @@ public class MemberUsecase {
         return trackGetService.getTrack(memberId)
                 .stream().map(TrackResDTO::from).toList();
     }
+
 
 }

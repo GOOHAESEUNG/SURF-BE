@@ -15,18 +15,21 @@ public record MyPageProfileResDTO(
         String graduateSchool,
         String role,
         BigDecimal activityScore,
+        boolean isActive,
         List<TrackResDTO> trackList,
         List<CareerResDTO> careerList
 ) {
     public static MyPageProfileResDTO of(Member member, List<TrackResDTO> trackList, BigDecimal activityScore, List<CareerResDTO> careerList) {
+        boolean isPhoneNumberVisible = !member.isNotOwner() || member.getPhoneNumberPublic();
         return MyPageProfileResDTO.builder()
                 .username(member.getName())
-                .phoneNumber(member.getPhoneNumber())
+                .phoneNumber(isPhoneNumberVisible ? member.getPhoneNumber() : null) // 파라미터로 받은 전화번호 사용
                 .email(member.getEmail())
                 .university(member.getUniversity())
                 .graduateSchool(member.getGraduateSchool())
                 .role(member.getRole().name())
                 .activityScore(activityScore)
+                .isActive((member.isActivityStatus()))
                 .trackList(trackList)
                 .careerList(careerList)
                 .build();

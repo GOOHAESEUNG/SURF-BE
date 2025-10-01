@@ -55,6 +55,11 @@ public class Career extends BaseEntity {
         if(dto.getEndDate() != null){
             this.endDate = dto.getEndDate().atDay(1);
         }
+        if(dto.getIsWorking() != null){
+            this.isWorking = dto.getIsWorking();
+             if(this.isWorking)
+                 this.endDate = null;
+        }
     }
 
     //정적 팩토리 메소드 - 생성
@@ -65,7 +70,7 @@ public class Career extends BaseEntity {
                 .startDate(dto.getStartDate().atDay(1))
                 .endDate(dto.getEndDate() != null ? dto.getEndDate().atDay(1) : null)
                 .member(member)
-                .isWorking(dto.isWorking())
+                .isWorking(dto.getIsWorking())
                 .build();
     }
 

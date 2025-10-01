@@ -14,8 +14,8 @@ import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
 import com.tavemakers.surf.domain.scrap.service.ScrapService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +29,7 @@ public class PostService {
     private final MemberRepository memberRepository;
 
     private final ScrapService scrapService;
+    private final PostLikeService postLikeService;
 
     @Transactional
     public PostResDTO createPost(PostCreateReqDTO req, Long memberId) {
@@ -41,7 +42,7 @@ public class PostService {
         Post post = Post.of(req, board, member);
         Post saved = postRepository.save(post);
 
-        return PostResDTO.from(saved, false);
+        return PostResDTO.from(saved, false, false);
     }
 
     @Transactional(readOnly = true)
@@ -50,42 +51,46 @@ public class PostService {
                 .orElseThrow(PostNotFoundException::new);
 
         boolean scrappedByMe = scrapService.isScrappedByMe(memberId, postId);
+        boolean likedByMe = postLikeService.isLikedByMe(memberId, postId);
 
-        return PostResDTO.from(post, scrappedByMe);
+        return PostResDTO.from(post, scrappedByMe, likedByMe);
     }
 
     @Transactional(readOnly = true)
-    public Page<PostResDTO> getMyPosts(Long myId, Pageable pageable) {
+    public Slice<PostResDTO> getMyPosts(Long myId, Pageable pageable) {
         if (!memberRepository.existsById(myId))
             throw new MemberNotFoundException();
 
-        Page<Post> page = postRepository.findByMemberId(myId, pageable);
-        return page.map(p -> PostResDTO.from(
+        Slice<Post> slice = postRepository.findByMemberId(myId, pageable);
+        return slice.map(p -> PostResDTO.from(
                 p,
-                scrapService.isScrappedByMe(myId, p.getId())
+                scrapService.isScrappedByMe(myId, p.getId()),
+                postLikeService.isLikedByMe(myId, p.getId())
         ));
     }
 
     @Transactional(readOnly = true)
-    public Page<PostResDTO> getPostsByMember(Long authorId, Long viewerId, Pageable pageable) {
+    public Slice<PostResDTO> getPostsByMember(Long authorId, Long viewerId, Pageable pageable) {
         if (!memberRepository.existsById(authorId)) throw new MemberNotFoundException();
 
-        Page<Post> page = postRepository.findByMemberId(authorId, pageable);
-        return page.map(p -> PostResDTO.from(
+        Slice<Post> slice = postRepository.findByMemberId(authorId, pageable);
+        return slice.map(p -> PostResDTO.from(
                 p,
-                scrapService.isScrappedByMe(viewerId, p.getId())
+                scrapService.isScrappedByMe(viewerId, p.getId()),
+                postLikeService.isLikedByMe(viewerId, p.getId())
         ));
     }
 
     @Transactional(readOnly = true)
-    public Page<PostResDTO> getPostsByBoard(Long boardId, Long viewerId, Pageable pageable) {
+    public Slice<PostResDTO> getPostsByBoard(Long boardId, Long viewerId, Pageable pageable) {
         if (!boardRepository.existsById(boardId)) {
             throw new BoardNotFoundException();
         }
-        Page<Post> page = postRepository.findByBoardId(boardId, pageable);
-        return page.map(p -> PostResDTO.from(
+        Slice<Post> slice = postRepository.findByBoardId(boardId, pageable);
+        return slice.map(p -> PostResDTO.from(
                 p,
-                scrapService.isScrappedByMe(viewerId, p.getId())
+                scrapService.isScrappedByMe(viewerId, p.getId()),
+                postLikeService.isLikedByMe(viewerId, p.getId())
         ));
     }
 
@@ -96,7 +101,8 @@ public class PostService {
 
         post.update(req, post.getBoard());
         boolean scrappedByMe = scrapService.isScrappedByMe(viewerId, postId);
-        return PostResDTO.from(post, scrappedByMe);
+        boolean likedByMe = postLikeService.isLikedByMe(viewerId, postId);
+        return PostResDTO.from(post, scrappedByMe, likedByMe);
     }
 
     @Transactional

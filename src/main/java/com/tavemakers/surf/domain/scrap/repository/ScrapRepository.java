@@ -2,8 +2,8 @@ package com.tavemakers.surf.domain.scrap.repository;
 
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.scrap.entity.Scrap;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -20,12 +20,8 @@ public interface ScrapRepository extends JpaRepository<Scrap, Long> {
             select s.post
             from Scrap s
             where s.member.id = :memberId
-            """,
-            countQuery = """
-            select count(s)
-            from Scrap s
-            where s.member.id = :memberId
+            order by s.createdAt desc
             """
     )
-    Page<Post> findPostsByMemberId(Long memberId, Pageable pageable);
+    Slice<Post> findPostsByMemberId(Long memberId, Pageable pageable);
 }
