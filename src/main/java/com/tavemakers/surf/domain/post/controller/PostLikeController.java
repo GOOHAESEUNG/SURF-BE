@@ -22,7 +22,7 @@ public class PostLikeController {
     private final PostLikeService postLikeService;
 
     @Operation(summary = "좋아요 설정", description = "이미 좋아요 상태여도 200(OK) 반환")
-    @PatchMapping("/v1/user/posts/{postId}/like")
+    @PostMapping("/v1/user/posts/{postId}/like")
     public ApiResponse<Void> like(@PathVariable Long postId) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         postLikeService.like(postId, memberId);
