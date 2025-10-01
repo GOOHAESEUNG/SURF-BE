@@ -8,6 +8,7 @@ import com.tavemakers.surf.domain.post.entity.PostLike;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostLikeRepository;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -34,20 +35,31 @@ public class PostLikeService {
 
         try {
             postLikeRepository.save(PostLike.of(post, member));
-            postRepository.increaseLikeCount(postId);
+            // 버전 기반 단일 UPDATE (+재시도)
+            for (int i = 0; i < 3; i++) {
+                Long v = postRepository.findVersionById(postId);
+                if (v == null) throw new PostNotFoundException();
+                if (postRepository.increaseLikeCount(postId, v) > 0) break;
+                if (i == 2) throw new OptimisticLockException("likeCount 증가 충돌");
+            }
         } catch (DataIntegrityViolationException e) {
-            // 이미 좋아요 되어 있으면 무시(멱등)
+            // 동시요청으로 UK 충돌 → 이미 좋아요 상태 → 멱등 처리
         }
     }
 
     @Transactional
     public void unlike(Long postId, Long memberId) {
-        // 실제 삭제가 일어난 경우에만 카운터 감소
         long deleted = postLikeRepository.deleteByPostIdAndMemberId(postId, memberId);
         if (deleted > 0) {
             Post post = postRepository.findById(postId)
                     .orElseThrow(PostNotFoundException::new);
-            postRepository.decreaseLikeCount(postId);
+            // 버전 기반 단일 UPDATE (+재시도)
+            for (int i = 0; i < 3; i++) {
+                Long v = postRepository.findVersionById(postId);
+                if (v == null) throw new PostNotFoundException();
+                if (postRepository.decreaseLikeCount(postId, v) > 0) break;
+                if (i == 2) throw new OptimisticLockException("likeCount 감소 충돌");
+            }
         }
     }
 

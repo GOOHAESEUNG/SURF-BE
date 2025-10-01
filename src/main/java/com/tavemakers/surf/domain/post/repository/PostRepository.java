@@ -27,10 +27,12 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     int decreaseScrapCount(@Param("id") Long id, @Param("version") Long version);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("update Post p set p.likeCount = p.likeCount + 1 where p.id = :postId")
-    void increaseLikeCount(@Param("postId") Long postId);
+    @Query("update Post p set p.likeCount = p.likeCount + 1, p.version = p.version + 1 " +
+            "where p.id = :id and p.version = :version")
+    int increaseLikeCount(@Param("postId") Long postId, @Param("version") Long version);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("update Post p set p.likeCount = case when p.likeCount > 0 then p.likeCount - 1 else 0 end where p.id = :postId")
-    void decreaseLikeCount(@Param("postId") Long postId);
+    @Query("update Post p set p.likeCount = p.likeCount - 1, p.version   = p.version + 1" +
+            " where p.id = :id and p.version = :version and p.likeCount > 0")
+    int decreaseLikeCount(@Param("postId") Long postId, @Param("version") Long version);
 }

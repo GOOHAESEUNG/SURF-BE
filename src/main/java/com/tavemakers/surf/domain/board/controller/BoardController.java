@@ -32,7 +32,7 @@ public class BoardController {
     }
 
     @Operation(summary = "게시판 목록 조회", description = "모든 게시판을 조회합니다.")
-    @GetMapping("/v1/users/boards")
+    @GetMapping("/v1/user/boards")
     public ApiResponse<List<BoardResDTO>> getBoards() {
         List<BoardResDTO> response = boardService.getBoards();
         return ApiResponse.response(HttpStatus.OK, BOARD_READ.getMessage(), response);
