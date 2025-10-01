@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping
 @RequiredArgsConstructor
 @Tag(name = "자체 회원가입 및 관리자 승인/거절")
 public class MemberController {
