@@ -39,7 +39,8 @@ public class Board extends BaseEntity {
                 .build();
     }
 
-    public void changeType(BoardType type) {
+    public void update(String name, BoardType type) {
+        this.name = name;
         this.type = type;
     }
 }
