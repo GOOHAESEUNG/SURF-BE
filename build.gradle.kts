@@ -58,9 +58,9 @@ dependencies {
 }
 
 // log4j2 사용을 위해 추가
-configurations.all {
-    exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
-}
+//configurations.all {
+//    exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
+//}
 
 tasks.test {
     useJUnitPlatform()
