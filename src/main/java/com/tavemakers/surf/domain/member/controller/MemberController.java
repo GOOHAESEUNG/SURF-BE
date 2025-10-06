@@ -2,6 +2,7 @@ package com.tavemakers.surf.domain.member.controller;
 
 import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.dto.response.MemberSignupResDTO;
+import com.tavemakers.surf.domain.member.dto.response.OnboardingCheckResDTO;
 import com.tavemakers.surf.domain.member.usecase.MemberAdminUsecase;
 import com.tavemakers.surf.domain.member.usecase.MemberUsecase;
 import com.tavemakers.surf.global.common.response.ApiResponse;
@@ -19,7 +20,6 @@ import jakarta.validation.Valid;
 @Tag(name = "자체 회원가입 및 관리자 승인/거절")
 public class MemberController {
 
-    private final MemberService memberService;
     private final MemberUsecase memberUsecase;
     private final MemberAdminUsecase memberAdminUsecase;
 
@@ -39,7 +39,7 @@ public class MemberController {
             summary = "온보딩(추가 정보 입력) 필요 여부 확인",
             description = "카카오 ID로 회원을 조회하여 추가 정보 입력이 필요한 상태인지 확인합니다.")
     @GetMapping("/v1/user/members/valid-status")
-    public ApiResponse<Boolean> checkOnboardingStatus(
+    public ApiResponse<OnboardingCheckResDTO> checkOnboardingStatus(
             ) {
         return ApiResponse.response(
                 HttpStatus.OK,

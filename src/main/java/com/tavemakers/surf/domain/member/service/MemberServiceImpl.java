@@ -17,9 +17,6 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
 
-    private final MemberGetService memberGetService;
-    private final MemberRepository memberRepository;
-
     //추가 정보 입력 회원가입
     @Transactional
     public MemberSignupResDTO signup(Member member, MemberSignupReqDTO request) {
@@ -51,9 +48,12 @@ public class MemberServiceImpl implements MemberService {
     //추가 정보 회원가입 온보딩 필요 여부 확인
     @Transactional
     public Boolean needsOnboarding(Member member) {
-        if(member.getStatus().equals(MemberStatus.REGISTERING)) {
-            return true;
-        }else
-            return false;
+        return member.getStatus().equals(MemberStatus.REGISTERING);
+    }
+
+    //회원 승인 여부 체크
+    @Transactional
+    public MemberStatus memberStatusCheck(Member member) {
+        return member.getStatus();
     }
 }
