@@ -123,9 +123,11 @@ public class MemberUsecase {
 
     //온보딩 필요 여부 확인
     @Transactional
-    public Boolean needsOnboarding(Long memberId) {
+    public OnboardingCheckResDTO needsOnboarding(Long memberId) {
         Member member = memberGetService.getMember(memberId);
-        return memberServiceImpl.needsOnboarding(member);
+        Boolean needsOnboarding = memberServiceImpl.needsOnboarding(member);
+        MemberStatus memberStatus = memberServiceImpl.memberStatusCheck(member);
+        return OnboardingCheckResDTO.of(memberId, needsOnboarding, memberStatus);
     }
 
     //회원가입
