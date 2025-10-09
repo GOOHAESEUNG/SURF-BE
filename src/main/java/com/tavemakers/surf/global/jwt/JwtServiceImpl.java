@@ -25,6 +25,7 @@ public class JwtServiceImpl implements JwtService {
     private static final String AUTH_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
     private static final String REFRESH_COOKIE_NAME = "refreshToken";
+    private static final String ROLE_PREFIX = "ROLE_";
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -50,7 +51,7 @@ public class JwtServiceImpl implements JwtService {
         Date now = new Date();
         return Jwts.builder()
                 .setSubject(String.valueOf(memberId))
-                .claim("role", role)
+                .claim("role", ROLE_PREFIX+role)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + accessTokenExpireMs))
                 .signWith(secretKey, SignatureAlgorithm.HS256)

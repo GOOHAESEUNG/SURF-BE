@@ -3,6 +3,7 @@ package com.tavemakers.surf.domain.member.controller;
 import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.dto.response.MemberSignupResDTO;
 import com.tavemakers.surf.domain.member.exception.MemberAlreadyExistsException;
+import com.tavemakers.surf.domain.member.dto.response.OnboardingCheckResDTO;
 import com.tavemakers.surf.domain.member.usecase.MemberAdminUsecase;
 import com.tavemakers.surf.domain.member.usecase.MemberUsecase;
 import com.tavemakers.surf.global.common.response.ApiResponse;
@@ -24,7 +25,6 @@ import java.util.UUID;
 @Tag(name = "자체 회원가입 및 관리자 승인/거절")
 public class MemberController {
 
-    private final MemberService memberService;
     private final MemberUsecase memberUsecase;
     private final MemberAdminUsecase memberAdminUsecase;
 
@@ -112,7 +112,8 @@ public class MemberController {
         String requestId = UUID.randomUUID().toString();
         Long userId = SecurityUtils.getCurrentMemberId();
 
-        Boolean needOnboarding = memberUsecase.needsOnboarding(userId);
+        OnboardingCheckResDTO responseDto = memberUsecase.needsOnboarding(userId);
+        Boolean needOnboarding = responseDto.getNeedOnboarding(); // 로그용 값 추출
         long duration = System.currentTimeMillis() - start;
 
         log.info("timestamp={}, event_type=INFO, log_event=onboarding.valid_status, user_id={}, page_url={}, message={}, request_id={}, actor_role={}, http_method={}, path={}, status={}, duration_ms={}, result={}, props={}",
