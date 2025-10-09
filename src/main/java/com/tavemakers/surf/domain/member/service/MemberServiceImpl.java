@@ -19,9 +19,8 @@ public class MemberServiceImpl implements MemberService {
 
     //추가 정보 입력 회원가입
     @Transactional
-    public MemberSignupResDTO signup(Member member, MemberSignupReqDTO request) {
+    public MemberSignupResDTO signup(Member member, MemberSignupReqDTO request, String requestId) {
         long start = System.currentTimeMillis();
-        String requestId = UUID.randomUUID().toString();
 
         // 이메일 및 전화번호 정규화
         final String normalizedEmail = request.getEmail().trim().toLowerCase(Locale.ROOT);
