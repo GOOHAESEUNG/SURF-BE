@@ -41,7 +41,7 @@ public class MemberController {
             ApiResponse<MemberSignupResDTO> response = ApiResponse.response(
                     HttpStatus.CREATED,
                     "회원가입 성공",
-                    memberUsecase.signup(userId, request)
+                    memberUsecase.signup(userId, request, requestId)
             );
 
             long duration = System.currentTimeMillis() - start;
