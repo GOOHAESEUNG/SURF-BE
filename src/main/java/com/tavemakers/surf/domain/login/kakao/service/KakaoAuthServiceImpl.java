@@ -14,7 +14,10 @@ import reactor.core.publisher.Mono;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.core.ParameterizedTypeReference;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, KakaoUserInfoDto> {
@@ -29,12 +32,11 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
                 + "&client_id=" + props.getClientId()
                 + "&redirect_uri=" + props.getRedirectUri()
                 + "&scope=account_email profile_nickname profile_image";
-
-    }
-
+        }
 
     @Override
     public Mono<KakaoTokenResponseDto> exchangeCodeForToken(String code) {
+
         var form = BodyInserters
                 .fromFormData("grant_type", "authorization_code")
                 .with("client_id", props.getClientId())
@@ -60,6 +62,7 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
 
     @Override
     public Mono<Map<String, Object>> getAccessTokenInfo(String accessToken) {
+
         return kakaoApiWebClient.get()
                 .uri("/v1/user/access_token_info")
                 .header("Authorization", "Bearer " + accessToken)
@@ -88,9 +91,37 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
      * 공통 에러 처리 메서드
      */
     private Mono<Throwable> handleError(ClientResponse resp, String message) {
+        String requestId = UUID.randomUUID().toString();
+        long start = System.currentTimeMillis();
+
         return resp.bodyToMono(String.class)
-                .flatMap(errorBody -> Mono.error(
-                        new org.springframework.web.server.ResponseStatusException(
-                                resp.statusCode(), message + ": " + errorBody)));
+                .flatMap(errorBody -> {
+                    long duration = System.currentTimeMillis() - start;
+
+                    // login.failed 로그 추가
+                    log.error("timestamp={}, event_type=ERROR, log_event=login.failed, user_id={}, page_url={}, message={}, request_id={}, actor_role={}, http_method={}, path={}, status={}, duration_ms={}, result={}, props={}",
+                            java.time.Instant.now(),
+                            null,
+                            "/login/kakao/error",
+                            message,
+                            requestId,
+                            "REGISTERING",
+                            "POST",
+                            resp.request().getURI().getPath(),
+                            resp.statusCode().value(),
+                            duration,
+                            "fail",
+                            Map.of(
+                                    "error_code", resp.statusCode().value(),
+                                    "error_msg", message,
+                                    "provider", "kakao"
+                            )
+                    );
+
+                    return Mono.error(new org.springframework.web.server.ResponseStatusException(
+                            resp.statusCode(),
+                            message + ": " + errorBody
+                    ));
+                });
     }
 }
