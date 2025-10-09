@@ -10,8 +10,8 @@ import java.util.Map;
 
 public interface AuthService<T, U> {
     String buildAuthorizeUrl();
-    Mono<T> exchangeCodeForToken(String code);
-    Mono<Map<String, Object>> getAccessTokenInfo(String accessToken); // String → Map
-    Mono<U> getUserInfo(String accessToken);
+    Mono<T> exchangeCodeForToken(String code, String requestId);
+    Mono<Map<String, Object>> getAccessTokenInfo(String accessToken, String requestId); // String → Map
+    Mono<U> getUserInfo(String accessToken, String requestId);
 }
 
