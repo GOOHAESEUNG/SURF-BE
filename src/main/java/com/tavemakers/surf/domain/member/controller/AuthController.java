@@ -115,6 +115,14 @@ public class AuthController {
 
                                     // 로그인 성공 로그 (login.succeeded)
                                     long duration = System.currentTimeMillis() - start;
+
+                                    String emailDomain = email.contains("@") && email.indexOf("@") < email.length() - 1
+                                                    ? email.substring(email.indexOf("@") + 1)
+                                                    : "unknown";
+                                    String tokenPrefix = accessToken.length() >= 8
+                                                    ? accessToken.substring(0, 8) + "..."
+                                                    : accessToken + "...";
+
                                     log.info("timestamp={}, event_type=INFO, log_event=login.succeeded, user_id={}, page_url={}, message={}, request_id={}, actor_role={}, http_method={}, path={}, status={}, duration_ms={}, result={}, props={}",
                                             java.time.Instant.now(),
                                             member.getId(),
@@ -131,8 +139,8 @@ public class AuthController {
                                                     "provider", "kakao",
                                                     "user_id", member.getId(),
                                                     "nickname", nickname,
-                                                    "email_domain", email.substring(email.indexOf("@") + 1),
-                                                    "token_prefix", accessToken.substring(0, 8) + "..."
+                                                    "email_domain", emailDomain,
+                                                    "token_prefix", tokenPrefix
                                             )
                                     );
 
