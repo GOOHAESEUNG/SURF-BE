@@ -61,16 +61,16 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
     }
 
     @Override
-    public Mono<Map<String, Object>> getAccessTokenInfo(String accessToken, String requestID) {
+    public Mono<Map<String, Object>> getAccessTokenInfo(String accessToken, String requestId) {
 
         return kakaoApiWebClient.get()
                 .uri("/v1/user/access_token_info")
                 .header("Authorization", "Bearer " + accessToken)
                 .retrieve()
                 .onStatus(s -> s.is4xxClientError(),
-                        resp -> handleError(resp, "잘못된 AccessToken", requestID ))
+                        resp -> handleError(resp, "잘못된 AccessToken", requestId ))
                 .onStatus(s -> s.is5xxServerError(),
-                        resp -> handleError(resp, "카카오 서버 오류", requestID))
+                        resp -> handleError(resp, "카카오 서버 오류", requestId))
                 .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {});
     }
 
