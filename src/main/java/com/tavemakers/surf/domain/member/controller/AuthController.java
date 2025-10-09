@@ -94,9 +94,9 @@ public class AuthController {
                 "success",
                 Map.of("provider", "kakao", "code_length", code.length())
         );
-        return kakaoAuthService.exchangeCodeForToken(code)
+        return kakaoAuthService.exchangeCodeForToken(code, requestId)
                 .flatMap(token ->
-                        kakaoAuthService.getUserInfo(token.accessToken())
+                        kakaoAuthService.getUserInfo(token.accessToken(), requestId)
                                 .map(userInfo -> {
                                     // 1) 회원 upsert: 없으면 REGISTERING 상태로 생성
                                     Member member = memberUpsertService.upsertRegisteringFromKakao(userInfo);
