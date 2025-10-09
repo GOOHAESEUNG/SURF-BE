@@ -131,9 +131,9 @@ public class MemberUsecase {
     }
 
     //회원가입
-    public MemberSignupResDTO signup(Long memberId, MemberSignupReqDTO request) {
+    public MemberSignupResDTO signup(Long memberId, MemberSignupReqDTO request, String requestId) {
         Member member = memberGetService.getMember(memberId);
-        return memberService.signup(member, request);
+        return memberService.signup(member, request, requestId);
     }
 
     private List<CareerResDTO> getMyCareers(Long memberId) {
