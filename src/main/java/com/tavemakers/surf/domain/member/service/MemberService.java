@@ -14,6 +14,6 @@ public interface MemberService {
      * 회원 거절 (ADMIN 전용)
      */
     void rejectMember(Member member);
-    MemberSignupResDTO signup(Member member, MemberSignupReqDTO request);
+    MemberSignupResDTO signup(Member member, MemberSignupReqDTO request, String requestId);
     Boolean needsOnboarding(Member member);
 }
