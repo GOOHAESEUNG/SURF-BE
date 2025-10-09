@@ -35,7 +35,7 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
         }
 
     @Override
-    public Mono<KakaoTokenResponseDto> exchangeCodeForToken(String code) {
+    public Mono<KakaoTokenResponseDto> exchangeCodeForToken(String code, String requestId) {
 
         var form = BodyInserters
                 .fromFormData("grant_type", "authorization_code")
@@ -54,44 +54,43 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
                 .body(form)
                 .retrieve()
                 .onStatus(s -> s.is4xxClientError(),
-                        resp -> handleError(resp, "카카오 인증 요청 오류"))
+                        resp -> handleError(resp, "카카오 인증 요청 오류", requestId))
                 .onStatus(s -> s.is5xxServerError(),
-                        resp -> handleError(resp, "카카오 서버 오류"))
+                        resp -> handleError(resp, "카카오 서버 오류", requestId))
                 .bodyToMono(KakaoTokenResponseDto.class);
     }
 
     @Override
-    public Mono<Map<String, Object>> getAccessTokenInfo(String accessToken) {
+    public Mono<Map<String, Object>> getAccessTokenInfo(String accessToken, String requestID) {
 
         return kakaoApiWebClient.get()
                 .uri("/v1/user/access_token_info")
                 .header("Authorization", "Bearer " + accessToken)
                 .retrieve()
                 .onStatus(s -> s.is4xxClientError(),
-                        resp -> handleError(resp, "잘못된 AccessToken"))
+                        resp -> handleError(resp, "잘못된 AccessToken", requestID ))
                 .onStatus(s -> s.is5xxServerError(),
-                        resp -> handleError(resp, "카카오 서버 오류"))
+                        resp -> handleError(resp, "카카오 서버 오류", requestID))
                 .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {});
     }
 
     @Override
-    public Mono<KakaoUserInfoDto> getUserInfo(String accessToken) {
+    public Mono<KakaoUserInfoDto> getUserInfo(String accessToken, String requestId) {
         return kakaoApiWebClient.get()
                 .uri("/v2/user/me")
                 .header("Authorization", "Bearer " + accessToken)
                 .retrieve()
                 .onStatus(s -> s.is4xxClientError(),
-                        resp -> handleError(resp, "카카오 사용자 정보 요청 오류"))
+                        resp -> handleError(resp, "카카오 사용자 정보 요청 오류", requestId))
                 .onStatus(s -> s.is5xxServerError(),
-                        resp -> handleError(resp, "카카오 서버 오류"))
+                        resp -> handleError(resp, "카카오 서버 오류", requestId))
                 .bodyToMono(KakaoUserInfoDto.class);
     }
 
     /**
      * 공통 에러 처리 메서드
      */
-    private Mono<Throwable> handleError(ClientResponse resp, String message) {
-        String requestId = UUID.randomUUID().toString();
+    private Mono<Throwable> handleError(ClientResponse resp, String message, String requestId) {
         long start = System.currentTimeMillis();
 
         return resp.bodyToMono(String.class)
