@@ -97,6 +97,9 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
                 .flatMap(errorBody -> {
                     long duration = System.currentTimeMillis() - start;
 
+                    String httpMethod = resp.request().getMethod().name();  // 예: GET, POST 등
+                    String path = resp.request().getURI().getPath();        // 예: /v2/user/me
+
                     // login.failed 로그 추가
                     log.error("timestamp={}, event_type=ERROR, log_event=login.failed, user_id={}, page_url={}, message={}, request_id={}, actor_role={}, http_method={}, path={}, status={}, duration_ms={}, result={}, props={}",
                             java.time.Instant.now(),
@@ -105,8 +108,8 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
                             message,
                             requestId,
                             "MEMBER",
-                            "POST",
-                            resp.request().getURI().getPath(),
+                            httpMethod,   // 동적 추출된 메서드
+                            path,         // 동적 추출된 경로
                             resp.statusCode().value(),
                             duration,
                             "fail",
