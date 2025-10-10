@@ -41,7 +41,7 @@ public class MemberServiceImpl implements MemberService {
                 "/signup",
                 "회원가입 성공",
                 requestId,
-                "WAITING",
+                "MEMBER",
                 "POST",
                 "/v1/user/members/signup",
                 201,
