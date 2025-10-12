@@ -123,7 +123,6 @@ public class MemberUsecase {
         if (dto.getCareersToCreate() != null)
             careersCreated = careerPostService.createCareer(member, dto.getCareersToCreate());
 
-        // ✅ 모든 변경 내역을 모아서 한 번만 로그
         Map<String, Object> logData = Map.of(
                 "member_id", memberId,
                 "changed_fields", changedFields,
