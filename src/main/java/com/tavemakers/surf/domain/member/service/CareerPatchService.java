@@ -24,7 +24,7 @@ public class CareerPatchService {
     private final CareerValidator careerValidator;
 
     @Transactional
-    public void updateCareer(Member member, List<CareerUpdateReqDTO> dtos) {
+    public List<Long> updateCareer(Member member, List<CareerUpdateReqDTO> dtos) {
         Set<Long> requestedIds = dtos.stream()
                 .map(CareerUpdateReqDTO::getCareerId)
                 .collect(Collectors.toSet());
@@ -39,5 +39,6 @@ public class CareerPatchService {
             Career careerToUpdate = validCareerMap.get(dto.getCareerId());
             careerToUpdate.update(dto);
         });
+        return dtos.stream().map(CareerUpdateReqDTO::getCareerId).toList();
     }
 }
