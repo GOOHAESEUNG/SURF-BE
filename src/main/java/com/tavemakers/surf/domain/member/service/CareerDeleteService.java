@@ -23,12 +23,13 @@ public class CareerDeleteService {
 
     //경력 삭제
     @Transactional
-    public void deleteCareer(Member member, List<Long> careerIds){
+    public List<Long> deleteCareer(Member member, List<Long> careerIds){
 
         Set<Long> requestedIds = new HashSet<>(careerIds);
         List<Career> careersToDelete = careerRepository.findAllByMemberAndIdIn(member, requestedIds);
         careerValidator.validateCareer(requestedIds, careersToDelete);
 
         careerRepository.deleteAll(careersToDelete);
+        return careerIds;
     }
 }
