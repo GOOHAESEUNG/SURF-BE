@@ -1,5 +1,7 @@
 package com.tavemakers.surf.domain.member.usecase;
 
+import com.tavemakers.surf.domain.member.dto.request.CareerCreateReqDTO;
+import com.tavemakers.surf.domain.member.dto.request.CareerUpdateReqDTO;
 import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.dto.response.*;
 import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateReqDTO;
@@ -10,6 +12,7 @@ import com.tavemakers.surf.domain.member.entity.Track;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.exception.TrackNotFoundException;
 import com.tavemakers.surf.domain.member.service.*;
+import com.tavemakers.surf.domain.member.util.LogEventUtil;
 import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -104,21 +108,31 @@ public class MemberUsecase {
     @Transactional
     public void updateProfile(Long memberId, ProfileUpdateReqDTO dto) {
         Member member = memberGetService.getMember(memberId);
-        log.info(memberId.toString());
 
-        memberPatchService.updateProfile(member, dto);
+        List<String> changedFields = memberPatchService.updateProfile(member, dto);
+        List<Long> careersCreated = new ArrayList<>();
+        List<Long> careersUpdated = new ArrayList<>();
+        List<Long> careersDeleted = new ArrayList<>();
 
-        if (dto.getCareersToUpdate() != null) {
-            careerPatchService.updateCareer(member, dto.getCareersToUpdate());
-        }
+        if (dto.getCareersToUpdate() != null)
+            careersUpdated = careerPatchService.updateCareer(member, dto.getCareersToUpdate());
 
-        if (dto.getCareerIdsToDelete() != null) {
-            careerDeleteService.deleteCareer(member, dto.getCareerIdsToDelete());
-        }
+        if (dto.getCareerIdsToDelete() != null)
+            careersDeleted = careerDeleteService.deleteCareer(member, dto.getCareerIdsToDelete());
 
-        if (dto.getCareersToCreate() != null) {
-            careerPostService.createCareer(member, dto.getCareersToCreate());
-        }
+        if (dto.getCareersToCreate() != null)
+            careersCreated = careerPostService.createCareer(member, dto.getCareersToCreate());
+
+        // ✅ 모든 변경 내역을 모아서 한 번만 로그
+        Map<String, Object> logData = Map.of(
+                "member_id", memberId,
+                "changed_fields", changedFields,
+                "careers_created", careersCreated,
+                "careers_updated", careersUpdated,
+                "careers_deleted", careersDeleted
+        );
+
+        LogEventUtil.logProfileUpdate(logData, "200 OK");
     }
 
     //온보딩 필요 여부 확인
