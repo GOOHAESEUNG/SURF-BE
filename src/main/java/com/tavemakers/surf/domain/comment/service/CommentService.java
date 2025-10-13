@@ -16,6 +16,7 @@ import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
 import com.tavemakers.surf.global.logging.LogEvent;
+import com.tavemakers.surf.global.logging.LogParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -32,7 +33,9 @@ public class CommentService {
 
     @Transactional
     @LogEvent("comment.create")
-    public CommentResDTO createComment(Long postId, Long memberId, CommentCreateReqDTO req) {
+    public CommentResDTO createComment(
+            @LogParam("post_id") Long postId,
+            Long memberId, CommentCreateReqDTO req) {
         Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
         Member member = memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
         if (req.content() == null || req.content().isEmpty()) throw new InvalidBlankCommentException();
@@ -54,7 +57,8 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResDTO updateComment(Long postId, Long commentId, Long memberId, CommentUpdateReqDTO req) {
+    public CommentResDTO updateComment(Long postId, Long commentId,
+            Long memberId, CommentUpdateReqDTO req) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
         if (!comment.getPost().getId().equals(postId) || !comment.getMember().getId().equals(memberId))
             throw new NotMyCommentException();
@@ -65,7 +69,12 @@ public class CommentService {
 
     @Transactional
     @LogEvent("comment.delete")
-    public void deleteComment(Long postId, Long commentId, Long memberId) {
+    public void deleteComment(
+            @LogParam("post_id")
+            Long postId,
+            @LogParam("comment_id")
+            Long commentId,
+            Long memberId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
         if (!comment.getPost().getId().equals(postId) || !comment.getMember().getId().equals(memberId))
             throw new NotMyCommentException();

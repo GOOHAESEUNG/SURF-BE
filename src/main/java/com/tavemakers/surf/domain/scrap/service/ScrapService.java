@@ -11,6 +11,7 @@ import com.tavemakers.surf.domain.post.repository.PostRepository;
 import com.tavemakers.surf.domain.scrap.entity.Scrap;
 import com.tavemakers.surf.domain.scrap.repository.ScrapRepository;
 import com.tavemakers.surf.global.logging.LogEvent;
+import com.tavemakers.surf.global.logging.LogParam;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -35,7 +36,9 @@ public class ScrapService {
 
     @Transactional
     @LogEvent("scrap.add")
-    public void addScrap(Long memberId, Long postId) {
+    public void addScrap(
+            @LogParam("user_id") Long memberId,
+            @LogParam("post_id") Long postId) {
         Member member = memberRepository.findById(memberId).
                 orElseThrow(MemberNotFoundException::new);
         Post post = postRepository.findById(postId).
@@ -56,7 +59,9 @@ public class ScrapService {
 
     @Transactional
     @LogEvent("scrap.remove")
-    public void removeScrap(Long memberId, Long postId) {
+    public void removeScrap(
+            @LogParam("user_id") Long memberId,
+            @LogParam("post_id") Long postId) {
         int deleted = scrapRepository.deleteByMemberIdAndPostId(memberId, postId);
         if (deleted > 0) {
             for (int i = 0; i < 3; i++) {

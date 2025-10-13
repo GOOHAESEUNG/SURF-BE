@@ -14,6 +14,7 @@ import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
 import com.tavemakers.surf.domain.scrap.service.ScrapService;
 import com.tavemakers.surf.global.logging.LogEvent;
+import com.tavemakers.surf.global.logging.LogParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -89,7 +90,9 @@ public class PostService {
 
     @Transactional
     @LogEvent("post.update")
-    public PostResDTO updatePost(Long postId, PostUpdateReqDTO req, Long viewerId) {
+    public PostResDTO updatePost(
+            @LogParam("post_id") Long postId,
+            PostUpdateReqDTO req, Long viewerId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
         post.update(req, post.getBoard());
@@ -100,7 +103,8 @@ public class PostService {
 
     @Transactional
     @LogEvent("post.delete")
-    public void deletePost(Long postId) {
+    public void deletePost(
+            @LogParam("post_id") Long postId) {
         if (!postRepository.existsById(postId)) throw new PostNotFoundException();
         postRepository.deleteById(postId);
     }

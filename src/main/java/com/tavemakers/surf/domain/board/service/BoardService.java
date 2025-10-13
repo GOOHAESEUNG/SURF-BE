@@ -7,6 +7,7 @@ import com.tavemakers.surf.domain.board.entity.Board;
 import com.tavemakers.surf.domain.board.exception.BoardNotFoundException;
 import com.tavemakers.surf.domain.board.repository.BoardRepository;
 import com.tavemakers.surf.global.logging.LogEvent;
+import com.tavemakers.surf.global.logging.LogParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +41,9 @@ public class BoardService {
 
     @Transactional
     @LogEvent("board.update")
-    public BoardResDTO updateBoard(Long id, BoardUpdateReqDTO req) {
+    public BoardResDTO updateBoard(
+            @LogParam("board_id") Long id,
+            BoardUpdateReqDTO req) {
         Board board = boardRepository.findById(id)
                 .orElseThrow(BoardNotFoundException::new);
         board.update(req.name(), req.type());
@@ -49,7 +52,8 @@ public class BoardService {
 
     @Transactional
     @LogEvent("board.delete")
-    public void deleteBoard(Long id) {
+    public void deleteBoard(
+            @LogParam("board_id") Long id) {
         if (!boardRepository.existsById(id)) throw new BoardNotFoundException();
         boardRepository.deleteById(id);
     }
