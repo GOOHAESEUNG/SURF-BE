@@ -10,6 +10,7 @@ import com.tavemakers.surf.domain.post.repository.PostLikeRepository;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
 import com.tavemakers.surf.domain.scrap.entity.Scrap;
 import com.tavemakers.surf.domain.scrap.repository.ScrapRepository;
+import com.tavemakers.surf.global.logging.LogEvent;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -33,6 +34,7 @@ public class ScrapService {
     private final PostLikeRepository postLikeRepository;
 
     @Transactional
+    @LogEvent("scrap.add")
     public void addScrap(Long memberId, Long postId) {
         Member member = memberRepository.findById(memberId).
                 orElseThrow(MemberNotFoundException::new);
@@ -53,6 +55,7 @@ public class ScrapService {
     }
 
     @Transactional
+    @LogEvent("scrap.remove")
     public void removeScrap(Long memberId, Long postId) {
         int deleted = scrapRepository.deleteByMemberIdAndPostId(memberId, postId);
         if (deleted > 0) {

@@ -8,6 +8,7 @@ import com.tavemakers.surf.domain.post.entity.PostLike;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostLikeRepository;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
+import com.tavemakers.surf.global.logging.LogEvent;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -23,6 +24,7 @@ public class PostLikeService {
     private final MemberRepository memberRepository;
 
     @Transactional
+    @LogEvent("post.like")
     public void like(Long postId, Long memberId) {
         if (postLikeRepository.existsByPostIdAndMemberId(postId, memberId)) {
             return;
@@ -48,6 +50,7 @@ public class PostLikeService {
     }
 
     @Transactional
+    @LogEvent("post.unlike")
     public void unlike(Long postId, Long memberId) {
         long deleted = postLikeRepository.deleteByPostIdAndMemberId(postId, memberId);
         if (deleted > 0) {
