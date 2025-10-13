@@ -52,6 +52,10 @@ dependencies {
 
     // Redis
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+    // Aop
+    implementation ("org.springframework.boot:spring-boot-starter-aop")
+    implementation ("com.fasterxml.jackson.core:jackson-databind")
 }
 
 
