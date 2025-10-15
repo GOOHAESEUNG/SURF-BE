@@ -55,6 +55,10 @@ dependencies {
 
     // Redis
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+    // Aop
+    implementation ("org.springframework.boot:spring-boot-starter-aop")
+    implementation ("com.fasterxml.jackson.core:jackson-databind")
 }
 
 // log4j2 사용을 위해 추가
