@@ -14,7 +14,7 @@ application.properties
 .idea/libraries/
 .idea/*
 .idea
-
+logs/*
 *.iws
 *.iml
 *.ipr

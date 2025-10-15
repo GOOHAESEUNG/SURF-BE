@@ -36,6 +36,9 @@ dependencies {
     // .env 자동 로딩
     implementation("me.paulschwarz:spring-dotenv:3.0.0")
 
+    // Spring AOP
+    implementation("org.springframework.boot:spring-boot-starter-aop")
+
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 
@@ -52,8 +55,16 @@ dependencies {
 
     // Redis
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+    // Aop
+    implementation ("org.springframework.boot:spring-boot-starter-aop")
+    implementation ("com.fasterxml.jackson.core:jackson-databind")
 }
 
+// log4j2 사용을 위해 추가
+//configurations.all {
+//    exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
+//}
 
 tasks.test {
     useJUnitPlatform()

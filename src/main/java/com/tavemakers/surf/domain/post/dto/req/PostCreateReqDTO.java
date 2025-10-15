@@ -1,10 +1,11 @@
 package com.tavemakers.surf.domain.post.dto.req;
 
+import com.tavemakers.surf.global.logging.LogPropsProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.time.LocalDateTime;
+import java.util.Map;
 
 @Schema(description = "게시글 생성 요청 DTO")
 public record PostCreateReqDTO(
@@ -20,5 +21,13 @@ public record PostCreateReqDTO(
 
         @Schema(description = "게시글 상단 고정 여부", example = "true")
         Boolean pinned
-) {
+) implements LogPropsProvider {
+
+        @Override
+        public Map<String, Object> buildProps() {
+                return Map.of(
+                        "board_id", boardId,
+                        "title_length", title != null ? title.length() : 0
+                );
+        }
 }

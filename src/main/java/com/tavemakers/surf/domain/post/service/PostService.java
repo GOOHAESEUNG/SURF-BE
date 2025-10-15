@@ -13,6 +13,8 @@ import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
 import com.tavemakers.surf.domain.scrap.service.ScrapService;
+import com.tavemakers.surf.global.logging.LogEvent;
+import com.tavemakers.surf.global.logging.LogParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class PostService {
 
     private final BoardRepository boardRepository;
@@ -32,16 +35,14 @@ public class PostService {
     private final PostLikeService postLikeService;
 
     @Transactional
+    @LogEvent("post.create")
     public PostResDTO createPost(PostCreateReqDTO req, Long memberId) {
         Board board = boardRepository.findById(req.boardId())
                 .orElseThrow(BoardNotFoundException::new);
-
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
-
         Post post = Post.of(req, board, member);
         Post saved = postRepository.save(post);
-
         return PostResDTO.from(saved, false, false);
     }
 
@@ -49,18 +50,14 @@ public class PostService {
     public PostResDTO getPost(Long postId, Long memberId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
-
         boolean scrappedByMe = scrapService.isScrappedByMe(memberId, postId);
         boolean likedByMe = postLikeService.isLikedByMe(memberId, postId);
-
         return PostResDTO.from(post, scrappedByMe, likedByMe);
     }
 
     @Transactional(readOnly = true)
     public Slice<PostResDTO> getMyPosts(Long myId, Pageable pageable) {
-        if (!memberRepository.existsById(myId))
-            throw new MemberNotFoundException();
-
+        if (!memberRepository.existsById(myId)) throw new MemberNotFoundException();
         Slice<Post> slice = postRepository.findByMemberId(myId, pageable);
         return slice.map(p -> PostResDTO.from(
                 p,
@@ -72,7 +69,6 @@ public class PostService {
     @Transactional(readOnly = true)
     public Slice<PostResDTO> getPostsByMember(Long authorId, Long viewerId, Pageable pageable) {
         if (!memberRepository.existsById(authorId)) throw new MemberNotFoundException();
-
         Slice<Post> slice = postRepository.findByMemberId(authorId, pageable);
         return slice.map(p -> PostResDTO.from(
                 p,
@@ -83,9 +79,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public Slice<PostResDTO> getPostsByBoard(Long boardId, Long viewerId, Pageable pageable) {
-        if (!boardRepository.existsById(boardId)) {
-            throw new BoardNotFoundException();
-        }
+        if (!boardRepository.existsById(boardId)) throw new BoardNotFoundException();
         Slice<Post> slice = postRepository.findByBoardId(boardId, pageable);
         return slice.map(p -> PostResDTO.from(
                 p,
@@ -95,10 +89,12 @@ public class PostService {
     }
 
     @Transactional
-    public PostResDTO updatePost(Long postId, PostUpdateReqDTO req, Long viewerId) {
+    @LogEvent("post.update")
+    public PostResDTO updatePost(
+            @LogParam("post_id") Long postId,
+            PostUpdateReqDTO req, Long viewerId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
-
         post.update(req, post.getBoard());
         boolean scrappedByMe = scrapService.isScrappedByMe(viewerId, postId);
         boolean likedByMe = postLikeService.isLikedByMe(viewerId, postId);
@@ -106,10 +102,10 @@ public class PostService {
     }
 
     @Transactional
-    public void deletePost(Long postId) {
-        if (!postRepository.existsById(postId)) {
-            throw new PostNotFoundException();
-        }
+    @LogEvent("post.delete")
+    public void deletePost(
+            @LogParam("post_id") Long postId) {
+        if (!postRepository.existsById(postId)) throw new PostNotFoundException();
         postRepository.deleteById(postId);
     }
 }
