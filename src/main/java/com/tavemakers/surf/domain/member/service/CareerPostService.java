@@ -18,11 +18,10 @@ public class CareerPostService {
 
     //경력 신규 생성
     @Transactional
-    public List<Long> createCareer(Member member, List<CareerCreateReqDTO> dtos) {
+    public void createCareer(Member member, List<CareerCreateReqDTO> dtos) {
         List<Career> newCareers = dtos.stream()
                 .map(dto -> Career.of(dto, member))
                 .toList();
         careerRepository.saveAll(newCareers);
-        return newCareers.stream().map(Career::getId).toList();
     }
 }

@@ -1,10 +1,6 @@
 package com.tavemakers.surf.domain.member.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -14,7 +10,7 @@ import java.util.Map;
 
 @Schema(description = "경력 생성 요청 DTO")
 public record CareerCreateReqDTO(
-        String company,
+        String companyName,
         String position,
         LocalDate startDate,
         LocalDate endDate,
@@ -23,7 +19,7 @@ public record CareerCreateReqDTO(
     public Map<String, Object> buildProps() {
         List<String> changedFields = new ArrayList<>();
 
-        if (company != null && !company.isBlank()) changedFields.add("company");
+        if (companyName != null && !companyName.isBlank()) changedFields.add("companyName");
         if (position != null && !position.isBlank()) changedFields.add("position");
         if (startDate != null) changedFields.add("startDate");
         if (endDate != null) changedFields.add("endDate");

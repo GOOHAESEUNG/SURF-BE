@@ -173,31 +173,24 @@ public class Member extends BaseEntity {
     }
 
     //프로필 수정하기
-    public List<String> updateProfile(ProfileUpdateReqDTO request) {
-        List<String> changedFields = new ArrayList<>();
+    public void updateProfile(ProfileUpdateReqDTO request) {
 
-        if (request.getPhoneNumber() != null) {
-            this.phoneNumber = request.getPhoneNumber();
-            changedFields.add("phoneNumber");
+        if (request.phoneNumber() != null) {
+            this.phoneNumber = request.phoneNumber();
         }
-        if (request.getEmail() != null) {
+        if (request.email() != null) {
             // 이메일은 중복 체크 등 추가 로직이 필요할 수 있음
-            this.email = request.getEmail();
-            changedFields.add("email");
+            this.email = request.email();
         }
-        if (request.getUniversity() != null) {
-            this.university = request.getUniversity();
-            changedFields.add("university");
+        if (request.university() != null) {
+            this.university = request.university();
         }
-        if (request.getGraduateSchool() != null) {
-            this.graduateSchool = request.getGraduateSchool();
-            changedFields.add("graduateSchool");
+        if (request.graduateSchool() != null) {
+            this.graduateSchool = request.graduateSchool();
         }
-        if (request.getPhoneNumberPublic() != null) {
-            this.phoneNumberPublic = request.getPhoneNumberPublic();
-            changedFields.add("phoneNumberPublic");
+        if (request.phoneNumberPublic() != null) {
+            this.phoneNumberPublic = request.phoneNumberPublic();
         }
-        return changedFields;
     }
 
     //유저 권한 변경

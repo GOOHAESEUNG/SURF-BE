@@ -16,8 +16,8 @@ import java.util.List;
 public class MemberPatchService {
 
     @Transactional
-    public List<String> updateProfile(Member member, ProfileUpdateReqDTO dto) {
-        return member.updateProfile(dto);
+    public void updateProfile(Member member, ProfileUpdateReqDTO dto) {
+        member.updateProfile(dto);
     }
 
     @Transactional

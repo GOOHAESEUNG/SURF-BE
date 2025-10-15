@@ -1,7 +1,6 @@
 package com.tavemakers.surf.domain.member.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -12,7 +11,7 @@ import java.util.Map;
 @Schema(description = "경력 수정 요청 DTO")
 public record CareerUpdateReqDTO(
         Long careerId,
-        String company,
+        String companyName,
         String position,
         LocalDate startDate,
         LocalDate endDate,
@@ -21,7 +20,7 @@ public record CareerUpdateReqDTO(
     public Map<String, Object> buildProps() {
         List<String> changedFields = new ArrayList<>();
 
-        if (company != null && !company.isBlank()) changedFields.add("company");
+        if (companyName != null && !companyName.isBlank()) changedFields.add("companyName");
         if (position != null && !position.isBlank()) changedFields.add("position");
         if (startDate != null) changedFields.add("startDate");
         if (endDate != null) changedFields.add("endDate");

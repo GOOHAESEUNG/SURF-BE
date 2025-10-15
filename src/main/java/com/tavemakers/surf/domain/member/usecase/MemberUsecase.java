@@ -14,6 +14,8 @@ import com.tavemakers.surf.domain.member.exception.TrackNotFoundException;
 import com.tavemakers.surf.domain.member.service.*;
 import com.tavemakers.surf.domain.member.util.LogEventUtil;
 import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
+import com.tavemakers.surf.global.logging.LogEvent;
+import com.tavemakers.surf.global.logging.LogParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -105,33 +107,30 @@ public class MemberUsecase {
     }
 
     //프로필 수정
+    @LogEvent("member.profile_update")
     @Transactional
-    public void updateProfile(Long memberId, ProfileUpdateReqDTO dto) {
+    public void updateProfile(@LogParam("member_id") Long memberId,
+                              ProfileUpdateReqDTO dto) {
+
         Member member = memberGetService.getMember(memberId);
 
-        List<String> changedFields = memberPatchService.updateProfile(member, dto);
-        List<Long> careersCreated = new ArrayList<>();
-        List<Long> careersUpdated = new ArrayList<>();
-        List<Long> careersDeleted = new ArrayList<>();
+        // 프로필 정보 수정
+        memberPatchService.updateProfile(member, dto);
 
-        if (dto.getCareersToUpdate() != null)
-            careersUpdated = careerPatchService.updateCareer(member, dto.getCareersToUpdate());
+        // 경력 수정
+        if (dto.careersToUpdate() != null) {
+            careerPatchService.updateCareer(member, dto.careersToUpdate());
+        }
 
-        if (dto.getCareerIdsToDelete() != null)
-            careersDeleted = careerDeleteService.deleteCareer(member, dto.getCareerIdsToDelete());
+        // 경력 삭제
+        if (dto.careerIdsToDelete() != null) {
+            careerDeleteService.deleteCareer(member, dto.careerIdsToDelete());
+        }
 
-        if (dto.getCareersToCreate() != null)
-            careersCreated = careerPostService.createCareer(member, dto.getCareersToCreate());
-
-        Map<String, Object> logData = Map.of(
-                "member_id", memberId,
-                "changed_fields", changedFields,
-                "careers_created", careersCreated,
-                "careers_updated", careersUpdated,
-                "careers_deleted", careersDeleted
-        );
-
-        LogEventUtil.logProfileUpdate(logData, "200 OK");
+        // 경력 생성
+        if (dto.careersToCreate() != null) {
+            careerPostService.createCareer(member, dto.careersToCreate());
+        }
     }
 
     //온보딩 필요 여부 확인
