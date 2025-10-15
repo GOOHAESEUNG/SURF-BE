@@ -36,6 +36,7 @@ public record ProfileUpdateReqDTO(
                 "careers_created_count", careersToCreate == null ? 0 : careersToCreate.size(),
                 "careers_updated", careersToUpdate == null ? List.of() :
                         careersToUpdate.stream().map(CareerUpdateReqDTO::careerId).toList(),
+                "careers_updated_count", careerIdsToDelete == null ? 0 : careerIdsToDelete.size(),
                 "careers_deleted", careerIdsToDelete == null ? List.of() : careerIdsToDelete
         );
     }

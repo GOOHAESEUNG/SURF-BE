@@ -25,7 +25,7 @@ public record CareerUpdateReqDTO(
         if (position != null && !position.isBlank()) changedFields.add("position");
         if (startDate != null) changedFields.add("startDate");
         if (endDate != null) changedFields.add("endDate");
-        if(isWorking) changedFields.add("isWorking");
+        if(isWorking!=null) changedFields.add("isWorking");
 
         return Map.of(
                 "career_id", careerId,
