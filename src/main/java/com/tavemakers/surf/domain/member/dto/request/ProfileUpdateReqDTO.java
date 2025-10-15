@@ -1,6 +1,7 @@
 package com.tavemakers.surf.domain.member.dto.request;
 
 import com.tavemakers.surf.global.logging.LogParam;
+import com.tavemakers.surf.global.logging.LogPropsProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
@@ -20,7 +21,7 @@ public record ProfileUpdateReqDTO(
         List<CareerCreateReqDTO> careersToCreate,
         List<CareerUpdateReqDTO> careersToUpdate,
         List<Long> careerIdsToDelete
-) {
+) implements LogPropsProvider {
     public Map<String, Object> buildProps() {
         List<String> changedFields = new ArrayList<>();
 

@@ -1,5 +1,6 @@
 package com.tavemakers.surf.domain.member.dto.request;
 
+import com.tavemakers.surf.global.logging.LogPropsProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
@@ -15,7 +16,7 @@ public record CareerCreateReqDTO(
         LocalDate startDate,
         LocalDate endDate,
         Boolean isWorking
-) {
+) implements LogPropsProvider {
     public Map<String, Object> buildProps() {
         List<String> changedFields = new ArrayList<>();
 
