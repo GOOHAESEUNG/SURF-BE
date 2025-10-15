@@ -8,29 +8,27 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-@Getter
-@Valid
-@Schema(description = "신규 경력 추가 요청 DTO")
-public class CareerCreateReqDTO {
+@Schema(description = "경력 생성 요청 DTO")
+public record CareerCreateReqDTO(
+        String company,
+        String position,
+        LocalDate startDate,
+        LocalDate endDate,
+        Boolean isWorking
+) {
+    public Map<String, Object> buildProps() {
+        List<String> changedFields = new ArrayList<>();
 
-    @Schema(description = "회사명", example = "서프 컴퍼니")
-    @NotBlank(message = "회사명은 필수입니다.")
-    private String companyName;
+        if (company != null && !company.isBlank()) changedFields.add("company");
+        if (position != null && !position.isBlank()) changedFields.add("position");
+        if (startDate != null) changedFields.add("startDate");
+        if (endDate != null) changedFields.add("endDate");
+        if(isWorking) changedFields.add("isWorking");
 
-    @Schema(description = "직무", example = "주니어 개발자")
-    @NotBlank(message = "직무는 필수입니다.")
-    private String position;
-
-    @Schema(description = "근무 시작일", example = "2023-01")
-    @NotNull(message = "근무 시작일은 필수입니다.")
-    private YearMonth startDate;
-
-    @Schema(description = "근무 종료일 (재직 중일 경우 null 또는 미포함)", example = "2024-01")
-    private YearMonth endDate;
-
-    @Schema(description = "재직 여부", example = "true or false")
-    @NotNull
-    private Boolean isWorking;
-
+        return Map.of("changed_fields", changedFields);
+    }
 }
