@@ -4,6 +4,8 @@ import com.tavemakers.surf.global.logging.LogParam;
 import com.tavemakers.surf.global.logging.LogPropsProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 
@@ -13,10 +15,17 @@ import java.util.Map;
 
 @Schema(description = "프로필 수정 요청 DTO")
 public record ProfileUpdateReqDTO(
+        @Email
         String email,
+
+        @NotNull
         String university,
         String graduateSchool,
+
+        @Pattern(regexp = "^[0-9\\-]{8,15}$")
         String phoneNumber,
+
+        @NotNull
         Boolean phoneNumberPublic,
         List<CareerCreateReqDTO> careersToCreate,
         List<CareerUpdateReqDTO> careersToUpdate,
