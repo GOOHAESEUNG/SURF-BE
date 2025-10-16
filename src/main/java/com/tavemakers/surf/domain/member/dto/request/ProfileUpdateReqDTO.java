@@ -1,13 +1,10 @@
 package com.tavemakers.surf.domain.member.dto.request;
 
-import com.tavemakers.surf.global.logging.LogParam;
 import com.tavemakers.surf.global.logging.LogPropsProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
