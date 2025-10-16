@@ -2,6 +2,8 @@ package com.tavemakers.surf.domain.member.dto.request;
 
 import com.tavemakers.surf.global.logging.LogPropsProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -11,11 +13,20 @@ import java.util.Map;
 
 @Schema(description = "경력 수정 요청 DTO")
 public record CareerUpdateReqDTO(
+        @NotNull
         Long careerId,
+
+        @NotBlank
         String companyName,
+
+        @NotBlank
         String position,
+
+        @NotNull
         LocalDate startDate,
         LocalDate endDate,
+
+        @NotNull
         Boolean isWorking
 ) implements LogPropsProvider {
     public Map<String, Object> buildProps() {
