@@ -53,8 +53,9 @@ public class LogEventAspect {
             fail.put("error_code", ex.getClass().getSimpleName());
             fail.put("error_msg", ex.getMessage());
 
-            String failedEvent = event.endsWith(".failed") ? event : event + ".failed";
-
+            String failedEvent = (event != null && event.endsWith(".failed"))
+                    ? event
+                    : (event != null ? event + ".failed" : "unknown.failed");
             emitter.emitError(failedEvent, fail, msg != null ? msg : "AOP captured exception");
             throw ex;
         }
