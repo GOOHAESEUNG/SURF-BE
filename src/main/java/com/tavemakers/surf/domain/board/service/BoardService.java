@@ -6,6 +6,8 @@ import com.tavemakers.surf.domain.board.dto.res.BoardResDTO;
 import com.tavemakers.surf.domain.board.entity.Board;
 import com.tavemakers.surf.domain.board.exception.BoardNotFoundException;
 import com.tavemakers.surf.domain.board.repository.BoardRepository;
+import com.tavemakers.surf.global.logging.LogEvent;
+import com.tavemakers.surf.global.logging.LogParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,7 @@ public class BoardService {
     private final BoardRepository boardRepository;
 
     @Transactional
+    @LogEvent("board.create")
     public BoardResDTO createBoard(BoardCreateReqDTO req) {
         Board board = Board.of(req);
         Board saved = boardRepository.save(board);
@@ -27,9 +30,7 @@ public class BoardService {
 
     public List<BoardResDTO> getBoards() {
         List<Board> boards = boardRepository.findAll();
-        return boards.stream()
-                .map(BoardResDTO::from)
-                .toList();
+        return boards.stream().map(BoardResDTO::from).toList();
     }
 
     public BoardResDTO getBoard(Long id) {
@@ -39,7 +40,10 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardResDTO updateBoard(Long id, BoardUpdateReqDTO req) {
+    @LogEvent("board.update")
+    public BoardResDTO updateBoard(
+            @LogParam("board_id") Long id,
+            BoardUpdateReqDTO req) {
         Board board = boardRepository.findById(id)
                 .orElseThrow(BoardNotFoundException::new);
         board.update(req.name(), req.type());
@@ -47,10 +51,10 @@ public class BoardService {
     }
 
     @Transactional
-    public void deleteBoard(Long id) {
-        if (!boardRepository.existsById(id)) {
-            throw new BoardNotFoundException();
-        }
+    @LogEvent("board.delete")
+    public void deleteBoard(
+            @LogParam("board_id") Long id) {
+        if (!boardRepository.existsById(id)) throw new BoardNotFoundException();
         boardRepository.deleteById(id);
     }
 }
