@@ -25,7 +25,7 @@ public class FeedbackService {
     private static final int DAILY_LIMIT = 3; // 하루 최대 3회
 
     @Transactional
-    @LogEvent("feedback.create")
+    @LogEvent(value = "feedback.create", message = "피드백 생성 성공")
     public FeedbackResDTO createFeedback(FeedbackCreateReqDTO req, Long memberId) {
         String writerHash = writerHashService.hashDaily(memberId, LocalDate.now());
         long todayCount = feedbackRepository.countByWriterHash(writerHash);
