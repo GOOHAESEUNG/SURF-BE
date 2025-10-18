@@ -107,7 +107,7 @@ public class MemberUsecase {
     }
 
     //프로필 수정
-    @LogEvent("member.profile_update")
+    @LogEvent(value = "member.profile_update", message = "회원 정보 수정")
     @Transactional
     public void updateProfile(@LogParam("member_id") Long memberId,
                               ProfileUpdateReqDTO dto) {
