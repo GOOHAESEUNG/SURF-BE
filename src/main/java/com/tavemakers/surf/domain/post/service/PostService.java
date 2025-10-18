@@ -35,7 +35,7 @@ public class PostService {
     private final PostLikeService postLikeService;
 
     @Transactional
-    @LogEvent("post.create")
+    @LogEvent(value= "post.create", message= "게시글 생성 성공")
     public PostResDTO createPost(PostCreateReqDTO req, Long memberId) {
         Board board = boardRepository.findById(req.boardId())
                 .orElseThrow(BoardNotFoundException::new);
@@ -89,7 +89,7 @@ public class PostService {
     }
 
     @Transactional
-    @LogEvent("post.update")
+    @LogEvent(value = "post.update", message = "게시글 수정 성공")
     public PostResDTO updatePost(
             @LogParam("post_id") Long postId,
             PostUpdateReqDTO req, Long viewerId) {
@@ -102,7 +102,7 @@ public class PostService {
     }
 
     @Transactional
-    @LogEvent("post.delete")
+    @LogEvent(value = "post.delete", message = "게시글 삭제 성공")
     public void deletePost(
             @LogParam("post_id") Long postId) {
         if (!postRepository.existsById(postId)) throw new PostNotFoundException();

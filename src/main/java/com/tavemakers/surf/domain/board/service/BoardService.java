@@ -21,7 +21,7 @@ public class BoardService {
     private final BoardRepository boardRepository;
 
     @Transactional
-    @LogEvent("board.create")
+    @LogEvent(value = "board.create", message = "게시판 생성 성공")
     public BoardResDTO createBoard(BoardCreateReqDTO req) {
         Board board = Board.of(req);
         Board saved = boardRepository.save(board);
@@ -40,7 +40,7 @@ public class BoardService {
     }
 
     @Transactional
-    @LogEvent("board.update")
+    @LogEvent(value = "board.update", message = "게시판 수정 성공")
     public BoardResDTO updateBoard(
             @LogParam("board_id") Long id,
             BoardUpdateReqDTO req) {
@@ -51,7 +51,7 @@ public class BoardService {
     }
 
     @Transactional
-    @LogEvent("board.delete")
+    @LogEvent(value = "board.delete", message = "게시판 삭제 성공")
     public void deleteBoard(
             @LogParam("board_id") Long id) {
         if (!boardRepository.existsById(id)) throw new BoardNotFoundException();

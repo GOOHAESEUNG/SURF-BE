@@ -32,7 +32,7 @@ public class CommentService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    @LogEvent("comment.create")
+    @LogEvent(value = "comment.create", message = "댓글 생성 성공")
     public CommentResDTO createComment(
             @LogParam("post_id") Long postId,
             Long memberId, CommentCreateReqDTO req) {
@@ -68,7 +68,7 @@ public class CommentService {
     }
 
     @Transactional
-    @LogEvent("comment.delete")
+    @LogEvent(value = "comment.delete", message = "댓글 삭제 성공")
     public void deleteComment(
             @LogParam("post_id")
             Long postId,

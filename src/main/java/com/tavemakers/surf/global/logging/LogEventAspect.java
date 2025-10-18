@@ -46,7 +46,11 @@ public class LogEventAspect {
             enrichWithReturn(props, ret);
 
             // ✅ 3. 성공 로그 emit
-            emitter.emit(event, props);
+            if (msg == null || msg.isBlank()) {
+                emitter.emit(event, props);
+            } else {
+                emitter.emit(event, props, msg);
+            }
             return ret;
         }catch (Exception ex) {
             Map<String, Object> fail = new HashMap<>(props);
@@ -57,6 +61,7 @@ public class LogEventAspect {
                     ? event
                     : (event != null ? event + ".failed" : "unknown.failed");
             emitter.emitError(failedEvent, fail, msg != null ? msg : "AOP captured exception");
+
             throw ex;
         }
     }
