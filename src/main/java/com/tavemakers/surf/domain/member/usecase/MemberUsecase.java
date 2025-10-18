@@ -1,5 +1,7 @@
 package com.tavemakers.surf.domain.member.usecase;
 
+import com.tavemakers.surf.domain.member.dto.request.CareerCreateReqDTO;
+import com.tavemakers.surf.domain.member.dto.request.CareerUpdateReqDTO;
 import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.dto.response.*;
 import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateReqDTO;
@@ -10,7 +12,10 @@ import com.tavemakers.surf.domain.member.entity.Track;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.exception.TrackNotFoundException;
 import com.tavemakers.surf.domain.member.service.*;
+import com.tavemakers.surf.domain.member.util.LogEventUtil;
 import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
+import com.tavemakers.surf.global.logging.LogEvent;
+import com.tavemakers.surf.global.logging.LogParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -101,23 +107,29 @@ public class MemberUsecase {
     }
 
     //프로필 수정
+    @LogEvent(value = "member.profile_update", message = "회원 정보 수정")
     @Transactional
-    public void updateProfile(Long memberId, ProfileUpdateReqDTO dto) {
-        Member member = memberGetService.getMember(memberId);
-        log.info(memberId.toString());
+    public void updateProfile(@LogParam("member_id") Long memberId,
+                              ProfileUpdateReqDTO dto) {
 
+        Member member = memberGetService.getMember(memberId);
+
+        // 프로필 정보 수정
         memberPatchService.updateProfile(member, dto);
 
-        if (dto.getCareersToUpdate() != null) {
-            careerPatchService.updateCareer(member, dto.getCareersToUpdate());
+        // 경력 수정
+        if (dto.careersToUpdate() != null) {
+            careerPatchService.updateCareer(member, dto.careersToUpdate());
         }
 
-        if (dto.getCareerIdsToDelete() != null) {
-            careerDeleteService.deleteCareer(member, dto.getCareerIdsToDelete());
+        // 경력 삭제
+        if (dto.careerIdsToDelete() != null) {
+            careerDeleteService.deleteCareer(member, dto.careerIdsToDelete());
         }
 
-        if (dto.getCareersToCreate() != null) {
-            careerPostService.createCareer(member, dto.getCareersToCreate());
+        // 경력 생성
+        if (dto.careersToCreate() != null) {
+            careerPostService.createCareer(member, dto.careersToCreate());
         }
     }
 

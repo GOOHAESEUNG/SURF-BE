@@ -42,35 +42,36 @@ public class Career extends BaseEntity {
     private boolean isWorking;
 
     //경력 수정
-    public void update(CareerUpdateReqDTO dto){
-        if(dto.getCompanyName() != null){
-            this.companyName = dto.getCompanyName();
+    public void update(CareerUpdateReqDTO dto) {
+        if (dto.companyName() != null) {
+            this.companyName = dto.companyName();
         }
-        if(dto.getPosition() != null){
-            this.position = dto.getPosition();
+        if (dto.position() != null) {
+            this.position = dto.position();
         }
-        if(dto.getStartDate() != null){
-            this.startDate = dto.getStartDate().atDay(1);
+        if (dto.startDate() != null) {
+            this.startDate = dto.startDate();
         }
-        if(dto.getEndDate() != null){
-            this.endDate = dto.getEndDate().atDay(1);
+        if (dto.endDate() != null) {
+            this.endDate = dto.endDate();
         }
-        if(dto.getIsWorking() != null){
-            this.isWorking = dto.getIsWorking();
-             if(this.isWorking)
-                 this.endDate = null;
+        if (dto.isWorking() != null) {
+            this.isWorking = dto.isWorking();
+            if (this.isWorking) {
+                this.endDate = null;
+            }
         }
     }
 
     //정적 팩토리 메소드 - 생성
     public static Career of(CareerCreateReqDTO dto, Member member) {
         return Career.builder()
-                .companyName(dto.getCompanyName())
-                .position(dto.getPosition())
-                .startDate(dto.getStartDate().atDay(1))
-                .endDate(dto.getEndDate() != null ? dto.getEndDate().atDay(1) : null)
+                .companyName(dto.companyName())
+                .position(dto.position())
+                .startDate(dto.startDate())
+                .endDate(dto.endDate() != null ? dto.endDate() : null)
                 .member(member)
-                .isWorking(dto.getIsWorking())
+                .isWorking(dto.isWorking())
                 .build();
     }
 
