@@ -25,7 +25,7 @@ public class PostLikeService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    @LogEvent("post.like")
+    @LogEvent(value = "post.like", message = "게시물 좋아요 성공")
     public void like(
             @LogParam("post_id") Long postId,
             @LogParam("user_id") Long memberId) {
@@ -54,7 +54,7 @@ public class PostLikeService {
     }
 
     @Transactional
-    @LogEvent("post.unlike")
+    @LogEvent(value = "post.unlike", message = "게시물 좋아요 해제 성공")
     public void unlike(
             @LogParam("post_id")
             Long postId,
