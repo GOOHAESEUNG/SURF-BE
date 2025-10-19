@@ -43,6 +43,8 @@ public class Post extends BaseEntity {
     @Version
     private Long version;
 
+    private LocalDateTime reservation;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;
