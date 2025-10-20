@@ -1,5 +1,6 @@
 package com.tavemakers.surf.domain.post.entity;
 
+import com.tavemakers.surf.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,16 +18,17 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PostImageUrl {
+public class PostImageUrl extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "postImageUrl_id")
     private Long id;
 
     @Column(nullable = false)
     private String url;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 }

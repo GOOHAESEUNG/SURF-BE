@@ -1,5 +1,6 @@
 package com.tavemakers.surf.domain.post.entity;
 
+import com.tavemakers.surf.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,9 +19,10 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Schedule {
+public class Schedule extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "schedule_id")
     private Long id;
 
     @Column(nullable = false)
@@ -39,6 +41,6 @@ public class Schedule {
     private String location;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = true)
+    @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 }
