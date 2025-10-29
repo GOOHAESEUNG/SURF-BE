@@ -69,9 +69,12 @@ public class AuthController {
     )
     @GetMapping("/login/oauth2/code/kakao")
     public ApiResponse<LoginResDto> kakaoCallback(
-            String code,
+            @RequestParam("code") String code,
             HttpServletResponse response
     ) {
+        if (code == null || code.isBlank()) {
+            return ApiResponse.response(HttpStatus.BAD_REQUEST, "인가 코드가 없습니다.", null);
+        }
         try {
             kakaoAuthService.logCallback("kakao", code.length());
 
