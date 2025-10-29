@@ -7,6 +7,8 @@ import com.tavemakers.surf.domain.member.service.MemberGetService;
 import com.tavemakers.surf.domain.member.service.MemberPatchService;
 import com.tavemakers.surf.domain.member.service.MemberService;
 import com.tavemakers.surf.domain.score.service.PersonalScoreSaveService;
+import com.tavemakers.surf.global.logging.LogEvent;
+import com.tavemakers.surf.global.logging.LogParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,14 +31,22 @@ public class MemberAdminUsecase {
     }
 
     @Transactional
-    public void approveMember(Long memberId) {
+    @LogEvent(value = "signup.approve", message = "회원가입 승인 처리")
+    public void approveMember(
+            @LogParam("member_id") Long memberId,
+            @LogParam("approver_id") Long approverId
+    ) {
         Member member = memberGetService.getMemberByStatus(memberId, MemberStatus.WAITING);
         memberService.approveMember(member);
         personalScoreSaveService.savePersonalScore(member);
     }
 
     @Transactional
-    public void rejectMember(Long memberId) {
+    @LogEvent(value = "signup.reject", message = "회원가입 거절 처리")
+    public void rejectMember(
+            @LogParam("member_id") Long memberId,
+            @LogParam("approver_id") Long approverId
+    ) {
         Member member = memberGetService.getMemberByStatus(memberId, MemberStatus.WAITING);
         memberService.rejectMember(member);
     }
