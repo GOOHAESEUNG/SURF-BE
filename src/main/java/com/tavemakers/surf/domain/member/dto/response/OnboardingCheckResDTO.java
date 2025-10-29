@@ -1,12 +1,15 @@
 package com.tavemakers.surf.domain.member.dto.response;
 
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
+import com.tavemakers.surf.global.logging.LogPropsProvider;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.Map;
+
 @Getter
 @Builder
-public class OnboardingCheckResDTO {
+public class OnboardingCheckResDTO implements LogPropsProvider{
 
     public Long memberId;
     public Boolean needOnboarding;
@@ -17,5 +20,11 @@ public class OnboardingCheckResDTO {
                 .memberId(memberId)
                 .needOnboarding(needOnboarding)
                 .memberStatus(memberStatus).build();
+    }
+    @Override
+    public Map<String, Object> buildProps() {
+        return Map.of(
+                "need_onboarding", needOnboarding != null ? needOnboarding : false
+        );
     }
 }
