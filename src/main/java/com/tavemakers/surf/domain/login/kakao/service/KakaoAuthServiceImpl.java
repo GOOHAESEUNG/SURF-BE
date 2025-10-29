@@ -60,14 +60,14 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
             ResponseEntity<KakaoTokenResponseDto> response =
                     kakaoAuthRestTemplate.postForEntity(url, request, KakaoTokenResponseDto.class);
 
-            return response.getBody();
+            KakaoTokenResponseDto body = java.util.Optional.ofNullable(response.getBody())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Empty token response from Kakao"));
+            return body;
 
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            handleError(e, "카카오 인증 요청 오류");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            throw handleError(e, HttpStatus.BAD_REQUEST, "카카오 인증 요청 오류");
         } catch (Exception e) {
-            handleError(e, "카카오 인증 요청 실패");
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+            throw handleError(e, HttpStatus.INTERNAL_SERVER_ERROR, "카카오 인증 요청 실패");
         }
     }
 
@@ -92,11 +92,9 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
             return response.getBody();
 
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            handleError(e, "카카오 사용자 정보 요청 오류");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            throw handleError(e, HttpStatus.BAD_REQUEST, "카카오 사용자 정보 요청 오류");
         } catch (Exception e) {
-            handleError(e, "카카오 사용자 정보 요청 실패");
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+            throw handleError(e, HttpStatus.INTERNAL_SERVER_ERROR, "카카오 사용자 정보 요청 실패");
         }
     }
 
@@ -121,17 +119,16 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
             return response.getBody();
 
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            handleError(e, "AccessToken 검증 실패");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            throw handleError(e, HttpStatus.BAD_REQUEST, "AccessToken 검증 실패");
         } catch (Exception e) {
-            handleError(e, "AccessToken 검증 중 서버 오류");
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+            throw handleError(e, HttpStatus.INTERNAL_SERVER_ERROR, "AccessToken 검증 중 서버 오류");
         }
     }
 
     /** 로그인 관련 공통 에러 처리 및 로그 기록 */
-    protected void handleError(Exception ex, String message) {
-        throw new RuntimeException(ex.getMessage(), ex);
+    protected ResponseStatusException handleError(Exception ex, HttpStatus status, String message) {
+        log.error("{}: {}", message, ex.getMessage(), ex);
+        return new ResponseStatusException(status, message, ex);
     }
 
     // 카카오 인가 요청 로그
