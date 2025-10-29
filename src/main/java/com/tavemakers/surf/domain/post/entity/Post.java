@@ -21,6 +21,7 @@ public class Post extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "post_id")
     private Long id;
 
     @NotBlank
@@ -42,6 +43,8 @@ public class Post extends BaseEntity {
 
     @Version
     private Long version;
+
+    private LocalDateTime reservation;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "board_id", nullable = false)

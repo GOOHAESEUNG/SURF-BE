@@ -56,7 +56,6 @@ public class Member extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-
     private MemberStatus status = MemberStatus.WAITING; // 회원 상태; // 회원 상태 (가입중, 대기중, 승인)
 
     @Enumerated(EnumType.STRING)
@@ -175,21 +174,22 @@ public class Member extends BaseEntity {
 
     //프로필 수정하기
     public void updateProfile(ProfileUpdateReqDTO request) {
-        if (request.getPhoneNumber() != null) {
-            this.phoneNumber = request.getPhoneNumber();
+
+        if (request.phoneNumber() != null) {
+            this.phoneNumber = request.phoneNumber();
         }
-        if (request.getEmail() != null) {
+        if (request.email() != null) {
             // 이메일은 중복 체크 등 추가 로직이 필요할 수 있음
-            this.email = request.getEmail();
+            this.email = request.email();
         }
-        if (request.getUniversity() != null) {
-            this.university = request.getUniversity();
+        if (request.university() != null) {
+            this.university = request.university();
         }
-        if (request.getGraduateSchool() != null) {
-            this.graduateSchool = request.getGraduateSchool();
+        if (request.graduateSchool() != null) {
+            this.graduateSchool = request.graduateSchool();
         }
-        if (request.getPhoneNumberPublic() != null) {
-            this.phoneNumberPublic = request.getPhoneNumberPublic();
+        if (request.phoneNumberPublic() != null) {
+            this.phoneNumberPublic = request.phoneNumberPublic();
         }
     }
 

@@ -22,13 +22,14 @@ public class LogEventEmitterImpl implements LogEventEmitter {
 
     /** 성공 이벤트 적재 (요청 컨텍스트에 쌓아두고, 출력은 필터에서 flush) */
     @Override
-    public void emit(String event, Map<String, Object> props) {
+    public void emit(String event, Map<String, Object> props, String message) {
         RequestLogContext ctx = RequestLogContext.get();
 
         Map<String, Object> e = new HashMap<>();
         e.put("event", event);
         e.put("event_type", "INFO");
-        // message는 성공 시 보통 없음 -> null이면 키 자체를 생략
+        if (message != null && !message.isBlank())
+            e.put("message", message);
         e.put("props", props != null ? props : Collections.emptyMap());
 
         ctx.events.add(e);

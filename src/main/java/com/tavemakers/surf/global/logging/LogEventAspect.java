@@ -46,14 +46,22 @@ public class LogEventAspect {
             enrichWithReturn(props, ret);
 
             // ✅ 3. 성공 로그 emit
-            emitter.emit(event, props);
+            if (msg == null || msg.isBlank()) {
+                emitter.emit(event, props);
+            } else {
+                emitter.emit(event, props, msg);
+            }
             return ret;
-        } catch (Exception ex) {
-            // ✅ 4. 실패 로그 emit
+        }catch (Exception ex) {
             Map<String, Object> fail = new HashMap<>(props);
             fail.put("error_code", ex.getClass().getSimpleName());
             fail.put("error_msg", ex.getMessage());
-            emitter.emitError(event, fail, msg != null ? msg : "AOP captured exception");
+
+            String failedEvent = (event != null && event.endsWith(".failed"))
+                    ? event
+                    : (event != null ? event + ".failed" : "unknown.failed");
+            emitter.emitError(failedEvent, fail, msg != null ? msg : "AOP captured exception");
+
             throw ex;
         }
     }

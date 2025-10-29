@@ -35,7 +35,7 @@ public class ScrapService {
     private final PostLikeRepository postLikeRepository;
 
     @Transactional
-    @LogEvent("scrap.add")
+    @LogEvent(value = "scrap.add", message = "스크랩 추가 성공")
     public void addScrap(
             @LogParam("user_id") Long memberId,
             @LogParam("post_id") Long postId) {
@@ -58,7 +58,7 @@ public class ScrapService {
     }
 
     @Transactional
-    @LogEvent("scrap.remove")
+    @LogEvent(value = "scrap.remove", message = "스크랩 삭제 성공")
     public void removeScrap(
             @LogParam("user_id") Long memberId,
             @LogParam("post_id") Long postId) {

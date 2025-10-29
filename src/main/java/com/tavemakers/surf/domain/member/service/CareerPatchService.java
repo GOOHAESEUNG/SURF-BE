@@ -25,19 +25,25 @@ public class CareerPatchService {
 
     @Transactional
     public void updateCareer(Member member, List<CareerUpdateReqDTO> dtos) {
+        // 요청으로 들어온 ID 목록
         Set<Long> requestedIds = dtos.stream()
-                .map(CareerUpdateReqDTO::getCareerId)
+                .map(CareerUpdateReqDTO::careerId)
                 .collect(Collectors.toSet());
+
+        // 실제 해당 멤버의 Career 중 업데이트 대상 조회
         List<Career> careersToUpdate = careerRepository.findAllByMemberAndIdIn(member, requestedIds);
-        log.info(careersToUpdate.toString());
         careerValidator.validateCareer(requestedIds, careersToUpdate);
 
+        // careerId → Career 매핑
         Map<Long, Career> validCareerMap = careersToUpdate.stream()
                 .collect(Collectors.toMap(Career::getId, career -> career));
 
+        // 업데이트 적용
         dtos.forEach(dto -> {
-            Career careerToUpdate = validCareerMap.get(dto.getCareerId());
-            careerToUpdate.update(dto);
+            Career careerToUpdate = validCareerMap.get(dto.careerId());
+            if (careerToUpdate != null) {
+                careerToUpdate.update(dto);
+            }
         });
     }
 }
