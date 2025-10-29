@@ -2,18 +2,18 @@ package com.tavemakers.surf.domain.login.kakao.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class RestClientConfig {
 
-    @Bean(name = "kakaoAuthWebClient")
-    public WebClient kakaoAuthWebClient(WebClient.Builder builder) {
-        return builder.baseUrl("https://kauth.kakao.com").build(); // 토큰 발급 서버
+    @Bean(name = "kakaoAuthRestTemplate")
+    public RestTemplate kakaoAuthRestTemplate() {
+        return new RestTemplate(); // 카카오 인증 서버 요청용
     }
 
-    @Bean(name = "kakaoApiWebClient")
-    public WebClient kakaoApiWebClient(WebClient.Builder builder) {
-        return builder.baseUrl("https://kapi.kakao.com").build(); // API 서버
+    @Bean(name = "kakaoApiRestTemplate")
+    public RestTemplate kakaoApiRestTemplate() {
+        return new RestTemplate(); // 카카오 사용자 정보 요청용
     }
 }
