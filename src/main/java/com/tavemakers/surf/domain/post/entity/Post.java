@@ -1,6 +1,7 @@
 package com.tavemakers.surf.domain.post.entity;
 
 import com.tavemakers.surf.domain.board.entity.Board;
+import com.tavemakers.surf.domain.board.entity.BoardCategory;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.post.dto.req.PostCreateReqDTO;
 import com.tavemakers.surf.domain.post.dto.req.PostUpdateReqDTO;
@@ -49,6 +50,10 @@ public class Post extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "category_id", nullable = false)
+    private BoardCategory category;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", nullable = false)
