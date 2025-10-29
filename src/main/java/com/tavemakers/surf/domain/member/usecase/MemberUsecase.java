@@ -11,10 +11,13 @@ import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.exception.TrackNotFoundException;
 import com.tavemakers.surf.domain.member.service.*;
 import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
+import com.tavemakers.surf.global.logging.LogEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.tavemakers.surf.global.logging.LogParam;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -36,10 +39,10 @@ public class MemberUsecase {
     private final CareerDeleteService careerDeleteService;
     private final CareerGetService careerGetService;
     private final MemberPatchService memberPatchService;
-    private final MemberServiceImpl memberServiceImpl;
     private final MemberService memberService;
+    private final ApplicationContext context;
 
-
+    /** 마이페이지 + 프로필 조회 */
     public MyPageProfileResDTO getMyPageAndProfile(Long targetId) {
         Member member = memberGetService.getMemberByStatus(targetId,MemberStatus.APPROVED);
         List<TrackResDTO> myTracks = getMyTracks(targetId);
@@ -58,7 +61,7 @@ public class MemberUsecase {
     }
 
 
-    // 여러 명의 회원을 조회하고, 각 회원의 트랙 정보를 DTO로 반환하는 메소드
+    /** 이름으로 회원 검색 후 각 회원의 트랙 정보를 DTO로 반환하는 메소드 **/
     public List<MemberSearchResDTO> findMemberByNameAndTrack(String name) {
         List<Member> members = memberGetService.getMemberByName(name);
         if (members.isEmpty()) {
@@ -88,7 +91,7 @@ public class MemberUsecase {
         return result;
     }
 
-    //트랙+기수별 회원을 묶어 반환
+    /** 트랙+기수별 회원 묶기 */
     public Map<String, List<MemberSimpleResDTO>> getMembersGroupedByTrack() {
         return trackGetService.getAllTracksWithMember().stream()
                 .collect(Collectors.groupingBy(
@@ -100,7 +103,7 @@ public class MemberUsecase {
                 ));
     }
 
-    //프로필 수정
+    /** 프로필 수정 */
     @Transactional
     public void updateProfile(Long memberId, ProfileUpdateReqDTO dto) {
         Member member = memberGetService.getMember(memberId);
@@ -121,19 +124,74 @@ public class MemberUsecase {
         }
     }
 
-    //온보딩 필요 여부 확인
-    @Transactional
-    public OnboardingCheckResDTO needsOnboarding(Long memberId) {
+    /** 온보딩 필요 여부 확인 */
+    @Transactional(readOnly = true)
+    public OnboardingCheckResDTO needsOnboarding(
+            Long memberId
+    ) {
         Member member = memberGetService.getMember(memberId);
-        Boolean needsOnboarding = memberServiceImpl.needsOnboarding(member);
-        MemberStatus memberStatus = memberServiceImpl.memberStatusCheck(member);
-        return OnboardingCheckResDTO.of(memberId, needsOnboarding, memberStatus);
+
+        Boolean needOnboarding = memberService.needsOnboarding(member);
+        MemberStatus memberStatus = memberService.memberStatusCheck(member);
+
+        OnboardingCheckResDTO dto = OnboardingCheckResDTO.of(memberId, needOnboarding, memberStatus);
+        return dto;
     }
 
-    //회원가입
-    public MemberSignupResDTO signup(Long memberId, MemberSignupReqDTO request, String requestId) {
+    /** 회원가입 요청 및 MemberStatus에 따른 로그 분기 */
+    @Transactional
+    public MemberSignupResDTO signup(
+            Long memberId,
+            MemberSignupReqDTO request,
+            String requestId
+    ) {
         Member member = memberGetService.getMember(memberId);
-        return memberService.signup(member, request, requestId);
+        MemberStatus status = member.getStatus();
+
+        MemberUsecase proxy = context.getBean(MemberUsecase.class);
+
+        if (status == MemberStatus.APPROVED) {
+            MemberSignupResDTO dto = MemberSignupResDTO.from(member);
+            return proxy.signupSucceeded(memberId, dto);
+        }
+
+        if (status == MemberStatus.REJECTED) {
+            int statusCode = 403;
+            String errorReason = "ADMIN_REJECTED";
+            return proxy.signupFailed(memberId, statusCode, errorReason);
+        }
+
+        return proxy.signupCreate(member, request);
+
+    }
+
+    /** 회원가입 create 로그 (온보딩) */
+    @Transactional
+    @LogEvent(value = "signup.create", message = "회원가입 요청 처리")
+    public MemberSignupResDTO signupCreate(Member member, MemberSignupReqDTO request) {
+        return memberService.signup(member, request);
+    }
+
+    /** 회원가입 성공 */
+    @Transactional
+    @LogEvent(value = "signup.succeeded", message = "회원가입 성공")
+    public MemberSignupResDTO signupSucceeded(
+            Long memberId,
+            MemberSignupResDTO response
+    ) {
+        Member member = memberGetService.getMember(memberId);
+        return MemberSignupResDTO.from(member);
+    }
+
+    /** 회원가입 실패 */
+    @Transactional
+    @LogEvent(value = "signup.failed", message = "회원가입 실패")
+    public MemberSignupResDTO signupFailed(
+            Long memberId,
+            int statusCode,
+            String errorReason
+    ) {
+        throw new RuntimeException(errorReason);
     }
 
     private List<CareerResDTO> getMyCareers(Long memberId) {
@@ -145,6 +203,4 @@ public class MemberUsecase {
         return trackGetService.getTrack(memberId)
                 .stream().map(TrackResDTO::from).toList();
     }
-
-
 }
