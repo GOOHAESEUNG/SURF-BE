@@ -47,14 +47,14 @@ public class MemberController {
             ApiResponse<MemberSignupResDTO> response = ApiResponse.response(
                     HttpStatus.CREATED,
                     "회원가입 요청 접수",
-                    memberUsecase.signup(userId, request, requestId)
+                    memberUsecase.signup(userId, request)
             );
 
             return response;
         } catch (Exception e) {
 
             int statusCode;
-            String errorReason = e.getMessage();
+            String errorReason;
 
             if (e instanceof MemberAlreadyExistsException) {
                 statusCode = 409;
@@ -67,9 +67,12 @@ public class MemberController {
                 errorReason = "INTERNAL_SERVER_ERROR";
             }
 
-            memberUsecase.signupFailed(userId, statusCode, errorReason);
-
-            return null;
+            // 로깅은 AOP에서 처리되므로, 적절한 에러 응답만 반환
+            return ApiResponse.response(
+                            HttpStatus.valueOf(statusCode),
+                            errorReason,
+                            null
+            );
         }
     }
 
