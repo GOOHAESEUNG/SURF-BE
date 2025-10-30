@@ -44,3 +44,11 @@ jwt:
 feedback:
   hash:
     secret: ${FEEDBACK_HASH_SECRET}
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_S3_IAM_ACCESS_KEY}
+      secret-key: ${AWS_S3_IAM_SECRET_KEY}
+    region:
+      static: ${AWS_REGION}
