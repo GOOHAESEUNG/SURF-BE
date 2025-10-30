@@ -9,14 +9,15 @@ import com.tavemakers.surf.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseEntity {
 
@@ -42,9 +43,9 @@ public class Post extends BaseEntity {
     private long commentCount = 0L;
 
     @Version
-    private Long version;
+    private long version;
 
-    private LocalDateTime reservation;
+    private boolean isReserved;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "board_id", nullable = false)
@@ -60,22 +61,6 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    @Builder
-    private Post(String title, String content, boolean pinned, long scrapCount, long likeCount, long commentCount, LocalDateTime postedAt, Board board, BoardCategory category, Member member) {
-        this.title = title;
-        this.content = content;
-        this.pinned = pinned;
-        this.scrapCount = scrapCount;
-        this.likeCount = likeCount;
-        this.commentCount = commentCount;
-        this.postedAt = postedAt;
-        this.board = board;
-        this.boardName = board.getName();
-        this.category = category;
-        this.categoryName = category.getName();
-        this.member = member;
-    }
-
     public static Post of(PostCreateReqDTO req, Board board, BoardCategory category, Member member) {
         return Post.builder()
                 .title(req.title())
@@ -83,11 +68,14 @@ public class Post extends BaseEntity {
                 .pinned(req.pinned() != null ? req.pinned() : false)
                 .postedAt(LocalDateTime.now())
                 .board(board)
+                .boardName(board.getName())
                 .category(category)
+                .categoryName(category.getName())
                 .member(member)
                 .scrapCount(0L)
                 .likeCount(0L)
                 .commentCount(0L)
+                .isReserved(req.isReserved())
                 .build();
     }
 
@@ -100,9 +88,6 @@ public class Post extends BaseEntity {
         this.category = category;
         this.categoryName = category.getName();
     }
-
-    public void increaseCommentCount() { this.commentCount++; }
-    public void decreaseCommentCount() { if (this.commentCount > 0) this.commentCount--; }
 
     @PrePersist
     void syncNamesOnInsert() {
@@ -117,4 +102,16 @@ public class Post extends BaseEntity {
         if (board != null) this.boardName = board.getName();
         if (category != null) this.categoryName = category.getName();
     }
+    public void increaseCommentCount() {
+        this.commentCount++;
+    }
+
+    public void decreaseCommentCount() {
+        if (this.commentCount > 0) this.commentCount--;
+    }
+
+    public void publish() {
+        this.isReserved = false;
+    }
+
 }

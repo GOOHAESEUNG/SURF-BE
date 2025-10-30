@@ -1,10 +1,13 @@
 package com.tavemakers.surf.domain.member.dto.request;
 
+import com.tavemakers.surf.global.logging.LogPropsProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.Getter;
 import jakarta.validation.constraints.*;
 import java.util.List;
+import java.util.Map;
+
 import com.tavemakers.surf.domain.member.entity.enums.Part;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,7 +15,7 @@ import lombok.Setter;
 @Getter
 @Valid
 @Schema(description = "회원가입 요청 DTO")
-public class MemberSignupReqDTO {
+public class MemberSignupReqDTO implements LogPropsProvider {
 
     @Schema(description = "프로필 이미지 URL", example = "https://example.com/profile.jpg")
     private String profileImageUrl;
@@ -58,4 +61,13 @@ public class MemberSignupReqDTO {
     @NotBlank(message = "전화번호는 필수 입력값입니다.")
     @Pattern(regexp = "^[0-9]{10,11}$", message = "전화번호 형식이 올바르지 않습니다.")
     private String phoneNumber;
+
+    @Override
+    public Map<String, Object> buildProps() {
+        return Map.of(
+                "name_len", name != null ? name.length() : 0,
+                "tracks_count", tracks != null ? tracks.size() : 0,
+                "university", university
+        );
+    }
 }
