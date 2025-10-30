@@ -3,7 +3,7 @@ package com.tavemakers.surf.domain.post.dto.req;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 
-@Schema(description = "일정 제목", example = "만남의 장")
+@Schema(description = "개별 일정(게시글과 연동 X)")
 public class ScheduleSingleCreateReqDto {
 
     @Schema(description = "일정 제목", example = "만남의 장")
