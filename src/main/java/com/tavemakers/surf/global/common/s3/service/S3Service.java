@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.Headers;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.tavemakers.surf.global.common.s3.dto.PreSignedUrlResponse;
+import com.tavemakers.surf.global.common.s3.exception.FileNameIsEmptyException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -29,9 +30,16 @@ public class S3Service {
     private String bucketName;
 
     public List<PreSignedUrlResponse> generatePreSignedUrlList(List<String> fileNames) {
+        validateFileName(fileNames);
         return fileNames.stream()
                 .map(this::generateSinglePutPreSignedUrl)
                 .toList();
+    }
+
+    private void validateFileName(List<String> fileNames) {
+        if(fileNames == null || fileNames.isEmpty()) {
+            throw new FileNameIsEmptyException();
+        }
     }
 
     public PreSignedUrlResponse generateSinglePutPreSignedUrl(String filename) {
