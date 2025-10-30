@@ -5,7 +5,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.Headers;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
-import com.tavemakers.surf.global.common.s3.dto.PreSignedUrlResponse;
+import com.tavemakers.surf.global.common.s3.dto.PreSignedUrlResDto;
 import com.tavemakers.surf.global.common.s3.exception.FileNameIsEmptyException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +29,7 @@ public class S3Service {
     @Value("${cloud.aws.bucket-name}")
     private String bucketName;
 
-    public List<PreSignedUrlResponse> generatePreSignedUrlList(List<String> fileNames) {
+    public List<PreSignedUrlResDto> generatePreSignedUrlList(List<String> fileNames) {
         validateFileName(fileNames);
         return fileNames.stream()
                 .map(this::generateSinglePutPreSignedUrl)
@@ -42,7 +42,7 @@ public class S3Service {
         }
     }
 
-    public PreSignedUrlResponse generateSinglePutPreSignedUrl(String filename) {
+    public PreSignedUrlResDto generateSinglePutPreSignedUrl(String filename) {
         String key = ORIGINAL_PATH + UUID.randomUUID() + "/" + filename;
         Date expiration = getExpiration();
 
@@ -50,7 +50,7 @@ public class S3Service {
                 getPostGeneratePresignedUrlRequest(key, expiration);
         URL url = s3Client.generatePresignedUrl(request);
 
-        return PreSignedUrlResponse.from(key, url.toString());
+        return PreSignedUrlResDto.from(key, url.toString());
     }
 
     private GeneratePresignedUrlRequest getPostGeneratePresignedUrlRequest(String fileName, Date expiration) {

@@ -3,12 +3,12 @@ package com.tavemakers.surf.global.common.s3.dto;
 import lombok.Builder;
 
 @Builder
-public record PreSignedUrlResponse(
+public record PreSignedUrlResDto(
         String key,
         String preSignedUrl
 ) {
-    public static PreSignedUrlResponse from(String key, String preSignedUrl) {
-        return PreSignedUrlResponse.builder()
+    public static PreSignedUrlResDto from(String key, String preSignedUrl) {
+        return PreSignedUrlResDto.builder()
                 .key(key)
                 .preSignedUrl(preSignedUrl)
                 .build();
