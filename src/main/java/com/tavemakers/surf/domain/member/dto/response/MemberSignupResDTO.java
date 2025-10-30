@@ -1,15 +1,17 @@
 package com.tavemakers.surf.domain.member.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import com.tavemakers.surf.global.logging.LogPropsProvider;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import com.tavemakers.surf.domain.member.entity.Member;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @AllArgsConstructor
-public class MemberSignupResDTO {
+public class MemberSignupResDTO implements LogPropsProvider{
 
     @Schema(description = "회원 ID", example = "1")
     private Long memberId;
@@ -50,6 +52,14 @@ public class MemberSignupResDTO {
                 member.getGraduateSchool(),
                 member.getEmail(),
                 member.getPhoneNumber()
+        );
+    }
+
+    @Override
+    public Map<String, Object> buildProps() {
+        return Map.of(
+                "member_id", memberId != null ? memberId : 0,
+                "email", email != null ? email : "unknown"
         );
     }
 }

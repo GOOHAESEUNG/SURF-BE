@@ -4,23 +4,29 @@ import com.tavemakers.surf.domain.login.AuthService;
 import com.tavemakers.surf.domain.login.kakao.config.KakaoOAuthProps;
 import com.tavemakers.surf.domain.login.kakao.dto.KakaoTokenResponseDto;
 import com.tavemakers.surf.domain.login.kakao.dto.KakaoUserInfoDto;
+import com.tavemakers.surf.global.logging.LogEvent;
+import com.tavemakers.surf.global.logging.LogParam;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.ClientResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import reactor.core.publisher.Mono;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, KakaoUserInfoDto> {
 
-    private final @Qualifier("kakaoAuthWebClient") WebClient kakaoAuthWebClient;
-    private final @Qualifier("kakaoApiWebClient")  WebClient kakaoApiWebClient;
+    private final @Qualifier("kakaoAuthRestTemplate") RestTemplate kakaoAuthRestTemplate;
+    private final @Qualifier("kakaoApiRestTemplate")  RestTemplate kakaoApiRestTemplate;
     private final KakaoOAuthProps props;
 
     @Override
@@ -29,68 +35,133 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
                 + "&client_id=" + props.getClientId()
                 + "&redirect_uri=" + props.getRedirectUri()
                 + "&scope=account_email profile_nickname profile_image";
-
     }
 
-
+    /** 인가 코드 → 토큰 교환 */
     @Override
-    public Mono<KakaoTokenResponseDto> exchangeCodeForToken(String code) {
-        var form = BodyInserters
-                .fromFormData("grant_type", "authorization_code")
-                .with("client_id", props.getClientId())
-                .with("redirect_uri", props.getRedirectUri())
-                .with("code", code);
+    public KakaoTokenResponseDto exchangeCodeForToken(String code) {
+        try {
+            String url = "https://kauth.kakao.com/oauth/token";
 
-        var secret = props.getClientSecret();
-        if (secret != null && !secret.isBlank()) {
-            form = form.with("client_secret", secret);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("grant_type", "authorization_code");
+            params.add("client_id", props.getClientId());
+            params.add("redirect_uri", props.getRedirectUri());
+            params.add("code", code);
+            if (props.getClientSecret() != null && !props.getClientSecret().isBlank()) {
+                params.add("client_secret", props.getClientSecret());
+            }
+
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+            ResponseEntity<KakaoTokenResponseDto> response =
+                    kakaoAuthRestTemplate.postForEntity(url, request, KakaoTokenResponseDto.class);
+
+            KakaoTokenResponseDto body = java.util.Optional.ofNullable(response.getBody())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Empty token response from Kakao"));
+            return body;
+
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            throw handleError(e, HttpStatus.BAD_REQUEST, "카카오 인증 요청 오류");
+        } catch (Exception e) {
+            throw handleError(e, HttpStatus.INTERNAL_SERVER_ERROR, "카카오 인증 요청 실패");
         }
-
-        return kakaoAuthWebClient.post()
-                .uri("/oauth/token")
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(form)
-                .retrieve()
-                .onStatus(s -> s.is4xxClientError(),
-                        resp -> handleError(resp, "카카오 인증 요청 오류"))
-                .onStatus(s -> s.is5xxServerError(),
-                        resp -> handleError(resp, "카카오 서버 오류"))
-                .bodyToMono(KakaoTokenResponseDto.class);
     }
 
+    /** AccessToken으로 사용자 정보 요청 */
     @Override
-    public Mono<Map<String, Object>> getAccessTokenInfo(String accessToken) {
-        return kakaoApiWebClient.get()
-                .uri("/v1/user/access_token_info")
-                .header("Authorization", "Bearer " + accessToken)
-                .retrieve()
-                .onStatus(s -> s.is4xxClientError(),
-                        resp -> handleError(resp, "잘못된 AccessToken"))
-                .onStatus(s -> s.is5xxServerError(),
-                        resp -> handleError(resp, "카카오 서버 오류"))
-                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {});
+    public KakaoUserInfoDto getUserInfo(String accessToken) {
+        try {
+            String url = "https://kapi.kakao.com/v2/user/me";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(accessToken);
+
+            HttpEntity<Void> request = new HttpEntity<>(headers);
+
+            ResponseEntity<KakaoUserInfoDto> response = kakaoApiRestTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    request,
+                    KakaoUserInfoDto.class
+            );
+
+            return response.getBody();
+
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            throw handleError(e, HttpStatus.BAD_REQUEST, "카카오 사용자 정보 요청 오류");
+        } catch (Exception e) {
+            throw handleError(e, HttpStatus.INTERNAL_SERVER_ERROR, "카카오 사용자 정보 요청 실패");
+        }
     }
 
+    /** AccessToken 유효성 검증 */
     @Override
-    public Mono<KakaoUserInfoDto> getUserInfo(String accessToken) {
-        return kakaoApiWebClient.get()
-                .uri("/v2/user/me")
-                .header("Authorization", "Bearer " + accessToken)
-                .retrieve()
-                .onStatus(s -> s.is4xxClientError(),
-                        resp -> handleError(resp, "카카오 사용자 정보 요청 오류"))
-                .onStatus(s -> s.is5xxServerError(),
-                        resp -> handleError(resp, "카카오 서버 오류"))
-                .bodyToMono(KakaoUserInfoDto.class);
+    public Map<String, Object> getAccessTokenInfo(String accessToken) {
+        try {
+            String url = "https://kapi.kakao.com/v1/user/access_token_info";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(accessToken);
+
+            HttpEntity<Void> request = new HttpEntity<>(headers);
+
+            ResponseEntity<Map> response = kakaoApiRestTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    request,
+                    Map.class
+            );
+
+            return response.getBody();
+
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            throw handleError(e, HttpStatus.BAD_REQUEST, "AccessToken 검증 실패");
+        } catch (Exception e) {
+            throw handleError(e, HttpStatus.INTERNAL_SERVER_ERROR, "AccessToken 검증 중 서버 오류");
+        }
     }
 
-    /**
-     * 공통 에러 처리 메서드
-     */
-    private Mono<Throwable> handleError(ClientResponse resp, String message) {
-        return resp.bodyToMono(String.class)
-                .flatMap(errorBody -> Mono.error(
-                        new org.springframework.web.server.ResponseStatusException(
-                                resp.statusCode(), message + ": " + errorBody)));
+    /** 로그인 관련 공통 에러 처리 및 로그 기록 */
+    protected ResponseStatusException handleError(Exception ex, HttpStatus status, String message) {
+        log.error("{}: {}", message, ex.getMessage(), ex);
+        return new ResponseStatusException(status, message, ex);
+    }
+
+    // 카카오 인가 요청 로그
+    @Override
+    @LogEvent("login.kakao.request")
+    public void logAuthorize(
+            @LogParam("login_method") String loginMethod,
+            @LogParam("redirect_uri") String redirectUri
+    ) {}
+
+    // 카카오 콜백 로그
+    @Override
+    @LogEvent("login.kakao.callback")
+    public void logCallback(
+            @LogParam("provider") String provider,
+            @LogParam("code_length") int codeLength
+    ) {}
+
+    // 로그인 성공 로그
+    @Override
+    @LogEvent("login.succeeded")
+    public void logLoginSuccess(
+            @LogParam("user_id") Long userId,
+            @LogParam("issued_token") String issuedToken
+    ) {}
+
+    // 로그인 실패 로그
+    @Override
+    @LogEvent("login.failed")
+    public void logLoginFailed(
+            @LogParam("error_code") int errorCode,
+            @LogParam("error_msg") String errorMsg
+    ) {
+        throw new IllegalStateException(errorMsg);
     }
 }
