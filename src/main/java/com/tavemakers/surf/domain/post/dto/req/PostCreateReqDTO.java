@@ -2,6 +2,7 @@ package com.tavemakers.surf.domain.post.dto.req;
 
 import com.tavemakers.surf.global.logging.LogPropsProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -24,6 +25,7 @@ public record PostCreateReqDTO(
         Boolean pinned,
 
         @Schema(description = "예약 시간", example = "2025-10-29T00:00:00")
+        @Future(message = "예약 시간은 현재 이후여야 합니다")
         LocalDateTime reservedAt
 
 ) implements LogPropsProvider {
