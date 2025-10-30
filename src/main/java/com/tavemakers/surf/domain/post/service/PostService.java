@@ -3,6 +3,9 @@ package com.tavemakers.surf.domain.post.service;
 import com.tavemakers.surf.domain.board.entity.Board;
 import com.tavemakers.surf.domain.board.entity.BoardCategory;
 import com.tavemakers.surf.domain.board.exception.BoardNotFoundException;
+import com.tavemakers.surf.domain.board.exception.CategoryNotFoundException;
+import com.tavemakers.surf.domain.board.exception.CategoryRequiredException;
+import com.tavemakers.surf.domain.board.exception.InvalidCategoryMappingException;
 import com.tavemakers.surf.domain.board.repository.BoardCategoryRepository;
 import com.tavemakers.surf.domain.board.repository.BoardRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
@@ -130,12 +133,12 @@ public class PostService {
 
     private BoardCategory resolveCategory(Board board, Long categoryId) {
         if (categoryId == null) {
-            throw new IllegalArgumentException("카테고리는 필수입니다.");
+            throw new CategoryRequiredException();
         }
         BoardCategory category = boardCategoryRepository.findById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다."));
+                .orElseThrow(CategoryNotFoundException::new);
         if (!category.getBoard().getId().equals(board.getId())) {
-            throw new IllegalArgumentException("카테고리가 해당 보드에 속하지 않습니다.");
+            throw new InvalidCategoryMappingException();
         }
         return category;
     }
