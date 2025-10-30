@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class S3Controller {
 
-    private S3Service s3Service;
+    private final S3Service s3Service;
 
     @PostMapping("/v1/user/presigned-url")
     public ApiResponse<List<PreSignedUrlResponse>> generatePutPreSignedUrlList(
