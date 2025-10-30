@@ -50,10 +50,12 @@ public class Post extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;
+    private String boardName;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "category_id", nullable = false)
     private BoardCategory category;
+    private String categoryName;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", nullable = false)
@@ -69,7 +71,9 @@ public class Post extends BaseEntity {
         this.commentCount = commentCount;
         this.postedAt = postedAt;
         this.board = board;
+        this.boardName = board.getName();
         this.category = category;
+        this.categoryName = category.getName();
         this.member = member;
     }
 
@@ -93,9 +97,25 @@ public class Post extends BaseEntity {
         this.content = req.content();
         this.pinned = req.pinned() != null ? req.pinned() : this.pinned;
         this.board = board;
+        this.boardName = board.getName();
         this.category = category;
+        this.categoryName = category.getName();
     }
 
     public void increaseCommentCount() { this.commentCount++; }
     public void decreaseCommentCount() { if (this.commentCount > 0) this.commentCount--; }
+
+    @PrePersist
+    void syncNamesOnInsert() {
+        // INSERT 전에 한 번 더 동기화 (NPE 방지)
+        if (board != null) this.boardName = board.getName();
+        if (category != null) this.categoryName = category.getName();
+    }
+
+    @PreUpdate
+    void syncNamesOnUpdate() {
+        // UPDATE 직전에 항상 최신 이름으로 갱신
+        if (board != null) this.boardName = board.getName();
+        if (category != null) this.categoryName = category.getName();
+    }
 }

@@ -14,7 +14,7 @@ public record PostCreateReqDTO(
         @NotNull Long boardId,
 
         @Schema(description = "세부 카테고리 ID", example = "2")
-        Long categoryId,
+        @NotNull Long categoryId,
 
         @Schema(description = "게시글 제목", example = "만남의 장 공지사항")
         @NotBlank String title,
