@@ -31,4 +31,7 @@ public class PostImageUrl extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
+
+    private Long sequence;
+
 }
