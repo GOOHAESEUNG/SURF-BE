@@ -149,8 +149,7 @@ public class MemberUsecase {
     @Transactional
     public MemberSignupResDTO signup(
             Long memberId,
-            MemberSignupReqDTO request,
-            String requestId
+            MemberSignupReqDTO request
     ) {
         Member member = memberGetService.getMember(memberId);
         MemberStatus status = member.getStatus();
@@ -165,7 +164,11 @@ public class MemberUsecase {
         if (status == MemberStatus.REJECTED) {
             int statusCode = 403;
             String errorReason = "ADMIN_REJECTED";
-            return proxy.signupFailed(memberId, statusCode, errorReason);
+
+            try {
+                proxy.signupFailed(memberId, statusCode, errorReason);
+            } catch (RuntimeException ignored) {}
+            return MemberSignupResDTO.from(member);
         }
 
         return proxy.signupCreate(member, request);
@@ -183,11 +186,10 @@ public class MemberUsecase {
     @Transactional
     @LogEvent(value = "signup.succeeded", message = "회원가입 성공")
     public MemberSignupResDTO signupSucceeded(
-            Long memberId,
+            @LogParam("member_id") Long memberId,
             MemberSignupResDTO response
     ) {
-        Member member = memberGetService.getMember(memberId);
-        return MemberSignupResDTO.from(member);
+        return response;
     }
 
     /** 회원가입 실패 */
