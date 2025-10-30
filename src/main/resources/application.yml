@@ -52,3 +52,4 @@ cloud:
       secret-key: ${AWS_S3_IAM_SECRET_KEY}
     region:
       static: ${AWS_REGION}
+    bucket-name: ${AWS_BUCKET_NAME}
