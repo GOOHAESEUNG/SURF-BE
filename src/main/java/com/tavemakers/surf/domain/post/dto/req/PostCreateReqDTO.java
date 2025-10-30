@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Schema(description = "게시글 생성 요청 DTO")
@@ -20,7 +21,11 @@ public record PostCreateReqDTO(
         @NotBlank String content,
 
         @Schema(description = "게시글 상단 고정 여부", example = "true")
-        Boolean pinned
+        Boolean pinned,
+
+        @Schema(description = "예약 시간", example = "2025-10-29T00:00:00")
+        LocalDateTime reservedAt
+
 ) implements LogPropsProvider {
 
         @Override
@@ -30,4 +35,9 @@ public record PostCreateReqDTO(
                         "title_length", title != null ? title.length() : 0
                 );
         }
+
+        public boolean isReserved() {
+                return reservedAt != null;
+        }
+
 }
