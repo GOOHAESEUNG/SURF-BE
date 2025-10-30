@@ -92,6 +92,15 @@ public class PostService {
         return slice.map(p -> toRes(p, flags.scrappedIds, flags.likedIds));
     }
 
+    @Transactional(readOnly = true)
+    public Slice<PostResDTO> getPostsByBoardAndCategory(Long boardId, Long categoryId, Long viewerId, Pageable pageable) {
+        Board board = boardRepository.findById(boardId).orElseThrow(BoardNotFoundException::new);
+        resolveCategory(board, categoryId);
+        Slice<Post> slice = postRepository.findByBoardIdAndCategoryId(boardId, categoryId, pageable);
+        Flags f = resolveFlags(viewerId, slice);
+        return slice.map(p -> toRes(p, f.scrappedIds, f.likedIds));
+    }
+
     @Transactional
     @LogEvent(value = "post.update", message = "게시글 수정 성공")
     public PostResDTO updatePost(
