@@ -1,8 +1,7 @@
 package com.tavemakers.surf.domain.reservation.task;
 
 import com.tavemakers.surf.domain.post.entity.Post;
-import com.tavemakers.surf.domain.post.exception.PostAlreadyDeleteException;
-import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
+import com.tavemakers.surf.domain.post.exception.PostAlreadyDeletedException;
 import com.tavemakers.surf.domain.post.service.PostGetService;
 import com.tavemakers.surf.domain.reservation.entity.Reservation;
 import com.tavemakers.surf.domain.reservation.exception.ReservationCanceledException;
@@ -20,7 +19,7 @@ public class PostPublishRunner {
     private final ReservationGetService reservationGetService;
     private final PostGetService postGetService;
 
-    @Transactional(noRollbackFor = PostAlreadyDeleteException.class)
+    @Transactional(noRollbackFor = PostAlreadyDeletedException.class)
     public void publishPost(Long reservationId) {
         Reservation reservation = reservationGetService.getReservationById(reservationId);
         validateReservation(reservation);
@@ -36,7 +35,7 @@ public class PostPublishRunner {
     private void cancelReservationIfPostDeleted(Post post, Reservation reservation) {
         if(post == null) {
             reservation.cancel();
-            throw new PostAlreadyDeleteException();
+            throw new PostAlreadyDeletedException();
         }
     }
 
