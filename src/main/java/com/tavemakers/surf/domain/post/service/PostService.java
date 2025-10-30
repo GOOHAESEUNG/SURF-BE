@@ -1,7 +1,9 @@
 package com.tavemakers.surf.domain.post.service;
 
 import com.tavemakers.surf.domain.board.entity.Board;
+import com.tavemakers.surf.domain.board.entity.BoardCategory;
 import com.tavemakers.surf.domain.board.exception.BoardNotFoundException;
+import com.tavemakers.surf.domain.board.repository.BoardCategoryRepository;
 import com.tavemakers.surf.domain.board.repository.BoardRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
@@ -30,6 +32,7 @@ public class PostService {
     private final BoardRepository boardRepository;
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final BoardCategoryRepository boardCategoryRepository;
 
     private final ScrapService scrapService;
     private final PostLikeService postLikeService;
@@ -41,7 +44,10 @@ public class PostService {
                 .orElseThrow(BoardNotFoundException::new);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
-        Post post = Post.of(req, board, member);
+
+        BoardCategory category = resolveCategory(board, req.categoryId());
+
+        Post post = Post.of(req, board, category, member);
         Post saved = postRepository.save(post);
         return PostResDTO.from(saved, false, false);
     }
@@ -95,7 +101,13 @@ public class PostService {
             PostUpdateReqDTO req, Long viewerId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
-        post.update(req, post.getBoard());
+
+        BoardCategory newCategory = (req.categoryId() != null)
+                ? resolveCategory(post.getBoard(), req.categoryId())
+                : post.getCategory();
+
+        post.update(req, post.getBoard(), newCategory);
+
         boolean scrappedByMe = scrapService.isScrappedByMe(viewerId, postId);
         boolean likedByMe = postLikeService.isLikedByMe(viewerId, postId);
         return PostResDTO.from(post, scrappedByMe, likedByMe);
@@ -107,5 +119,17 @@ public class PostService {
             @LogParam("post_id") Long postId) {
         if (!postRepository.existsById(postId)) throw new PostNotFoundException();
         postRepository.deleteById(postId);
+    }
+
+    private BoardCategory resolveCategory(Board board, Long categoryId) {
+        if (categoryId == null) {
+            throw new IllegalArgumentException("카테고리는 필수입니다.");
+        }
+        BoardCategory category = boardCategoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 카테고리입니다."));
+        if (!category.getBoard().getId().equals(board.getId())) {
+            throw new IllegalArgumentException("카테고리가 해당 보드에 속하지 않습니다.");
+        }
+        return category;
     }
 }

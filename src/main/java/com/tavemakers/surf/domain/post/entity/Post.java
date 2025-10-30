@@ -60,7 +60,7 @@ public class Post extends BaseEntity {
     private Member member;
 
     @Builder
-    private Post(String title, String content, boolean pinned, long scrapCount, long likeCount, long commentCount, LocalDateTime postedAt, Board board, Member member) {
+    private Post(String title, String content, boolean pinned, long scrapCount, long likeCount, long commentCount, LocalDateTime postedAt, Board board, BoardCategory category, Member member) {
         this.title = title;
         this.content = content;
         this.pinned = pinned;
@@ -69,16 +69,18 @@ public class Post extends BaseEntity {
         this.commentCount = commentCount;
         this.postedAt = postedAt;
         this.board = board;
+        this.category = category;
         this.member = member;
     }
 
-    public static Post of(PostCreateReqDTO req, Board board, Member member) {
+    public static Post of(PostCreateReqDTO req, Board board, BoardCategory category, Member member) {
         return Post.builder()
                 .title(req.title())
                 .content(req.content())
                 .pinned(req.pinned() != null ? req.pinned() : false)
                 .postedAt(LocalDateTime.now())
                 .board(board)
+                .category(category)
                 .member(member)
                 .scrapCount(0L)
                 .likeCount(0L)
@@ -86,11 +88,12 @@ public class Post extends BaseEntity {
                 .build();
     }
 
-    public void update(PostUpdateReqDTO req, Board board) {
+    public void update(PostUpdateReqDTO req, Board board, BoardCategory category) {
         this.title = req.title();
         this.content = req.content();
         this.pinned = req.pinned() != null ? req.pinned() : this.pinned;
         this.board = board;
+        this.category = category;
     }
 
     public void increaseCommentCount() { this.commentCount++; }
