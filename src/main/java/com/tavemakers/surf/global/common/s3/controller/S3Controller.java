@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static com.tavemakers.surf.global.common.s3.controller.ResponseMessage.PRE_SIGNED_URL_GENERATED;
+
 @RestController
 @RequiredArgsConstructor
 public class S3Controller {
@@ -23,7 +25,7 @@ public class S3Controller {
             @RequestBody PreSignedUrlRequestDto dto
     ) {
         List<PreSignedUrlResponse> response = s3Service.generatePreSignedUrlList(dto.fileNames());
-        return ApiResponse.response(HttpStatus.OK, "", response);
+        return ApiResponse.response(HttpStatus.OK, PRE_SIGNED_URL_GENERATED.getMessage(), response);
     }
 
 }
