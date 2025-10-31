@@ -33,4 +33,12 @@ public class PostImageUrl extends BaseEntity {
 
     private Integer sequence;
 
+    public static PostImageUrl of(Post post, PostImageCreateReqDTO dto) {
+        return PostImageUrl.builder()
+                .post(post)
+                .originalUrl(dto.originalUrl())
+                .sequence(dto.sequence())
+                .build();
+    }
+
 }
