@@ -2,10 +2,12 @@ package com.tavemakers.surf.domain.post.dto.res;
 
 import com.tavemakers.surf.domain.post.entity.Post;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
 @Schema(description = "게시글 응답 DTO")
+@Builder
 public record PostResDTO(
 
         @Schema(description = "게시글 ID", example = "1")
@@ -43,21 +45,23 @@ public record PostResDTO(
 
         @Schema(description = "게시글 작성자 닉네임", example = "홍길동")
         String nickname
+
 ) {
     public static PostResDTO from(Post post, boolean scrappedByMe, boolean likedByMe) {
-        return new PostResDTO(
-                post.getId(),
-                post.getTitle(),
-                post.getContent(),
-                post.isPinned(),
-                post.getPostedAt(),
-                post.getBoard().getId(),
-                scrappedByMe,
-                post.getScrapCount(),
-                likedByMe,
-                post.getLikeCount(),
-                post.getCommentCount(),
-                post.getMember().getName()
-        );
+        return PostResDTO.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .pinned(post.isPinned())
+                .postedAt(post.getPostedAt())
+                .boardId(post.getBoard().getId())
+                .scrappedByMe(scrappedByMe)
+                .scrapCount(post.getScrapCount())
+                .likedByMe(likedByMe)
+                .likeCount(post.getLikeCount())
+                .commentCount(post.getCommentCount())
+                .nickname(post.getMember().getName())
+                .nickname(post.getMember().getName())
+                .build();
     }
 }
