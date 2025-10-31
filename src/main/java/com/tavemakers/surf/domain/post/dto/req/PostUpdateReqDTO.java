@@ -18,7 +18,13 @@ public record PostUpdateReqDTO(
         @NotBlank String content,
 
         @Schema(description = "게시글 상단 고정 여부", example = "true")
-        Boolean pinned
+        Boolean pinned,
+
+        Boolean isImageChanged,
+
+        @Schema(description = "게시글 이미지")
+        List<PostImageCreateReqDTO> imageUrlList
+
 ) implements LogPropsProvider {
 
         @Override
@@ -30,4 +36,9 @@ public record PostUpdateReqDTO(
 
                 return Map.of("changed_fields", changedFields);
         }
+
+        public Boolean isImageChanged() {
+                return isImageChanged;
+        }
+
 }
