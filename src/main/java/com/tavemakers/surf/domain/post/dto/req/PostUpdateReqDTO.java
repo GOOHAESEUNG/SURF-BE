@@ -20,6 +20,7 @@ public record PostUpdateReqDTO(
         @Schema(description = "게시글 상단 고정 여부", example = "true")
         Boolean pinned,
 
+        @Schema(description = "이미지 변경 여부", example = "true")
         Boolean isImageChanged,
 
         @Schema(description = "게시글 이미지")
