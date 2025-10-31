@@ -63,7 +63,6 @@ public record PostDetailResDTO(
                 .commentCount(post.getCommentCount())
                 .nickname(post.getMember().getName())
                 .imageUrlList(imageUrlList)
-                .nickname(post.getMember().getName())
                 .build();
     }
 }

@@ -61,7 +61,6 @@ public record PostResDTO(
                 .likeCount(post.getLikeCount())
                 .commentCount(post.getCommentCount())
                 .nickname(post.getMember().getName())
-                .nickname(post.getMember().getName())
                 .build();
     }
 }
