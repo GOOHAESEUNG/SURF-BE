@@ -20,6 +20,10 @@ public class PostImageSaveService {
 
     @Transactional
     public List<PostImageResDTO> saveAll(Post post, List<PostImageCreateReqDTO> dto) {
+        if (dto == null || dto.isEmpty()) {
+            return List.of();
+        }
+
         List<PostImageUrl> imageUrlList = dto.stream()
                 .map(url -> PostImageUrl.of(post, url))
                 .toList();
