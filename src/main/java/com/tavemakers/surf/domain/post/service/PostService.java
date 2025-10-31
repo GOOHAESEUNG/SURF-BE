@@ -59,14 +59,14 @@ public class PostService {
             reservationUsecase.reservePost(saved.getId(), req.reservedAt());
         }
 
-        List<PostImageResDTO> imageUrlResponseList = null;
         if (req.hasImage()) {
             List<PostImageCreateReqDTO> imageUrlList = req.imageUrlList();
-            saved.addThumbnailUrl(req.imageUrlList().get(0).originalUrl());
-            imageUrlResponseList = imageSaveService.saveAll(saved, imageUrlList);
+            saved.addThumbnailUrl(findFirstImage(imageUrlList));
+            List<PostImageResDTO> imageUrlResponseList = imageSaveService.saveAll(saved, imageUrlList);
+            return PostDetailResDTO.of(saved, false, false, imageUrlResponseList);
         }
 
-        return PostDetailResDTO.of(saved, false, false, imageUrlResponseList);
+        return PostDetailResDTO.of(saved, false, false, null);
     }
 
     @Transactional(readOnly = true)
