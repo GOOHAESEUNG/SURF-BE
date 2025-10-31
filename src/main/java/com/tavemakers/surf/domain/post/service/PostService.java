@@ -14,6 +14,7 @@ import com.tavemakers.surf.domain.post.dto.res.PostImageResDTO;
 import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.entity.PostImageUrl;
+import com.tavemakers.surf.domain.post.exception.PostImageListEmptyException;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
 import com.tavemakers.surf.domain.reservation.usecase.ReservationUsecase;
@@ -163,6 +164,10 @@ public class PostService {
     }
 
     private String findFirstImage(List<PostImageCreateReqDTO> dto) {
+        if (dto == null || dto.isEmpty()) {
+            throw new PostImageListEmptyException();
+        }
+
         PostImageCreateReqDTO postImageCreateReqDTO = dto.stream()
                 .min(Comparator.comparing(PostImageCreateReqDTO::sequence))
                 .orElse(dto.get(0));
