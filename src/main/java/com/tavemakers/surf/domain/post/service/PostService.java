@@ -127,7 +127,7 @@ public class PostService {
 
         // 이미지 변경
         if (req.isImageChanged()) {
-            deleleExistingImage(post);
+            deleteExistingImage(post);
             List<PostImageCreateReqDTO> changeImage = req.imageUrlList();
             post.addThumbnailUrl(findFirstImage(changeImage));
             List<PostImageResDTO> savedChangedImage = imageSaveService.saveAll(post, changeImage);
@@ -138,7 +138,7 @@ public class PostService {
         return PostDetailResDTO.of(post, scrappedByMe, likedByMe, imageDtoList);
     }
 
-    private void deleleExistingImage(Post post) {
+    private void deleteExistingImage(Post post) {
         List<PostImageUrl> beforeImage = imageGetService.getPostImageUrls(post.getId());
         imageDeleteService.deleteAll(beforeImage);
     }
