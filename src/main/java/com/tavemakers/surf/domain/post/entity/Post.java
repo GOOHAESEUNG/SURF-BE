@@ -92,7 +92,7 @@ public class Post extends BaseEntity {
     }
 
     public void addThumbnailUrl(String originalUrl) {
-        this.thumbnailUrl = originalUrl.replaceFirst("original", "thumbnail");
+        this.thumbnailUrl = originalUrl.replace("/original/", "/thumbnail/");
     }
 
 }
