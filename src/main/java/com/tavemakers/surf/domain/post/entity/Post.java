@@ -33,6 +33,7 @@ public class Post extends BaseEntity {
 
     private LocalDateTime postedAt;
 
+    @Column(length = 500)
     private String thumbnailUrl;
 
     private boolean pinned; // 상단 고정
