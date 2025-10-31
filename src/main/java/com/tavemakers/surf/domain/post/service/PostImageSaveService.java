@@ -7,6 +7,7 @@ import com.tavemakers.surf.domain.post.entity.PostImageUrl;
 import com.tavemakers.surf.domain.post.repository.PostImageUrlRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
@@ -17,6 +18,7 @@ public class PostImageSaveService {
 
     private final PostImageUrlRepository repository;
 
+    @Transactional
     public List<PostImageResDTO> saveAll(Post post, List<PostImageCreateReqDTO> dto) {
         List<PostImageUrl> imageUrlList = dto.stream()
                 .map(url -> PostImageUrl.of(post, url))
