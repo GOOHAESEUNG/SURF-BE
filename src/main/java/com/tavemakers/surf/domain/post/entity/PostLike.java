@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class PostLike extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "postLike_id")
+    @Column(name = "post_like_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
