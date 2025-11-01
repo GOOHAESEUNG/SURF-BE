@@ -1,6 +1,6 @@
 package com.tavemakers.surf.domain.post.service;
 
-import com.tavemakers.surf.domain.post.dto.req.ScheduleCreateReqDto;
+import com.tavemakers.surf.domain.post.dto.req.ScheduleCreateReqDTO;
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.entity.Schedule;
 import com.tavemakers.surf.domain.post.repository.ScheduleRepository;
@@ -14,13 +14,13 @@ public class SchedulePostService {
     private final ScheduleRepository scheduleRepository;
 
     @Transactional
-    public Schedule createScheduleAtPost(ScheduleCreateReqDto dto, Post post) {
+    public Schedule createScheduleAtPost(ScheduleCreateReqDTO dto, Post post) {
         Schedule schedule = Schedule.of(dto, post);
         return scheduleRepository.save(schedule);
     }
 
     @Transactional
-    public Schedule createScheduleSingle(ScheduleCreateReqDto dto) {
+    public Schedule createScheduleSingle(ScheduleCreateReqDTO dto) {
         Schedule schedule = Schedule.of(dto);
         return scheduleRepository.save(schedule);
     }

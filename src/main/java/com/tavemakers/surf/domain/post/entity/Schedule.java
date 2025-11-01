@@ -1,6 +1,6 @@
 package com.tavemakers.surf.domain.post.entity;
 
-import com.tavemakers.surf.domain.post.dto.req.ScheduleCreateReqDto;
+import com.tavemakers.surf.domain.post.dto.req.ScheduleCreateReqDTO;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -45,7 +45,7 @@ public class Schedule extends BaseEntity {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    public static Schedule of(ScheduleCreateReqDto dto) {
+    public static Schedule of(ScheduleCreateReqDTO dto) {
         return Schedule.builder()
                 .title(dto.title())
                 .content(dto.content())
@@ -55,7 +55,7 @@ public class Schedule extends BaseEntity {
                 .build();
     }
 
-    public static Schedule of(ScheduleCreateReqDto dto, Post post) {
+    public static Schedule of(ScheduleCreateReqDTO dto, Post post) {
         return Schedule.builder()
                 .title(dto.title())
                 .content(dto.content())
