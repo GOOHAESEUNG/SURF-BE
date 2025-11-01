@@ -12,6 +12,7 @@ import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
+import com.tavemakers.surf.domain.reservation.usecase.ReservationUsecase;
 import com.tavemakers.surf.domain.scrap.service.ScrapService;
 import com.tavemakers.surf.global.logging.LogEvent;
 import com.tavemakers.surf.global.logging.LogParam;
@@ -30,9 +31,9 @@ public class PostService {
     private final BoardRepository boardRepository;
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
-
     private final ScrapService scrapService;
     private final PostLikeService postLikeService;
+    private final ReservationUsecase reservationUsecase;
 
     @Transactional
     @LogEvent(value= "post.create", message= "게시글 생성 성공")
@@ -43,6 +44,11 @@ public class PostService {
                 .orElseThrow(MemberNotFoundException::new);
         Post post = Post.of(req, board, member);
         Post saved = postRepository.save(post);
+
+        if (req.isReserved()) {
+            reservationUsecase.reservePost(saved.getId(), req.reservedAt());
+        }
+
         return PostResDTO.from(saved, false, false);
     }
 
