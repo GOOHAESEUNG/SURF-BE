@@ -4,6 +4,7 @@ import com.tavemakers.surf.global.logging.LogPropsProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,12 @@ public record PostUpdateReqDTO(
 
         @Schema(description = "게시글 상단 고정 여부", example = "true")
         Boolean pinned,
+
+        @Schema(description = "게시 예약 시간 변경 여부")
+        Boolean isReservationChanged,
+
+        @Schema(description = "변경된 예약 시간")
+        LocalDateTime reservedAt,
 
         @Schema(description = "이미지 변경 여부", example = "true")
         Boolean isImageChanged,
@@ -40,6 +47,10 @@ public record PostUpdateReqDTO(
 
         public Boolean isImageChanged() {
                 return isImageChanged;
+        }
+
+        public Boolean isReservationChanged() {
+                return isReservationChanged;
         }
 
 }
