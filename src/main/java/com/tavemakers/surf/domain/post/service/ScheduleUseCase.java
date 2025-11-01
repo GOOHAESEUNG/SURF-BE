@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class SchduleUseCase {
+public class ScheduleUseCase {
 
     private final SchedulePostService schedulePostService;
     private final PostService postService;
