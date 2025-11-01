@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -31,8 +32,10 @@ public class ScheduleGetController {
     @Operation(summary = "캘린더에 월별 일정 목록 조회", description = "캘린더 페이지에서 월별 일정을 조회합니다.")
     @GetMapping("/v1/user/calendar/schedules")
     public ApiResponse<ScheduleMonthlyResDTO> createScheduleAtPost(
-            @Parameter int year, @Parameter int month) {
+            @RequestParam @Parameter int year, @RequestParam @Parameter int month) {
         ScheduleMonthlyResDTO dto = scheduleGetService.getScheduleMonthly(year, month);
         return ApiResponse.response(HttpStatus.OK, SCHEDULE_CALENDAR_READ.getMessage(),dto);
     }
+
+
 }
