@@ -108,4 +108,10 @@ public class PostService {
         if (!postRepository.existsById(postId)) throw new PostNotFoundException();
         postRepository.deleteById(postId);
     }
+
+    @Transactional(readOnly = true)
+    public Post findPostById(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow((PostNotFoundException::new));
+    }
 }

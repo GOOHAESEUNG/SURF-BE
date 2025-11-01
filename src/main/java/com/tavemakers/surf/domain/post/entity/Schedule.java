@@ -42,8 +42,18 @@ public class Schedule extends BaseEntity {
     private String location;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
+    @JoinColumn(name = "post_id")
     private Post post;
+
+    public static Schedule of(ScheduleCreateReqDto dto) {
+        return Schedule.builder()
+                .title(dto.title())
+                .content(dto.content())
+                .startAt(dto.startAt())
+                .endAt(dto.endAt())
+                .location(dto.location())
+                .build();
+    }
 
     public static Schedule of(ScheduleCreateReqDto dto, Post post) {
         return Schedule.builder()
