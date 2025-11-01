@@ -1,5 +1,6 @@
 package com.tavemakers.surf.domain.post.service;
 
+import com.tavemakers.surf.domain.post.dto.req.ScheduleCreateReqDto;
 import com.tavemakers.surf.domain.post.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,8 @@ public class SchedulePostService {
     private final ScheduleRepository scheduleRepository;
 
     @Transactional
-    public void createSchedule(){
+    public void createSchedule(ScheduleCreateReqDto dto) {
+
 
     }
 }
