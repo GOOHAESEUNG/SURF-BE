@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping
-@Tag(name = "일정", description = "일정 생성 관련 API")
-public class ScheduleController {
+@Tag(name = "일정 생성", description = "일정 생성 관련 API")
+public class SchedulePostController {
     private final ScheduleUseCase scheduleUseCase;
 
     @Operation(summary = "게시글 작성 시 일정 생성", description = "공지사항 게시글 작성시 일정을 생성합니다.")

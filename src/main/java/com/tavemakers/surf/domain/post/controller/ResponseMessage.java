@@ -19,7 +19,8 @@ public enum ResponseMessage {
     POST_LIKE_CREATED("[게시글] 좋아요가 성공적으로 추가되었습니다."),
     POST_LIKE_DELETED("[게시글] 좋아요가 성공적으로 취소되었습니다."),
 
-    SCHEDULE_CREATED("[일정]이 성공적으로 생성되었습니다");
+    SCHEDULE_CREATED("[일정]이 성공적으로 생성되었습니다"),
+    SCHEDULE_CALENDAR_READ("[일정]이 성공적으로 월별 조회되었습니다.");
 
     private final String message;
 
