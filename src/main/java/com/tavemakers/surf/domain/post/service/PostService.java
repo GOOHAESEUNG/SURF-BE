@@ -125,6 +125,9 @@ public class PostService {
         boolean likedByMe = postLikeService.isLikedByMe(viewerId, postId);
 
         // 예약 시간 변경 시 -> 기존의 예약 시간 조회 -> 기존의 예약 시간을 CANCELD로 수정하고 schedule 호출하면 끝.
+        if (req.isReservationChanged()) {
+            reservationUsecase.updateReservationPost(post.getId(), req.reservedAt());
+        }
 
         // 이미지 변경
         if (req.isImageChanged()) {
