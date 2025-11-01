@@ -32,7 +32,9 @@ public class ReservationUsecase {
     @Transactional
     public void updateReservationPost(Long postId, LocalDateTime changedAt) {
         Reservation existed = reservationGetService.findByPostIdAndStatus(postId);
-        existed.cancel();
+        if(existed != null) {
+            existed.cancel();
+        }
 
         Instant publishAt = toInstant(changedAt);
         Reservation reservation = Reservation.of(postId, publishAt);

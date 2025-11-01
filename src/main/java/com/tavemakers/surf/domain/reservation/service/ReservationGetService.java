@@ -26,7 +26,7 @@ public class ReservationGetService {
 
     public Reservation findByPostIdAndStatus(Long postId) {
         return reservationRepository.findByPostIdAndStatus(postId, ReservationStatus.RESERVED)
-                .orElseThrow(ReservationNotFoundException::new);
+                .orElse(null);
     }
 
 }
