@@ -25,9 +25,17 @@ public class ScheduleController {
 
     @Operation(summary = "게시글 작성 시 일정 생성", description = "공지사항 게시글 작성시 일정을 생성합니다.")
     @PostMapping("/v1/admin/posts/{postId}/schedules")
-    public ApiResponse createScheduleAtPost(
+    public ApiResponse<Void> createScheduleAtPost(
             @PathVariable Long postId, @RequestBody @Valid ScheduleCreateReqDto dto) {
         scheduleUseCase.createScheduleAtPost(dto, postId);
+        return ApiResponse.response(HttpStatus.CREATED, SCHEDULE_CREATED.getMessage(),null);
+    }
+
+    @Operation(summary = "개별 일정 생성", description = "캘린더에서 일정을 생성합니다.")
+    @PostMapping("/v1/admin/calendar/schedules")
+    public ApiResponse<Void> createScheduleAtCalendar(
+         @RequestBody @Valid ScheduleCreateReqDto dto) {
+        scheduleUseCase.createScheduleSingle(dto);
         return ApiResponse.response(HttpStatus.CREATED, SCHEDULE_CREATED.getMessage(),null);
     }
 }
