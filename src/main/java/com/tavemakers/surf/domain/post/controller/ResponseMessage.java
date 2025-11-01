@@ -1,6 +1,5 @@
 package com.tavemakers.surf.domain.post.controller;
 
-import com.tavemakers.surf.domain.post.entity.Schedule;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

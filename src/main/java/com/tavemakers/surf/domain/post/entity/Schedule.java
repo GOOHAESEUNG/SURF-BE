@@ -1,6 +1,9 @@
 package com.tavemakers.surf.domain.post.entity;
 
+import static com.tavemakers.surf.domain.post.exception.ErrorMessage.SCHEDULE_TIME_ERROR;
+
 import com.tavemakers.surf.domain.post.dto.req.ScheduleCreateReqDTO;
+import com.tavemakers.surf.domain.post.exception.ScheduleTimeException;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -46,6 +49,7 @@ public class Schedule extends BaseEntity {
     private Post post;
 
     public static Schedule of(ScheduleCreateReqDTO dto) {
+        validateScheduleTime(dto.startAt(), dto.endAt());
         return Schedule.builder()
                 .title(dto.title())
                 .content(dto.content())
@@ -56,6 +60,7 @@ public class Schedule extends BaseEntity {
     }
 
     public static Schedule of(ScheduleCreateReqDTO dto, Post post) {
+        validateScheduleTime(dto.startAt(), dto.endAt());
         return Schedule.builder()
                 .title(dto.title())
                 .content(dto.content())
@@ -64,6 +69,12 @@ public class Schedule extends BaseEntity {
                 .location(dto.location())
                 .post(post)
                 .build();
+    }
+
+    private static void validateScheduleTime(LocalDateTime startAt, LocalDateTime endAt) {
+        if (startAt.isAfter(endAt)) {
+            throw new ScheduleTimeException();
+        }
     }
 }
 
