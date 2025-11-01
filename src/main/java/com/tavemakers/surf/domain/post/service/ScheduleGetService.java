@@ -11,12 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ScheduleGetService {
     private final ScheduleRepository scheduleRepository;
 
+    @Transactional(readOnly = true)
     public ScheduleMonthlyResDTO getScheduleMonthly(int year, int month) {
         List<Schedule> schedules = getSchedulesByMonth(year, month);
         List<ScheduleResDTO> scheduleResDTOS = getScheduleResDTOs(schedules);
