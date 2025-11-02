@@ -1,10 +1,11 @@
 package com.tavemakers.surf.domain.comment.exception;
 
-import com.tavemakers.surf.global.common.exception.BaseException;;
-import org.springframework.http.HttpStatus;
+import com.tavemakers.surf.global.common.exception.BaseException;
+
+import static com.tavemakers.surf.domain.comment.exception.ErrorMessage.COMMENT_MENTION_SELF;
 
 public class CommentMentionSelfException extends BaseException {
     public CommentMentionSelfException() {
-        super(HttpStatus.BAD_REQUEST, "자기 자신을 멘션할 수 없습니다.");
+        super(COMMENT_MENTION_SELF.getStatus(), COMMENT_MENTION_SELF.getMessage());
     }
 }
