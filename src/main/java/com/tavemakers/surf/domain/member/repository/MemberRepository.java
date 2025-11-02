@@ -23,4 +23,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByEmailAndStatus(String email, MemberStatus status);
   
     Optional<Member> findByKakaoId(Long kakaoId);
+
+    // 댓글(comment)에서 멘션할 회원을 검색할 때 사용
+    List<Member> findTop10ByNameContainingIgnoreCase(String keyword);
 }
