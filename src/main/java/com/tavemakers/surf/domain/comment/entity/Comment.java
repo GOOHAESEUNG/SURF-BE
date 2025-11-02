@@ -12,6 +12,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -42,6 +45,9 @@ public class Comment extends BaseEntity {
 
     @Column(nullable = false)
     private boolean deleted = false;
+
+    @Column(nullable = false)
+    private Long likeCount = 0L;
 
     public void softDelete() {
         this.deleted = true;
@@ -92,10 +98,21 @@ public class Comment extends BaseEntity {
         }
     }
 
+    /** 댓글 수정 */
     public void update(String content) {
         if (this.deleted) {
             throw new AlreadyDeletedCommentException();
         }
         this.content = content;
+    }
+
+    /** 좋아요 증가 */
+    public void increaseLikeCount() {
+        this.likeCount++;
+    }
+
+    /** 좋아요 감소 */
+    public void decreaseLikeCount() {
+        if (this.likeCount > 0) this.likeCount--;
     }
 }
