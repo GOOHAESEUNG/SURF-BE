@@ -2,6 +2,7 @@ package com.tavemakers.surf.domain.board.entity;
 
 import com.tavemakers.surf.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,9 +22,11 @@ public class BoardCategory extends BaseEntity {
     private Board board;
 
     @Column(nullable = false)
+    @NotBlank
     private String name;          // 예: 행사, 활동, 제휴, 릴리스, 패치, 기타
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
+    @NotBlank
     private String slug;          // URL/식별자 (board 내 unique)
 
     @Builder

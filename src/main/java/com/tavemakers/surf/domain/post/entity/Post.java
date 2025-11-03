@@ -43,7 +43,7 @@ public class Post extends BaseEntity {
     private long commentCount = 0L;
 
     @Version
-    private long version;
+    private Long version;
 
     private boolean isReserved;
 
