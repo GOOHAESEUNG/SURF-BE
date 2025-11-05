@@ -25,6 +25,9 @@ public record PostResDTO(
         @Schema(description = "게시글 작성 일시", example = "2023-10-05T14:48:00")
         LocalDateTime postedAt,
 
+        @Schema(description = "게시글 썸네일 이미지 URL")
+        String thumbnailImageUrl,
+
         @Schema(description = "게시판 ID", example = "1")
         Long boardId,
 
