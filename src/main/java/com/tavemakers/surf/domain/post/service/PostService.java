@@ -7,9 +7,14 @@ import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import com.tavemakers.surf.domain.post.dto.req.PostCreateReqDTO;
+import com.tavemakers.surf.domain.post.dto.req.PostImageCreateReqDTO;
 import com.tavemakers.surf.domain.post.dto.req.PostUpdateReqDTO;
+import com.tavemakers.surf.domain.post.dto.res.PostDetailResDTO;
+import com.tavemakers.surf.domain.post.dto.res.PostImageResDTO;
 import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.entity.Post;
+import com.tavemakers.surf.domain.post.entity.PostImageUrl;
+import com.tavemakers.surf.domain.post.exception.PostImageListEmptyException;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
 import com.tavemakers.surf.domain.reservation.usecase.ReservationUsecase;
@@ -21,6 +26,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Comparator;
+import java.util.List;
 
 
 @Service
@@ -34,10 +42,13 @@ public class PostService {
     private final ScrapService scrapService;
     private final PostLikeService postLikeService;
     private final ReservationUsecase reservationUsecase;
+    private final PostImageSaveService imageSaveService;
+    private final PostImageGetService imageGetService;
+    private final PostImageDeleteService imageDeleteService;
 
     @Transactional
     @LogEvent(value= "post.create", message= "게시글 생성 성공")
-    public PostResDTO createPost(PostCreateReqDTO req, Long memberId) {
+    public PostDetailResDTO createPost(PostCreateReqDTO req, Long memberId) {
         Board board = boardRepository.findById(req.boardId())
                 .orElseThrow(BoardNotFoundException::new);
         Member member = memberRepository.findById(memberId)
@@ -49,16 +60,24 @@ public class PostService {
             reservationUsecase.reservePost(saved.getId(), req.reservedAt());
         }
 
-        return PostResDTO.from(saved, false, false);
+        if (req.hasImage()) {
+            List<PostImageCreateReqDTO> imageUrlList = req.imageUrlList();
+            saved.addThumbnailUrl(findFirstImage(imageUrlList));
+            List<PostImageResDTO> imageUrlResponseList = imageSaveService.saveAll(saved, imageUrlList);
+            return PostDetailResDTO.of(saved, false, false, imageUrlResponseList);
+        }
+
+        return PostDetailResDTO.of(saved, false, false, null);
     }
 
     @Transactional(readOnly = true)
-    public PostResDTO getPost(Long postId, Long memberId) {
+    public PostDetailResDTO getPost(Long postId, Long memberId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
         boolean scrappedByMe = scrapService.isScrappedByMe(memberId, postId);
         boolean likedByMe = postLikeService.isLikedByMe(memberId, postId);
-        return PostResDTO.from(post, scrappedByMe, likedByMe);
+        List<PostImageResDTO> imageUrlList = getImageUrlList(post);
+        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, imageUrlList);
     }
 
     @Transactional(readOnly = true)
@@ -96,7 +115,7 @@ public class PostService {
 
     @Transactional
     @LogEvent(value = "post.update", message = "게시글 수정 성공")
-    public PostResDTO updatePost(
+    public PostDetailResDTO updatePost(
             @LogParam("post_id") Long postId,
             PostUpdateReqDTO req, Long viewerId) {
         Post post = postRepository.findById(postId)
@@ -104,7 +123,28 @@ public class PostService {
         post.update(req, post.getBoard());
         boolean scrappedByMe = scrapService.isScrappedByMe(viewerId, postId);
         boolean likedByMe = postLikeService.isLikedByMe(viewerId, postId);
-        return PostResDTO.from(post, scrappedByMe, likedByMe);
+
+        // 예약 시간 변경 시 -> 기존의 예약 시간 조회 -> 기존의 예약 시간을 CANCELD로 수정하고 schedule 호출하면 끝.
+        if (req.isReservationChanged()) {
+            reservationUsecase.updateReservationPost(post.getId(), req.reservedAt());
+        }
+
+        // 이미지 변경
+        if (req.isImageChanged()) {
+            deleteExistingImage(post);
+            List<PostImageCreateReqDTO> changeImage = req.imageUrlList();
+            post.addThumbnailUrl(findFirstImage(changeImage));
+            List<PostImageResDTO> savedChangedImage = imageSaveService.saveAll(post, changeImage);
+            return PostDetailResDTO.of(post, scrappedByMe, likedByMe, savedChangedImage);
+        }
+
+        List<PostImageResDTO> imageDtoList = getImageUrlList(post);
+        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, imageDtoList);
+    }
+
+    private void deleteExistingImage(Post post) {
+        List<PostImageUrl> beforeImage = imageGetService.getPostImageUrls(post.getId());
+        imageDeleteService.deleteAll(beforeImage);
     }
 
     @Transactional
@@ -114,4 +154,27 @@ public class PostService {
         if (!postRepository.existsById(postId)) throw new PostNotFoundException();
         postRepository.deleteById(postId);
     }
+
+    /*
+    * refactor
+    * */
+
+    private List<PostImageResDTO> getImageUrlList(Post post) {
+        return imageGetService.getPostImageUrls(post.getId()).stream()
+                .map(PostImageResDTO::from)
+                .sorted(Comparator.comparing(PostImageResDTO::sequence))
+                .toList();
+    }
+
+    private String findFirstImage(List<PostImageCreateReqDTO> dto) {
+        if (dto == null || dto.isEmpty()) {
+            throw new PostImageListEmptyException();
+        }
+
+        PostImageCreateReqDTO postImageCreateReqDTO = dto.stream()
+                .min(Comparator.comparing(PostImageCreateReqDTO::sequence))
+                .orElse(dto.get(0));
+        return postImageCreateReqDTO.originalUrl();
+    }
+
 }

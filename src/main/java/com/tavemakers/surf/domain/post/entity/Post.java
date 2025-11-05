@@ -33,6 +33,9 @@ public class Post extends BaseEntity {
 
     private LocalDateTime postedAt;
 
+    @Column(length = 500)
+    private String thumbnailUrl;
+
     private boolean pinned; // 상단 고정
 
     @Column(nullable = false)
@@ -87,6 +90,10 @@ public class Post extends BaseEntity {
 
     public void publish() {
         this.isReserved = false;
+    }
+
+    public void addThumbnailUrl(String originalUrl) {
+        this.thumbnailUrl = originalUrl.replace("/original/", "/thumbnail/");
     }
 
 }
