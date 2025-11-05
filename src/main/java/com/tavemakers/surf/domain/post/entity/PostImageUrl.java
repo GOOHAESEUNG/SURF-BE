@@ -1,11 +1,11 @@
 package com.tavemakers.surf.domain.post.entity;
 
+import com.tavemakers.surf.domain.post.dto.req.PostImageCreateReqDTO;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
+import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -20,15 +20,25 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostImageUrl extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "postImageUrl_id")
+    @Id @Tsid
+    @Column(name = "post_image_url_id")
     private Long id;
 
-    @Column(nullable = false)
-    private String url;
+    @Column(nullable = false, length = 500)
+    private String originalUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
+
+    private Integer sequence;
+
+    public static PostImageUrl of(Post post, PostImageCreateReqDTO dto) {
+        return PostImageUrl.builder()
+                .post(post)
+                .originalUrl(dto.originalUrl())
+                .sequence(dto.sequence())
+                .build();
+    }
+
 }

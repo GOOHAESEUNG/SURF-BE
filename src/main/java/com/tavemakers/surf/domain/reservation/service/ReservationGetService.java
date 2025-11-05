@@ -24,4 +24,9 @@ public class ReservationGetService {
         return reservationRepository.findByStatus(ReservationStatus.RESERVED);
     }
 
+    public Reservation findByPostIdAndStatus(Long postId) {
+        return reservationRepository.findByPostIdAndStatus(postId, ReservationStatus.RESERVED)
+                .orElse(null);
+    }
+
 }

@@ -5,11 +5,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Schema(description = "게시글 응답 DTO")
 @Builder
-public record PostResDTO(
-
+public record PostDetailResDTO(
         @Schema(description = "게시글 ID", example = "1")
         Long id,
 
@@ -28,9 +27,6 @@ public record PostResDTO(
         @Schema(description = "게시판 ID", example = "1")
         Long boardId,
 
-        @Schema(description = "세부 카테고리 ID", example = "2")
-        Long categoryId,
-
         @Schema(description = "내가 스크랩한 게시글인지 여부", example = "true")
         boolean scrappedByMe,
 
@@ -47,24 +43,26 @@ public record PostResDTO(
         long commentCount,
 
         @Schema(description = "게시글 작성자 닉네임", example = "홍길동")
-        String nickname
+        String nickname,
 
+        @Schema(description = "게시글 이미지 링크")
+        List<PostImageResDTO> imageUrlList
 ) {
-    public static PostResDTO from(Post post, boolean scrappedByMe, boolean likedByMe) {
-        return PostResDTO.builder()
+    public static PostDetailResDTO of(Post post, boolean scrappedByMe, boolean likedByMe, List<PostImageResDTO> imageUrlList) {
+        return PostDetailResDTO.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .pinned(post.isPinned())
                 .postedAt(post.getPostedAt())
                 .boardId(post.getBoard().getId())
-                .categoryId(post.getCategory().getId())
                 .scrappedByMe(scrappedByMe)
                 .scrapCount(post.getScrapCount())
                 .likedByMe(likedByMe)
                 .likeCount(post.getLikeCount())
                 .commentCount(post.getCommentCount())
                 .nickname(post.getMember().getName())
+                .imageUrlList(imageUrlList)
                 .build();
     }
 }

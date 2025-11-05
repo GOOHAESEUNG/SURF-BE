@@ -2,6 +2,7 @@ package com.tavemakers.surf.domain.post.controller;
 
 import com.tavemakers.surf.domain.post.dto.req.PostCreateReqDTO;
 import com.tavemakers.surf.domain.post.dto.req.PostUpdateReqDTO;
+import com.tavemakers.surf.domain.post.dto.res.PostDetailResDTO;
 import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.service.PostService;
 import com.tavemakers.surf.global.common.response.ApiResponse;
@@ -30,22 +31,22 @@ public class PostController {
     /** 게시글 생성 (작성자 = 현재 로그인 사용자) */
     @Operation(summary = "게시글 생성", description = "게시글을 생성합니다.")
     @PostMapping("/v1/user/posts")
-    public ApiResponse<PostResDTO> createPost(
+    public ApiResponse<PostDetailResDTO> createPost(
             @Valid @RequestBody PostCreateReqDTO req
     ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        PostResDTO response = postService.createPost(req, memberId);
+        PostDetailResDTO response = postService.createPost(req, memberId);
         return ApiResponse.response(HttpStatus.CREATED, POST_CREATED.getMessage(), response);
     }
 
     /** 게시글 단건 조회 (뷰어 = 현재 로그인 사용자; 스크랩 여부 등 계산용) */
     @Operation(summary = "게시글 단건 조회", description = "특정 ID의 게시글을 조회합니다.")
     @GetMapping("/v1/user/posts/{postId}")
-    public ApiResponse<PostResDTO> getPost(
+    public ApiResponse<PostDetailResDTO> getPost(
             @PathVariable(name = "postId") Long postId
     ) {
         Long viewerId = SecurityUtils.getCurrentMemberId();
-        PostResDTO response = postService.getPost(postId, viewerId);
+        PostDetailResDTO response = postService.getPost(postId, viewerId);
         return ApiResponse.response(HttpStatus.OK, POST_READ.getMessage(), response);
     }
 
@@ -104,12 +105,12 @@ public class PostController {
     /** 게시글 수정 (작성자 검증은 서비스에서) */
     @Operation(summary = "게시글 수정", description = "본인이 작성한 게시글을 수정합니다.")
     @PatchMapping("/v1/user/posts/{postId}")
-    public ApiResponse<PostResDTO> updatePost(
+    public ApiResponse<PostDetailResDTO> updatePost(
             @PathVariable(name = "postId") Long postId,
             @Valid @RequestBody PostUpdateReqDTO req
     ) {
         Long memberId = SecurityUtils.getCurrentMemberId();
-        PostResDTO response = postService.updatePost(postId, req, memberId);
+        PostDetailResDTO response = postService.updatePost(postId, req, memberId);
         return ApiResponse.response(HttpStatus.OK, POST_UPDATED.getMessage(), response);
     }
 
