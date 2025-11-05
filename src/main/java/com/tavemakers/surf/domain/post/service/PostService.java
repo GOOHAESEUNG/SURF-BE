@@ -15,6 +15,7 @@ import com.tavemakers.surf.domain.post.dto.res.PostImageResDTO;
 import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.entity.PostImageUrl;
+import com.tavemakers.surf.domain.post.exception.PostDeleteAccessDeniedException;
 import com.tavemakers.surf.domain.post.exception.PostImageListEmptyException;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
@@ -26,14 +27,11 @@ import com.tavemakers.surf.global.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
-
-import static com.tavemakers.surf.domain.post.exception.ErrorMessage.POST_DELETED_DENIED;
 
 
 @Service
@@ -201,7 +199,7 @@ public class PostService {
 
     private void validateOwnerOrManager(Post post, Member member) {
         if (!member.hasDeleteRole() && !post.isOwner(member.getId())) {
-            throw new AccessDeniedException(POST_DELETED_DENIED.getMessage());
+            throw new PostDeleteAccessDeniedException();
         }
     }
 
