@@ -96,4 +96,8 @@ public class Post extends BaseEntity {
         this.thumbnailUrl = originalUrl.replace("/original/", "/thumbnail/");
     }
 
+    public boolean isOwner(Long memberId) {
+        return member.getId().equals(memberId);
+    }
+
 }
