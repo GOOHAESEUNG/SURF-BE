@@ -99,12 +99,6 @@ public class Post extends BaseEntity {
         if (category != null) this.categoryName = category.getName();
     }
 
-    @PreUpdate
-    void syncNamesOnUpdate() {
-        // UPDATE 직전에 항상 최신 이름으로 갱신
-        if (board != null) this.boardName = board.getName();
-        if (category != null) this.categoryName = category.getName();
-    }
     public void increaseCommentCount() {
         this.commentCount++;
     }
