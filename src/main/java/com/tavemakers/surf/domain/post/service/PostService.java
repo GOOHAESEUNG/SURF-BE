@@ -47,7 +47,7 @@ public class PostService {
     private final PostImageDeleteService imageDeleteService;
 
     @Transactional
-    @LogEvent(value= "post.create", message= "게시글 생성 성공")
+    @LogEvent(value = "post.create", message = "게시글 생성 성공")
     public PostDetailResDTO createPost(PostCreateReqDTO req, Long memberId) {
         Board board = boardRepository.findById(req.boardId())
                 .orElseThrow(BoardNotFoundException::new);
@@ -82,7 +82,8 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public Slice<PostResDTO> getMyPosts(Long myId, Pageable pageable) {
-        if (!memberRepository.existsById(myId)) throw new MemberNotFoundException();
+        if (!memberRepository.existsById(myId))
+            throw new MemberNotFoundException();
         Slice<Post> slice = postRepository.findByMemberId(myId, pageable);
         return slice.map(p -> PostResDTO.from(
                 p,
@@ -93,7 +94,8 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public Slice<PostResDTO> getPostsByMember(Long authorId, Long viewerId, Pageable pageable) {
-        if (!memberRepository.existsById(authorId)) throw new MemberNotFoundException();
+        if (!memberRepository.existsById(authorId))
+            throw new MemberNotFoundException();
         Slice<Post> slice = postRepository.findByMemberId(authorId, pageable);
         return slice.map(p -> PostResDTO.from(
                 p,
@@ -104,7 +106,8 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public Slice<PostResDTO> getPostsByBoard(Long boardId, Long viewerId, Pageable pageable) {
-        if (!boardRepository.existsById(boardId)) throw new BoardNotFoundException();
+        if (!boardRepository.existsById(boardId))
+            throw new BoardNotFoundException();
         Slice<Post> slice = postRepository.findByBoardId(boardId, pageable);
         return slice.map(p -> PostResDTO.from(
                 p,
@@ -151,13 +154,16 @@ public class PostService {
     @LogEvent(value = "post.delete", message = "게시글 삭제 성공")
     public void deletePost(
             @LogParam("post_id") Long postId) {
-        if (!postRepository.existsById(postId)) throw new PostNotFoundException();
+        if (!postRepository.existsById(postId))
+            throw new PostNotFoundException();
         postRepository.deleteById(postId);
     }
 
-    /*
-    * refactor
-    * */
+    @Transactional(readOnly = true)
+    public Post findPostById(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow((PostNotFoundException::new));
+    }
 
     private List<PostImageResDTO> getImageUrlList(Post post) {
         return imageGetService.getPostImageUrls(post.getId()).stream()
