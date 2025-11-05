@@ -9,15 +9,15 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ScheduleUseCase {
 
-    private final SchedulePostService schedulePostService;
+    private final ScheduleCreateService scheduleCreateService;
     private final PostService postService;
 
     public void createScheduleAtPost(ScheduleCreateReqDTO dto, Long postId) {
         Post post = postService.findPostById(postId);
-        schedulePostService.createScheduleAtPost(dto, post);
+        scheduleCreateService.createScheduleAtPost(dto, post);
     }
 
     public void createScheduleSingle(ScheduleCreateReqDTO dto){
-        schedulePostService.createScheduleSingle(dto);
+        scheduleCreateService.createScheduleSingle(dto);
     }
 }

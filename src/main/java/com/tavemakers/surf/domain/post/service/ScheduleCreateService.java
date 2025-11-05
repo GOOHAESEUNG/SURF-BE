@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class SchedulePostService {
+public class ScheduleCreateService {
     private final ScheduleRepository scheduleRepository;
 
     @Transactional
@@ -21,7 +21,7 @@ public class SchedulePostService {
 
     @Transactional
     public Schedule createScheduleSingle(ScheduleCreateReqDTO dto) {
-        Schedule schedule = Schedule.of(dto);
+        Schedule schedule = Schedule.from(dto);
         return scheduleRepository.save(schedule);
     }
 }

@@ -1,7 +1,5 @@
 package com.tavemakers.surf.domain.post.entity;
 
-import static com.tavemakers.surf.domain.post.exception.ErrorMessage.SCHEDULE_TIME_ERROR;
-
 import com.tavemakers.surf.domain.post.dto.req.ScheduleCreateReqDTO;
 import com.tavemakers.surf.domain.post.exception.ScheduleTimeException;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
@@ -48,15 +46,9 @@ public class Schedule extends BaseEntity {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    public static Schedule of(ScheduleCreateReqDTO dto) {
+    public static Schedule from(ScheduleCreateReqDTO dto) {
         validateScheduleTime(dto.startAt(), dto.endAt());
-        return Schedule.builder()
-                .title(dto.title())
-                .content(dto.content())
-                .startAt(dto.startAt())
-                .endAt(dto.endAt())
-                .location(dto.location())
-                .build();
+        return of(dto, null);
     }
 
     public static Schedule of(ScheduleCreateReqDTO dto, Post post) {
