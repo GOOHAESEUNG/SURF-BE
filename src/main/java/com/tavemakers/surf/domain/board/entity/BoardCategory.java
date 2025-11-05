@@ -7,10 +7,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public class BoardCategory extends BaseEntity {
 
     @Id
@@ -23,21 +25,11 @@ public class BoardCategory extends BaseEntity {
 
     @Column(nullable = false)
     @NotBlank
-    private String name;          // 예: 행사, 활동, 제휴, 릴리스, 패치, 기타
+    private String name;
 
     @Column(nullable = false, unique = true)
     @NotBlank
-    private String slug;          // URL/식별자 (board 내 unique)
-
-    @Builder
-    private BoardCategory(
-            Board board,
-            String name,
-            String slug) {
-        this.board = board;
-        this.name = name;
-        this.slug = slug;
-    }
+    private String slug;
 
     public void update(String name, String slug) {
         if (name != null) this.name = name;
