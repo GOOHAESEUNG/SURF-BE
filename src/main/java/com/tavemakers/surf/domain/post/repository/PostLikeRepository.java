@@ -1,5 +1,6 @@
 package com.tavemakers.surf.domain.post.repository;
 
+import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.post.entity.PostLike;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -24,4 +25,9 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
     );
 
     long deleteByPostIdAndMemberId(Long postId, Long memberId);
+
+    @Query("SELECT pl.member " +
+            "FROM PostLike pl " +
+            "WHERE pl.post.id = :postId")
+    List<Member> findLikedMembersByPostId(@Param("postId") Long postId);
 }
