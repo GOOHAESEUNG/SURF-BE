@@ -6,6 +6,7 @@ import com.tavemakers.surf.domain.board.repository.BoardRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
+import com.tavemakers.surf.domain.member.service.MemberGetService;
 import com.tavemakers.surf.domain.post.dto.req.PostCreateReqDTO;
 import com.tavemakers.surf.domain.post.dto.req.PostImageCreateReqDTO;
 import com.tavemakers.surf.domain.post.dto.req.PostUpdateReqDTO;
@@ -21,14 +22,18 @@ import com.tavemakers.surf.domain.reservation.usecase.ReservationUsecase;
 import com.tavemakers.surf.domain.scrap.service.ScrapService;
 import com.tavemakers.surf.global.logging.LogEvent;
 import com.tavemakers.surf.global.logging.LogParam;
+import com.tavemakers.surf.global.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+
+import static com.tavemakers.surf.domain.post.exception.ErrorMessage.POST_DELETED_DENIED;
 
 
 @Service
@@ -45,6 +50,10 @@ public class PostService {
     private final PostImageSaveService imageSaveService;
     private final PostImageGetService imageGetService;
     private final PostImageDeleteService imageDeleteService;
+    private final PostGetService postGetService;
+    private final PostImageGetService postImageGetService;
+    private final PostImageDeleteService postImageDeleteService;
+    private final MemberGetService memberGetService;
 
     @Transactional
     @LogEvent(value = "post.create", message = "게시글 생성 성공")
@@ -154,9 +163,16 @@ public class PostService {
     @LogEvent(value = "post.delete", message = "게시글 삭제 성공")
     public void deletePost(
             @LogParam("post_id") Long postId) {
-        if (!postRepository.existsById(postId))
-            throw new PostNotFoundException();
-        postRepository.deleteById(postId);
+        Post post = postGetService.getPost(postId);
+        Member member = memberGetService.getMember(SecurityUtils.getCurrentMemberId());
+        validateOwnerOrManager(post, member);
+
+        List<PostImageUrl> postImageUrls = postImageGetService.getPostImageUrls(post.getId());
+        if (postImageUrls != null && !postImageUrls.isEmpty()) {
+            postImageDeleteService.deleteAll(postImageUrls);
+        }
+
+        postRepository.delete(post);
     }
 
     @Transactional(readOnly = true)
@@ -181,6 +197,12 @@ public class PostService {
                 .min(Comparator.comparing(PostImageCreateReqDTO::sequence))
                 .orElse(dto.get(0));
         return postImageCreateReqDTO.originalUrl();
+    }
+
+    private void validateOwnerOrManager(Post post, Member member) {
+        if (!member.hasDeleteRole() && !post.isOwner(member.getId())) {
+            throw new AccessDeniedException(POST_DELETED_DENIED.getMessage());
+        }
     }
 
 }
