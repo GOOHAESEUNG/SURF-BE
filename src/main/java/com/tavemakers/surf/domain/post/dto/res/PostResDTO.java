@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public record PostResDTO(
 
         @Schema(description = "게시글 ID", example = "1")
-        Long id,
+        Long postId,
 
         @Schema(description = "게시글 제목", example = "만남의 장 공지사항")
         String title,
@@ -57,7 +57,7 @@ public record PostResDTO(
 ) {
     public static PostResDTO from(Post post, boolean scrappedByMe, boolean likedByMe) {
         return PostResDTO.builder()
-                .id(post.getId())
+                .postId(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .pinned(post.isPinned())
