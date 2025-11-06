@@ -11,6 +11,8 @@ import org.springframework.data.repository.query.Param;
 public interface PostRepository extends JpaRepository<Post, Long> {
     Slice<Post> findByBoardId(Long boardId, Pageable pageable);
 
+    Slice<Post> findByBoardIdAndCategoryId(Long boardId, Long categoryId, Pageable pageable);
+
     Slice<Post> findByMemberId(Long memberId, Pageable pageable);
 
     @Query("select p.version from Post p where p.id = :id")

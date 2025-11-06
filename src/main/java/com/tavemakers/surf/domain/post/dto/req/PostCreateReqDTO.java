@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Schema(description = "게시글 생성 요청 DTO")
@@ -14,6 +15,9 @@ public record PostCreateReqDTO(
 
         @Schema(description = "게시판 ID", example = "1")
         @NotNull Long boardId,
+
+        @Schema(description = "세부 카테고리 ID", example = "2")
+        @NotNull Long categoryId,
 
         @Schema(description = "게시글 제목", example = "만남의 장 공지사항")
         @NotBlank String title,
@@ -26,7 +30,10 @@ public record PostCreateReqDTO(
 
         @Schema(description = "예약 시간", example = "2025-10-29T00:00:00")
         @Future(message = "예약 시간은 현재 이후여야 합니다")
-        LocalDateTime reservedAt
+        LocalDateTime reservedAt,
+
+        @Schema(description = "게시글 이미지 목록")
+        List<PostImageCreateReqDTO> imageUrlList
 
 ) implements LogPropsProvider {
 
@@ -40,6 +47,10 @@ public record PostCreateReqDTO(
 
         public boolean isReserved() {
                 return reservedAt != null;
+        }
+
+        public boolean hasImage() {
+                return imageUrlList != null && !imageUrlList.isEmpty();
         }
 
 }

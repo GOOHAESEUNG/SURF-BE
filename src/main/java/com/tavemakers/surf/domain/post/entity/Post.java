@@ -1,6 +1,7 @@
 package com.tavemakers.surf.domain.post.entity;
 
 import com.tavemakers.surf.domain.board.entity.Board;
+import com.tavemakers.surf.domain.board.entity.BoardCategory;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.post.dto.req.PostCreateReqDTO;
 import com.tavemakers.surf.domain.post.dto.req.PostUpdateReqDTO;
@@ -32,6 +33,9 @@ public class Post extends BaseEntity {
 
     private LocalDateTime postedAt;
 
+    @Column(length = 500)
+    private String thumbnailUrl;
+
     private boolean pinned; // 상단 고정
 
     @Column(nullable = false)
@@ -42,25 +46,34 @@ public class Post extends BaseEntity {
     private long commentCount = 0L;
 
     @Version
-    private long version;
+    private Long version;
 
     private boolean isReserved;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;
+    private String boardName;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "category_id", nullable = false)
+    private BoardCategory category;
+    private String categoryName;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    public static Post of(PostCreateReqDTO req, Board board, Member member) {
+    public static Post of(PostCreateReqDTO req, Board board, BoardCategory category, Member member) {
         return Post.builder()
                 .title(req.title())
                 .content(req.content())
                 .pinned(req.pinned() != null ? req.pinned() : false)
                 .postedAt(LocalDateTime.now())
                 .board(board)
+                .boardName(board.getName())
+                .category(category)
+                .categoryName(category.getName())
                 .member(member)
                 .scrapCount(0L)
                 .likeCount(0L)
@@ -69,11 +82,21 @@ public class Post extends BaseEntity {
                 .build();
     }
 
-    public void update(PostUpdateReqDTO req, Board board) {
+    public void update(PostUpdateReqDTO req, Board board, BoardCategory category) {
         this.title = req.title();
         this.content = req.content();
         this.pinned = req.pinned() != null ? req.pinned() : this.pinned;
         this.board = board;
+        this.boardName = board.getName();
+        this.category = category;
+        this.categoryName = category.getName();
+    }
+
+    @PrePersist
+    void syncNamesOnInsert() {
+        // INSERT 전에 한 번 더 동기화 (NPE 방지)
+        if (board != null) this.boardName = board.getName();
+        if (category != null) this.categoryName = category.getName();
     }
 
     public void increaseCommentCount() {
@@ -88,4 +111,7 @@ public class Post extends BaseEntity {
         this.isReserved = false;
     }
 
+    public void addThumbnailUrl(String originalUrl) {
+        this.thumbnailUrl = originalUrl.replace("/original/", "/thumbnail/");
+    }
 }
