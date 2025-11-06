@@ -1,7 +1,12 @@
 package com.tavemakers.surf.domain.post.service;
 
 import com.tavemakers.surf.domain.board.entity.Board;
+import com.tavemakers.surf.domain.board.entity.BoardCategory;
 import com.tavemakers.surf.domain.board.exception.BoardNotFoundException;
+import com.tavemakers.surf.domain.board.exception.CategoryNotFoundException;
+import com.tavemakers.surf.domain.board.exception.CategoryRequiredException;
+import com.tavemakers.surf.domain.board.exception.InvalidCategoryMappingException;
+import com.tavemakers.surf.domain.board.repository.BoardCategoryRepository;
 import com.tavemakers.surf.domain.board.repository.BoardRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
@@ -16,7 +21,9 @@ import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.entity.PostImageUrl;
 import com.tavemakers.surf.domain.post.exception.PostImageListEmptyException;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
+import com.tavemakers.surf.domain.post.repository.PostLikeRepository;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
+import com.tavemakers.surf.domain.scrap.repository.ScrapRepository;
 import com.tavemakers.surf.domain.reservation.usecase.ReservationUsecase;
 import com.tavemakers.surf.domain.scrap.service.ScrapService;
 import com.tavemakers.surf.global.logging.LogEvent;
@@ -27,8 +34,10 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+
+import java.util.Comparator;
 
 
 @Service
@@ -39,6 +48,10 @@ public class PostService {
     private final BoardRepository boardRepository;
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final BoardCategoryRepository boardCategoryRepository;
+    private final ScrapRepository scrapRepository;
+    private final PostLikeRepository postLikeRepository;
+
     private final ScrapService scrapService;
     private final PostLikeService postLikeService;
     private final ReservationUsecase reservationUsecase;
@@ -53,7 +66,10 @@ public class PostService {
                 .orElseThrow(BoardNotFoundException::new);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
-        Post post = Post.of(req, board, member);
+
+        BoardCategory category = resolveCategory(board, req.categoryId());
+
+        Post post = Post.of(req, board, category, member);
         Post saved = postRepository.save(post);
 
         if (req.isReserved()) {
@@ -85,11 +101,8 @@ public class PostService {
         if (!memberRepository.existsById(myId))
             throw new MemberNotFoundException();
         Slice<Post> slice = postRepository.findByMemberId(myId, pageable);
-        return slice.map(p -> PostResDTO.from(
-                p,
-                scrapService.isScrappedByMe(myId, p.getId()),
-                postLikeService.isLikedByMe(myId, p.getId())
-        ));
+        Flags flags = resolveFlags(myId, slice);
+        return slice.map(p -> toRes(p, flags.scrappedIds, flags.likedIds));
     }
 
     @Transactional(readOnly = true)
@@ -97,11 +110,8 @@ public class PostService {
         if (!memberRepository.existsById(authorId))
             throw new MemberNotFoundException();
         Slice<Post> slice = postRepository.findByMemberId(authorId, pageable);
-        return slice.map(p -> PostResDTO.from(
-                p,
-                scrapService.isScrappedByMe(viewerId, p.getId()),
-                postLikeService.isLikedByMe(viewerId, p.getId())
-        ));
+        Flags flags = resolveFlags(viewerId, slice);
+        return slice.map(p -> toRes(p, flags.scrappedIds, flags.likedIds));
     }
 
     @Transactional(readOnly = true)
@@ -109,11 +119,17 @@ public class PostService {
         if (!boardRepository.existsById(boardId))
             throw new BoardNotFoundException();
         Slice<Post> slice = postRepository.findByBoardId(boardId, pageable);
-        return slice.map(p -> PostResDTO.from(
-                p,
-                scrapService.isScrappedByMe(viewerId, p.getId()),
-                postLikeService.isLikedByMe(viewerId, p.getId())
-        ));
+        Flags flags = resolveFlags(viewerId, slice);
+        return slice.map(p -> toRes(p, flags.scrappedIds, flags.likedIds));
+    }
+
+    @Transactional(readOnly = true)
+    public Slice<PostResDTO> getPostsByBoardAndCategory(Long boardId, Long categoryId, Long viewerId, Pageable pageable) {
+        Board board = boardRepository.findById(boardId).orElseThrow(BoardNotFoundException::new);
+        resolveCategory(board, categoryId);
+        Slice<Post> slice = postRepository.findByBoardIdAndCategoryId(boardId, categoryId, pageable);
+        Flags f = resolveFlags(viewerId, slice);
+        return slice.map(p -> toRes(p, f.scrappedIds, f.likedIds));
     }
 
     @Transactional
@@ -123,7 +139,13 @@ public class PostService {
             PostUpdateReqDTO req, Long viewerId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
-        post.update(req, post.getBoard());
+
+        BoardCategory newCategory = (req.categoryId() != null)
+                ? resolveCategory(post.getBoard(), req.categoryId())
+                : post.getCategory();
+
+        post.update(req, post.getBoard(), newCategory);
+
         boolean scrappedByMe = scrapService.isScrappedByMe(viewerId, postId);
         boolean likedByMe = postLikeService.isLikedByMe(viewerId, postId);
 
@@ -157,6 +179,35 @@ public class PostService {
         if (!postRepository.existsById(postId))
             throw new PostNotFoundException();
         postRepository.deleteById(postId);
+    }
+
+    private BoardCategory resolveCategory(Board board, Long categoryId) {
+        if (categoryId == null) {
+            throw new CategoryRequiredException();
+        }
+        BoardCategory category = boardCategoryRepository.findById(categoryId)
+                .orElseThrow(CategoryNotFoundException::new);
+        if (!category.getBoard().getId().equals(board.getId())) {
+            throw new InvalidCategoryMappingException();
+        }
+        return category;
+    }
+
+    private record Flags(Set<Long> scrappedIds, Set<Long> likedIds) {}
+
+    private Flags resolveFlags(Long viewerId, Slice<Post> slice) {
+        List<Long> ids = slice.getContent().stream().map(Post::getId).toList();
+        Set<Long> scrappedIds = ids.isEmpty() ? Set.of()
+                : scrapRepository.findScrappedPostIdsByMemberAndPostIds(viewerId, ids);
+        Set<Long> likedIds = ids.isEmpty() ? Set.of()
+                : postLikeRepository.findLikedPostIdsByMemberAndPostIds(viewerId, ids);
+        return new Flags(scrappedIds, likedIds);
+    }
+
+    private PostResDTO toRes(Post p, Set<Long> scrapped, Set<Long> liked) {
+        boolean scr = scrapped.contains(p.getId());
+        boolean lk  = liked.contains(p.getId());
+        return PostResDTO.from(p, scr, lk);
     }
 
     @Transactional(readOnly = true)
