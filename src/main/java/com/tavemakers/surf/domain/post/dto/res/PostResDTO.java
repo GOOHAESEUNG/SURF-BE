@@ -25,8 +25,14 @@ public record PostResDTO(
         @Schema(description = "게시글 작성 일시", example = "2023-10-05T14:48:00")
         LocalDateTime postedAt,
 
+        @Schema(description = "게시글 썸네일 이미지 URL")
+        String thumbnailImageUrl,
+
         @Schema(description = "게시판 ID", example = "1")
         Long boardId,
+
+        @Schema(description = "세부 카테고리 ID", example = "2")
+        Long categoryId,
 
         @Schema(description = "내가 스크랩한 게시글인지 여부", example = "true")
         boolean scrappedByMe,
@@ -55,6 +61,7 @@ public record PostResDTO(
                 .pinned(post.isPinned())
                 .postedAt(post.getPostedAt())
                 .boardId(post.getBoard().getId())
+                .categoryId(post.getCategory().getId())
                 .scrappedByMe(scrappedByMe)
                 .scrapCount(post.getScrapCount())
                 .likedByMe(likedByMe)
