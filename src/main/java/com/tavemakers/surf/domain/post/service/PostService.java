@@ -11,6 +11,7 @@ import com.tavemakers.surf.domain.board.repository.BoardRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
+import com.tavemakers.surf.domain.member.service.MemberGetService;
 import com.tavemakers.surf.domain.post.dto.req.PostCreateReqDTO;
 import com.tavemakers.surf.domain.post.dto.req.PostImageCreateReqDTO;
 import com.tavemakers.surf.domain.post.dto.req.PostUpdateReqDTO;
@@ -19,6 +20,7 @@ import com.tavemakers.surf.domain.post.dto.res.PostImageResDTO;
 import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.entity.PostImageUrl;
+import com.tavemakers.surf.domain.post.exception.PostDeleteAccessDeniedException;
 import com.tavemakers.surf.domain.post.exception.PostImageListEmptyException;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostLikeRepository;
@@ -28,6 +30,7 @@ import com.tavemakers.surf.domain.reservation.usecase.ReservationUsecase;
 import com.tavemakers.surf.domain.scrap.service.ScrapService;
 import com.tavemakers.surf.global.logging.LogEvent;
 import com.tavemakers.surf.global.logging.LogParam;
+import com.tavemakers.surf.global.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -58,6 +61,10 @@ public class PostService {
     private final PostImageSaveService imageSaveService;
     private final PostImageGetService imageGetService;
     private final PostImageDeleteService imageDeleteService;
+    private final PostGetService postGetService;
+    private final PostImageGetService postImageGetService;
+    private final PostImageDeleteService postImageDeleteService;
+    private final MemberGetService memberGetService;
 
     @Transactional
     @LogEvent(value = "post.create", message = "게시글 생성 성공")
@@ -176,9 +183,16 @@ public class PostService {
     @LogEvent(value = "post.delete", message = "게시글 삭제 성공")
     public void deletePost(
             @LogParam("post_id") Long postId) {
-        if (!postRepository.existsById(postId))
-            throw new PostNotFoundException();
-        postRepository.deleteById(postId);
+        Post post = postGetService.getPost(postId);
+        Member member = memberGetService.getMember(SecurityUtils.getCurrentMemberId());
+        validateOwnerOrManager(post, member);
+
+        List<PostImageUrl> postImageUrls = postImageGetService.getPostImageUrls(post.getId());
+        if (postImageUrls != null && !postImageUrls.isEmpty()) {
+            postImageDeleteService.deleteAll(postImageUrls);
+        }
+
+        postRepository.delete(post);
     }
 
     private BoardCategory resolveCategory(Board board, Long categoryId) {
@@ -232,6 +246,12 @@ public class PostService {
                 .min(Comparator.comparing(PostImageCreateReqDTO::sequence))
                 .orElse(dto.get(0));
         return postImageCreateReqDTO.originalUrl();
+    }
+
+    private void validateOwnerOrManager(Post post, Member member) {
+        if (!member.hasDeleteRole() && !post.isOwner(member.getId())) {
+            throw new PostDeleteAccessDeniedException();
+        }
     }
 
 }
