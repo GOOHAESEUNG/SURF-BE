@@ -23,6 +23,7 @@ public class Post extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "post_id")
     private Long id;
 
     @NotBlank
@@ -114,4 +115,9 @@ public class Post extends BaseEntity {
     public void addThumbnailUrl(String originalUrl) {
         this.thumbnailUrl = originalUrl.replace("/original/", "/thumbnail/");
     }
+
+    public boolean isOwner(Long memberId) {
+        return member.getId().equals(memberId);
+    }
+
 }

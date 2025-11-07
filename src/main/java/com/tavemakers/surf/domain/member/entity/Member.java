@@ -205,5 +205,25 @@ public class Member extends BaseEntity {
         return !Objects.equals(this.id, SecurityUtils.getCurrentMemberId());
     }
 
+    public boolean hasDeleteRole() {
+        return isManager() || isPresident() || isAdmin();
+    }
+
+    public boolean isMember() {
+        return this.role == MemberRole.MEMBER;
+    }
+
+    public boolean isManager() {
+        return this.role == MemberRole.MANAGER;
+    }
+
+    public boolean isPresident() {
+        return this.role == MemberRole.PRESIDENT;
+    }
+
+    public boolean isAdmin() {
+        return this.role == MemberRole.ADMIN;
+    }
+
 }
 
