@@ -3,7 +3,9 @@ package com.tavemakers.surf.domain.member.repository;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,5 +27,13 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByKakaoId(Long kakaoId);
 
     // 댓글(comment)에서 멘션할 회원을 검색할 때 사용
-    List<Member> findTop10ByNameContainingIgnoreCase(String keyword);
+    @Query("""
+        SELECT m
+        FROM Member m
+        LEFT JOIN m.tracks t
+        WHERE LOWER(m.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        GROUP BY m.id
+        ORDER BY MAX(t.generation) DESC
+    """)
+    List<Member> findMentionCandidates(@Param("keyword") String keyword);
 }
