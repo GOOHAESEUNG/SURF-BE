@@ -3,7 +3,7 @@ package com.tavemakers.surf.domain.comment.dto.res;
 import com.tavemakers.surf.domain.member.entity.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "멘션 회원 검색 응답 DTO")
+@Schema(description = "멘션 검색 시 반환되는 회원 정보 응답 DTO")
 public record MentionSearchResDTO(
 
         @Schema(description = "회원 ID", example = "2")
@@ -13,13 +13,17 @@ public record MentionSearchResDTO(
         String nickname,
 
         @Schema(description = "프로필 이미지 URL", example = "https://cdn.surf.com/profile/hong.png")
-        String profileImageUrl
+        String profileImageUrl,
+
+        @Schema(description = "최초 활동 기수", example = "13")
+        Integer firstGeneration
 ) {
     public static MentionSearchResDTO from(Member member) {
         return new MentionSearchResDTO(
                 member.getId(),
                 member.getName(),
-                member.getProfileImageUrl()  // Member 엔티티에 없으면 null로 들어감
+                member.getProfileImageUrl(),
+                member.getFirstGeneration()
         );
     }
 }
