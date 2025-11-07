@@ -97,14 +97,12 @@ public class CommentService {
             return;
         }
 
+        // 자식이 없을 경우 완전 삭제
         commentLikeRepository.deleteAllByComment(comment);
         commentMentionService.deleteAllByComment(comment);
 
-        // 자식이 없을 경우 완전 삭제
         int deleted = commentRepository.deleteByIdAndPostIdAndMemberId(commentId, postId, memberId);
         if (deleted > 0) {
-            commentMentionService.deleteAllByComment(comment);
-            commentLikeRepository.deleteAllByComment(comment);
 
             Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
             post.decreaseCommentCount();
