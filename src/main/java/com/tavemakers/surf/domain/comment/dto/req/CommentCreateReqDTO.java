@@ -15,8 +15,8 @@ public record CommentCreateReqDTO(
         @Schema(description = "내용", example = "좋은 공지 감사합니다!")
         @NotBlank
         @Size(max = 1000, message = "댓글은 1000자 이하만 가능합니다.")
-        @NotBlank String content,
+        String content,
 
-        @Schema(description = "멘션할 회원 ID 목록", example = "[2, 5, 7]")
+        @Schema(description = "멘션할 회원 ID 목록", example = "[5]")
         List<Long> mentionMemberIds
 ) {}
