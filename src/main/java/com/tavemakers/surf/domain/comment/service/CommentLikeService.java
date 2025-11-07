@@ -10,6 +10,7 @@ import com.tavemakers.surf.domain.comment.repository.CommentRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
+import com.tavemakers.surf.domain.post.entity.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,9 @@ public class CommentLikeService {
                 .orElseThrow(CommentNotFoundException::new);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
+
+        Post post = comment.getPost();
+        if (post == null) throw new CommentNotFoundException();
 
         // 좋아요 이미 존재하면 취소
         int removed = commentLikeRepository.deleteByCommentAndMember(comment, member);
