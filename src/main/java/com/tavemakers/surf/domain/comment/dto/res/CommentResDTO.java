@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Schema(description = "댓글 응답 DTO")
+@Schema(description = "댓글 전체 응답 DTO")
 public record CommentResDTO(
         @Schema(description = "댓글 ID", example = "15")
         Long id,
@@ -32,7 +32,7 @@ public record CommentResDTO(
         @Schema(description = "작성자 닉네임", example = "민수")
         String nickname,
 
-        @Schema(description = "좋아요 수", example = "3")
+        @Schema(description = "좋아요 수", example = "0")
         Long likeCount,
 
         @Schema(description = "로그인한 사용자가 이 댓글에 좋아요를 눌렀는지 여부", example = "true")
