@@ -1,5 +1,7 @@
 package com.tavemakers.surf.domain.comment.service;
 
+import com.tavemakers.surf.domain.comment.dto.res.CommentLikeMemberResDTO;
+import com.tavemakers.surf.domain.comment.dto.res.MentionResDTO;
 import com.tavemakers.surf.domain.comment.entity.Comment;
 import com.tavemakers.surf.domain.comment.entity.CommentLike;
 import com.tavemakers.surf.domain.comment.exception.CommentNotFoundException;
@@ -11,6 +13,9 @@ import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.dao.DataIntegrityViolationException;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,17 +34,21 @@ public class CommentLikeService {
                 .orElseThrow(MemberNotFoundException::new);
 
         // 좋아요 이미 존재하면 취소
-        return commentLikeRepository.findByCommentAndMember(comment, member)
-                .map(existingLike -> {
-                    commentLikeRepository.delete(existingLike);
-                    comment.decreaseLikeCount();
-                    return false; // 좋아요 해제됨
-                })
-                .orElseGet(() -> {
-                    commentLikeRepository.save(CommentLike.of(comment, member));
-                    comment.increaseLikeCount();
-                    return true; // 좋아요 등록됨
-                });
+        int removed = commentLikeRepository.deleteByCommentAndMember(comment, member);
+        if (removed > 0) {
+            comment.decreaseLikeCount();
+            commentRepository.save(comment);
+            return false; // 이미 눌러져 있었던 거라서 좋아요 취소됨
+        }
+
+        try {
+            commentLikeRepository.save(CommentLike.of(comment, member));
+            comment.increaseLikeCount();
+            commentRepository.save(comment);
+            return true; // 새로 좋아요 등록
+        } catch (DataIntegrityViolationException e) {
+            return true; // 이미 저장되어 있던 상태 (중복 insert 방어)
+        }
     }
 
     /** 댓글의 총 좋아요 수 */
@@ -59,4 +68,17 @@ public class CommentLikeService {
                 .orElseThrow(MemberNotFoundException::new);
         return commentLikeRepository.existsByCommentAndMember(comment, member);
     }
+
+    /** 특정 댓글에 좋아요를 누른 회원들의 ID, 이름, 프로필 이미지를 조회 */
+    @Transactional(readOnly = true)
+    public List<CommentLikeMemberResDTO> getMembersWhoLiked(Long commentId) {
+        List<Member> members = commentLikeRepository.findMembersWhoLiked(commentId);
+        return members.stream()
+                .map(member -> new CommentLikeMemberResDTO(
+                        member.getId(),
+                        member.getName(),
+                        member.getProfileImageUrl()))
+                .toList();
+    }
+
 }
