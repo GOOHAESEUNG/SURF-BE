@@ -94,6 +94,7 @@ public class CommentService {
                 commentMentionService.deleteAllByComment(comment);
                 comment.softDelete();
             }
+            return;
         }
 
         commentLikeRepository.deleteAllByComment(comment);
