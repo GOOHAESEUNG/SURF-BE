@@ -3,12 +3,12 @@ package com.tavemakers.surf.domain.comment.dto.res;
 import com.tavemakers.surf.domain.comment.entity.CommentMention;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "멘션 응답 DTO")
+@Schema(description = "댓글 내 멘션 표기를 위한 응답 DTO")
 public record MentionResDTO(
         @Schema(description = "멘션된 회원 ID", example = "5")
         Long memberId,
 
-        @Schema(description = "멘션된 회원 이름", example = "민수")
+        @Schema(description = "멘션된 회원 이름", example = "홍길동")
         String nickname
 ) {
     public static MentionResDTO from(CommentMention mention) {
