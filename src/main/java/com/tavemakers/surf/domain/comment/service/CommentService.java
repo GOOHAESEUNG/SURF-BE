@@ -1,7 +1,6 @@
 package com.tavemakers.surf.domain.comment.service;
 
 import com.tavemakers.surf.domain.comment.dto.req.CommentCreateReqDTO;
-import com.tavemakers.surf.domain.comment.dto.req.CommentUpdateReqDTO;
 import com.tavemakers.surf.domain.comment.dto.res.CommentResDTO;
 import com.tavemakers.surf.domain.comment.dto.res.MentionResDTO;
 import com.tavemakers.surf.domain.comment.entity.Comment;
@@ -9,6 +8,7 @@ import com.tavemakers.surf.domain.comment.exception.CommentDepthExceedException;
 import com.tavemakers.surf.domain.comment.exception.CommentNotFoundException;
 import com.tavemakers.surf.domain.comment.exception.InvalidBlankCommentException;
 import com.tavemakers.surf.domain.comment.exception.NotMyCommentException;
+import com.tavemakers.surf.domain.comment.repository.CommentLikeRepository;
 import com.tavemakers.surf.domain.comment.repository.CommentRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
@@ -35,6 +35,7 @@ public class CommentService {
     private final MemberRepository memberRepository;
     private final CommentMentionService commentMentionService;
     private final CommentLikeService commentLikeService;
+    private final CommentLikeRepository commentLikeRepository;
 
     /** 댓글 작성 */
     @Transactional
@@ -71,49 +72,38 @@ public class CommentService {
         return CommentResDTO.from(saved, mentions, liked);
     }
 
-    /** 댓글 수정 */
-    @Transactional
-    public CommentResDTO updateComment(Long postId, Long commentId,
-            Long memberId, CommentUpdateReqDTO req) {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
-        if (!comment.getPost().getId().equals(postId) || !comment.getMember().getId().equals(memberId))
-            throw new NotMyCommentException();
-        if (req.content() == null || req.content().isEmpty()) throw new InvalidBlankCommentException();
-        comment.update(req.content());
-
-        // 멘션 수정: 기존 삭제 → 새 등록
-        commentMentionService.deleteAllByComment(comment);
-        commentMentionService.createMentions(comment, req.mentionMemberIds());
-
-        // 응답 구성
-        List<MentionResDTO> mentions = commentMentionService.getMentions(comment.getId());
-        boolean liked = commentLikeService.isLikedByMe(commentId, memberId);
-        return CommentResDTO.from(comment, mentions, liked);
-    }
-
     /** 댓글 삭제 */
     @Transactional
     @LogEvent(value = "comment.delete", message = "댓글 삭제 성공")
     public void deleteComment(
-            @LogParam("post_id")
-            Long postId,
-            @LogParam("comment_id")
-            Long commentId,
-            Long memberId) {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
+            @LogParam("post_id") Long postId,
+            @LogParam("comment_id") Long commentId,
+            Long memberId
+    ) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(CommentNotFoundException::new);
+
         if (!comment.getPost().getId().equals(postId) || !comment.getMember().getId().equals(memberId))
             throw new NotMyCommentException();
 
         boolean hasChild = commentRepository.existsByParentId(commentId);
         if (hasChild) {
             // 자식 댓글이 있을 경우 soft delete
-            if (!comment.isDeleted()) comment.softDelete();
-            return;
+            if (!comment.isDeleted()) {
+                commentLikeRepository.deleteAllByComment(comment);
+                commentMentionService.deleteAllByComment(comment);
+                comment.softDelete();
+            }
         }
+
+        commentLikeRepository.deleteAllByComment(comment);
+        commentMentionService.deleteAllByComment(comment);
+
         // 자식이 없을 경우 완전 삭제
         int deleted = commentRepository.deleteByIdAndPostIdAndMemberId(commentId, postId, memberId);
         if (deleted > 0) {
             commentMentionService.deleteAllByComment(comment);
+            commentLikeRepository.deleteAllByComment(comment);
 
             Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
             post.decreaseCommentCount();
@@ -128,7 +118,7 @@ public class CommentService {
 
         return commentSlice.map(comment -> {
             List<MentionResDTO> mentions = commentMentionService.getMentions(comment.getId());
-            boolean liked = commentLikeService.isLikedByMe(comment.getId(), memberId);
+            boolean liked = memberId != null && commentLikeService.isLikedByMe(comment.getId(), memberId);
             return CommentResDTO.from(comment, mentions, liked);
         });
     }
