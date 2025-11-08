@@ -7,49 +7,55 @@ import com.tavemakers.surf.domain.search.repository.RecentSearchRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class RecentSearchService {
-    private final RecentSearchRepository repo;
-    private final MemberRepository memberRepository;
+    private final StringRedisTemplate redis;           // 자동 구성으로 주입됨
+    private static final String KEY_FMT = "recent:%d"; // recent:{memberId}
+    private static final int MAX_SIZE = 10;
+    private static final Duration TTL = Duration.ofDays(30); // 필요시 0으로 두면 무기한
 
     @Transactional
     public void saveQuery(Long memberId, String raw) {
+        if (raw == null) return;
         String q = normalize(raw);
-        if (q.isBlank()) return;
+        if (q.isEmpty()) return;
 
-        // 중복이면 최신화
-        Optional<RecentSearch> opt = repo.findByMemberIdAndKeyword(memberId, q);
-        if (opt.isPresent()) {
-            opt.get().touch();
-        } else {
-            Member m = memberRepository.getReferenceById(memberId);
-            repo.save(RecentSearch.of(m, q));
-        }
+        String key = key(memberId);
 
-        // 10개 초과 트림
-        Page<Long> ids = repo.findAllIdsByMemberIdOrderBySearchedAtDesc(memberId, PageRequest.of(1, Integer.MAX_VALUE));
-        if (!ids.isEmpty()) repo.deleteAllByIdInBatch(ids.getContent()); // 11번째 이후 모두 삭제
+        // 1) 중복 제거
+        redis.opsForList().remove(key, 0, q);
+        // 2) 맨 앞에 삽입
+        redis.opsForList().leftPush(key, q);
+        // 3) 10개로 트림
+        redis.opsForList().trim(key, 0, MAX_SIZE - 1);
+        // 4) TTL 갱신
+        redis.expire(key, TTL);
     }
 
     @Transactional(readOnly = true)
     public List<String> getRecent10(Long memberId) {
-        return repo.findTop10ByMemberIdOrderBySearchedAtDesc(memberId)
-                .stream().map(RecentSearch::getKeyword).toList();
+        String key = key(memberId);
+        List<String> items = redis.opsForList().range(key, 0, MAX_SIZE - 1);
+        return items == null ? List.of() : items;
     }
 
     @Transactional
     public void clearAll(Long memberId) {
-        repo.deleteByMemberId(memberId);
+        redis.delete(key(memberId));
     }
 
+    private String key(Long memberId) { return KEY_FMT.formatted(memberId); }
+
     private String normalize(String s) {
-        return s == null ? "" : s.trim().replaceAll("\\s+", " ").toLowerCase();
-    }
-}
+        String t = s.trim().replaceAll("\\s+", " ");
+        return t.length() > 100 ? t.substring(0, 100) : t;
+    }}
