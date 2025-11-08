@@ -1,0 +1,18 @@
+package com.tavemakers.surf.domain.post.dto.req;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+public record PostImageCreateReqDTO(
+
+        @Schema(description = "이미지 원본 S3 URL")
+        @NotBlank
+        String originalUrl,
+
+        @Schema(description = "이미지 게시 순서")
+        @NotNull
+        Integer sequence
+
+) {
+}
