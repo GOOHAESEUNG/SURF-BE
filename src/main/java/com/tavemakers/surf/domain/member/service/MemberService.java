@@ -21,5 +21,4 @@ public interface MemberService {
 
     /** 회원 상태 조회 */
     MemberStatus memberStatusCheck(Member member);
-
 }
