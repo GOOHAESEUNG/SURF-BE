@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class ScheduleDeleteController {
     private final ScheduleUseCase scheduleUseCase;
 
-    @Operation(summary = "개별 일정 수정", description = "일정을 수정합니다.")
-    @PatchMapping("/v1/admin/schedules/{scheduleId}")
+    @Operation(summary = "개별 일정 삭제", description = "일정을 삭제합니다.")
+    @DeleteMapping("/v1/admin/schedules/{scheduleId}")
     public ApiResponse<Void> deleteSchedule(@PathVariable("scheduleId") Long scheduleId) {
         scheduleUseCase.deleteSchedule(scheduleId);
         return ApiResponse.response(HttpStatus.OK, SCHEDULE_DELETED.getMessage(), null);
