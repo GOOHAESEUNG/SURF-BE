@@ -15,6 +15,7 @@ public class ScheduleUseCase {
     private final ScheduleCreateService scheduleCreateService;
     private final ScheduleGetService scheduleGetService;
     private final SchedulePatchService schedulePatchService;
+    private final ScheduleDeleteService scheduleDeleteService;
     private final PostService postService;
 
     //게시글 생성 시 일정 생성
@@ -35,5 +36,12 @@ public class ScheduleUseCase {
     public void updateSchedule(ScheduleUpdateReqDTO dto, Long id) {
         Schedule schedule = scheduleGetService.getScheduleById(id);
         schedulePatchService.updateSchedule(schedule, dto);
+    }
+
+    //일정 삭제
+    @Transactional
+    public void deleteSchedule(Long id) {
+        Schedule schedule = scheduleGetService.getScheduleById(id);
+        scheduleDeleteService.deleteSchedule(schedule);
     }
 }
