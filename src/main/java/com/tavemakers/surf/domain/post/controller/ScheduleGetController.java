@@ -36,6 +36,4 @@ public class ScheduleGetController {
         ScheduleMonthlyResDTO dto = scheduleGetService.getScheduleMonthly(year, month);
         return ApiResponse.response(HttpStatus.OK, SCHEDULE_CALENDAR_READ.getMessage(),dto);
     }
-
-
 }

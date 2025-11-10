@@ -7,6 +7,9 @@ import java.time.LocalDateTime;
 
 @Schema(description = "일정 생성")
 public record ScheduleCreateReqDTO(
+        @Schema(description = "일정 카테고리", example = "정규행사")
+        @NotBlank
+        String category,
 
         @Schema(description = "일정 제목", example = "만남의 장")
         @NotBlank
