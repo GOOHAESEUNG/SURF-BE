@@ -50,18 +50,15 @@ public class S3Service {
                 getPostGeneratePresignedUrlRequest(key, expiration);
         URL url = s3Client.generatePresignedUrl(request);
 
-        return PreSignedUrlResDto.from(key, url.toString());
+        return PreSignedUrlResDto.from(key, url.toString(), filename);
     }
 
     private GeneratePresignedUrlRequest getPostGeneratePresignedUrlRequest(String fileName, Date expiration) {
         GeneratePresignedUrlRequest generatePresignedUrlRequest
                 = new GeneratePresignedUrlRequest(bucketName, fileName)
-                .withMethod(HttpMethod.POST)
+                .withMethod(HttpMethod.PUT)
                 .withKey(fileName)
                 .withExpiration(expiration);
-        generatePresignedUrlRequest.addRequestParameter(
-                Headers.S3_CANNED_ACL,
-                CannedAccessControlList.PublicRead.toString());
         return generatePresignedUrlRequest;
     }
 

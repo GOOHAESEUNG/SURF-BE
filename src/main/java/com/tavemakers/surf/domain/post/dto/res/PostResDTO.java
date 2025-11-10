@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public record PostResDTO(
 
         @Schema(description = "게시글 ID", example = "1")
-        Long id,
+        Long postId,
 
         @Schema(description = "게시글 제목", example = "만남의 장 공지사항")
         String title,
@@ -25,8 +25,14 @@ public record PostResDTO(
         @Schema(description = "게시글 작성 일시", example = "2023-10-05T14:48:00")
         LocalDateTime postedAt,
 
+        @Schema(description = "게시글 썸네일 이미지 URL")
+        String thumbnailImageUrl,
+
         @Schema(description = "게시판 ID", example = "1")
         Long boardId,
+
+        @Schema(description = "세부 카테고리 ID", example = "2")
+        Long categoryId,
 
         @Schema(description = "내가 스크랩한 게시글인지 여부", example = "true")
         boolean scrappedByMe,
@@ -44,23 +50,27 @@ public record PostResDTO(
         long commentCount,
 
         @Schema(description = "게시글 작성자 닉네임", example = "홍길동")
-        String nickname
+        String nickname,
+
+        boolean isReserved
 
 ) {
     public static PostResDTO from(Post post, boolean scrappedByMe, boolean likedByMe) {
         return PostResDTO.builder()
-                .id(post.getId())
+                .postId(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .pinned(post.isPinned())
                 .postedAt(post.getPostedAt())
                 .boardId(post.getBoard().getId())
+                .categoryId(post.getCategory().getId())
                 .scrappedByMe(scrappedByMe)
                 .scrapCount(post.getScrapCount())
                 .likedByMe(likedByMe)
                 .likeCount(post.getLikeCount())
                 .commentCount(post.getCommentCount())
                 .nickname(post.getMember().getName())
+                .isReserved(post.isReserved())
                 .build();
     }
 }

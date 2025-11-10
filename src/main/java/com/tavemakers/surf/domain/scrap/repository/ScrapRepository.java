@@ -7,7 +7,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.Optional;
+import java.util.Collection;
+import java.util.Set;
 
 public interface ScrapRepository extends JpaRepository<Scrap, Long> {
 
@@ -24,4 +25,12 @@ public interface ScrapRepository extends JpaRepository<Scrap, Long> {
             """
     )
     Slice<Post> findPostsByMemberId(Long memberId, Pageable pageable);
+
+    @Query("""
+           select s.post.id
+           from Scrap s
+           where s.member.id = :memberId
+             and s.post.id in :postIds
+           """)
+    Set<Long> findScrappedPostIdsByMemberAndPostIds(Long memberId, Collection<Long> postIds);
 }

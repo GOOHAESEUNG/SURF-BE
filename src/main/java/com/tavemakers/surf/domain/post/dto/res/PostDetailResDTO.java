@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 public record PostDetailResDTO(
         @Schema(description = "게시글 ID", example = "1")
-        Long id,
+        Long postId,
 
         @Schema(description = "게시글 제목", example = "만남의 장 공지사항")
         String title,
@@ -50,7 +50,7 @@ public record PostDetailResDTO(
 ) {
     public static PostDetailResDTO of(Post post, boolean scrappedByMe, boolean likedByMe, List<PostImageResDTO> imageUrlList) {
         return PostDetailResDTO.builder()
-                .id(post.getId())
+                .postId(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .pinned(post.isPinned())
