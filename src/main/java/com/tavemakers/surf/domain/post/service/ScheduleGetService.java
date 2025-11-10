@@ -4,6 +4,7 @@ import com.tavemakers.surf.domain.member.entity.enums.MemberRole;
 import com.tavemakers.surf.domain.post.dto.res.ScheduleMonthlyResDTO;
 import com.tavemakers.surf.domain.post.dto.res.ScheduleResDTO;
 import com.tavemakers.surf.domain.post.entity.Schedule;
+import com.tavemakers.surf.domain.post.exception.ScheduleNotFoundException;
 import com.tavemakers.surf.domain.post.repository.ScheduleRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -53,5 +54,12 @@ public class ScheduleGetService {
     @Transactional(readOnly = true)
     protected ScheduleMonthlyResDTO getScheduleMonthlyResDTOs(int year, int month, List<ScheduleResDTO> dto) {
         return ScheduleMonthlyResDTO.of(year,month,dto);
+    }
+
+    //아이디로 일정 조회
+    @Transactional(readOnly = true)
+    public Schedule getScheduleById(Long scheduleId) {
+        return scheduleRepository.findById(scheduleId)
+                .orElseThrow(ScheduleNotFoundException::new);
     }
 }
