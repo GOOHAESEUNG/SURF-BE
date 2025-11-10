@@ -1,5 +1,6 @@
 package com.tavemakers.surf.domain.search.service;
 
+import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +17,8 @@ public class PostSearchService {
     private final RecentSearchService recentSearchService;
 
     @Transactional(readOnly = true)
-    public Slice<Post> search(Long memberId, String q, Pageable pageable) {
-        Slice<Post> result = postRepository
+    public Slice<PostResDTO> search(Long memberId, String q, Pageable pageable) {
+        Slice<PostResDTO> result = postRepository
                 .findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(q, q, pageable);
         recentSearchService.saveQuery(memberId, q); // 검색 성공/실패와 무관하게 기록
         return result;

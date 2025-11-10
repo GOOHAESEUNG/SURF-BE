@@ -1,5 +1,6 @@
 package com.tavemakers.surf.domain.post.repository;
 
+import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.entity.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +40,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             " where p.id = :id and p.version = :version and p.likeCount > 0")
     int decreaseLikeCount(@Param("id") Long postId, @Param("version") Long version);
 
-    Slice<Post> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(
+    Slice<PostResDTO> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(
             String title, String content, Pageable pageable);
 }
