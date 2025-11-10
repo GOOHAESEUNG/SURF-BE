@@ -57,6 +57,7 @@ public class Schedule extends BaseEntity {
     public static Schedule of(ScheduleCreateReqDTO dto, Post post) {
         validateScheduleTime(dto.startAt(), dto.endAt());
         return Schedule.builder()
+                .category(dto.category())
                 .title(dto.title())
                 .content(dto.content())
                 .startAt(dto.startAt())

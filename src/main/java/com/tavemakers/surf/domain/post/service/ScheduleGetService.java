@@ -1,5 +1,6 @@
 package com.tavemakers.surf.domain.post.service;
 
+import com.tavemakers.surf.domain.member.entity.enums.MemberRole;
 import com.tavemakers.surf.domain.post.dto.res.ScheduleMonthlyResDTO;
 import com.tavemakers.surf.domain.post.dto.res.ScheduleResDTO;
 import com.tavemakers.surf.domain.post.entity.Schedule;
@@ -9,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,20 +21,26 @@ import org.springframework.transaction.annotation.Transactional;
 public class ScheduleGetService {
     private final ScheduleRepository scheduleRepository;
 
-    public ScheduleMonthlyResDTO getScheduleMonthly(int year, int month) {
-        List<Schedule> schedules = getSchedulesByMonth(year, month);
+    public ScheduleMonthlyResDTO getScheduleMonthly(String memberRole, int year, int month) {
+        List<Schedule> schedules = getSchedulesByMonth(memberRole, year, month);
         List<ScheduleResDTO> scheduleResDTOS = getScheduleResDTOs(schedules);
         return getScheduleMonthlyResDTOs(year, month, scheduleResDTOS);
     }
 
     //특정 월의 일정 조회
     @Transactional(readOnly = true)
-    protected List<Schedule> getSchedulesByMonth(int year, int month) {
+    protected List<Schedule> getSchedulesByMonth(String memberRole, int year, int month) {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
         LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59);
 
-        return scheduleRepository.findByStartAtBetween(startOfMonth, endOfMonth);
+        List<String> categories = List.of("정규행사", "기타일정");
+
+        if(Objects.equals(memberRole, MemberRole.MEMBER.toString())) {
+            return scheduleRepository.findByStartAtBetweenAndCategoryIn(startOfMonth, endOfMonth,categories);
+        }else {
+            return scheduleRepository.findByStartAtBetween(startOfMonth, endOfMonth);
+        }
     }
 
     //개별 일정 응답 생성
