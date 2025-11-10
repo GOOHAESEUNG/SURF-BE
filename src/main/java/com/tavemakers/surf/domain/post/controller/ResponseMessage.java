@@ -20,6 +20,7 @@ public enum ResponseMessage {
     POST_LIKES_READ("[게시글] 좋아요 리스트가 성공적으로 조회되었습니다."),
 
     SCHEDULE_CREATED("[일정]이 성공적으로 생성되었습니다"),
+    SCHEDULE_UPDATED("[일정]이 성공적으로 수정되었습니다."),
     SCHEDULE_CALENDAR_READ("[일정]이 성공적으로 월별 조회되었습니다.");
 
     private final String message;

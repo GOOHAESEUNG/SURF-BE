@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping
-@Tag(name = "일정 생성", description = "일정 생성 관련 API")
+@Tag(name = "일정", description = "일정 관련 API")
 public class SchedulePostController {
     private final ScheduleUseCase scheduleUseCase;
 
