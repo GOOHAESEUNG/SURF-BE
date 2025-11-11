@@ -65,7 +65,7 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    private boolean isScheduleExist;
+    private Boolean hasSchedule;
 
     public static Post of(PostCreateReqDTO req, Board board, BoardCategory category, Member member) {
         return Post.builder()
@@ -82,7 +82,7 @@ public class Post extends BaseEntity {
                 .likeCount(0L)
                 .commentCount(0L)
                 .isReserved(req.isReserved())
-                .isScheduleExist(req.isScheduleExist())
+                .hasSchedule(req.hasSchedule())
                 .build();
     }
 

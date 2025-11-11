@@ -46,7 +46,10 @@ public record PostDetailResDTO(
         String nickname,
 
         @Schema(description = "게시글 이미지 링크")
-        List<PostImageResDTO> imageUrlList
+        List<PostImageResDTO> imageUrlList,
+
+        @Schema(description = "일정 매핑 유무", example = "true")
+        Boolean hasSchedule
 ) {
     public static PostDetailResDTO of(Post post, boolean scrappedByMe, boolean likedByMe, List<PostImageResDTO> imageUrlList) {
         return PostDetailResDTO.builder()
@@ -63,6 +66,7 @@ public record PostDetailResDTO(
                 .commentCount(post.getCommentCount())
                 .nickname(post.getMember().getName())
                 .imageUrlList(imageUrlList)
+                .hasSchedule(post.getHasSchedule())
                 .build();
     }
 }

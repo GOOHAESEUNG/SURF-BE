@@ -36,7 +36,7 @@ public record PostCreateReqDTO(
         List<PostImageCreateReqDTO> imageUrlList,
 
         @Schema(description = "일정 매핑 유무", example = "true")
-        boolean isScheduleExist
+        Boolean hasSchedule
 
 ) implements LogPropsProvider {
 

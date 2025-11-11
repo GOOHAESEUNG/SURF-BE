@@ -2,10 +2,13 @@ package com.tavemakers.surf.domain.post.controller;
 
 import static com.tavemakers.surf.domain.post.controller.ResponseMessage.SCHEDULE_CALENDAR_READ;
 import static com.tavemakers.surf.domain.post.controller.ResponseMessage.SCHEDULE_CREATED;
+import static com.tavemakers.surf.domain.post.controller.ResponseMessage.SCHEDULE_POST_READ;
 
 import com.tavemakers.surf.domain.post.dto.req.ScheduleCreateReqDTO;
 import com.tavemakers.surf.domain.post.dto.res.ScheduleMonthlyResDTO;
+import com.tavemakers.surf.domain.post.dto.res.ScheduleResDTO;
 import com.tavemakers.surf.domain.post.service.ScheduleGetService;
+import com.tavemakers.surf.domain.post.service.ScheduleUseCase;
 import com.tavemakers.surf.global.common.response.ApiResponse;
 import com.tavemakers.surf.global.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ScheduleGetController {
 
     private final ScheduleGetService scheduleGetService;
+    private final ScheduleUseCase scheduleUseCase;
 
     @Operation(summary = "캘린더에 월별 일정 목록 조회", description = "캘린더 페이지에서 월별 일정을 조회합니다.")
     @GetMapping("/v1/user/calendar/schedules")
@@ -37,5 +41,12 @@ public class ScheduleGetController {
         String memberRole = SecurityUtils.getCurrentMemberRole();
         ScheduleMonthlyResDTO dto = scheduleGetService.getScheduleMonthly(memberRole,year, month);
         return ApiResponse.response(HttpStatus.OK, SCHEDULE_CALENDAR_READ.getMessage(),dto);
+    }
+
+    @Operation(summary = "특정 게시글 일정 조회", description = "특정 게시글에 매핑된 일정이 있을 경우 반환")
+    @GetMapping("/v1/user/post/{postId}/schedule")
+    public ApiResponse<ScheduleResDTO> getScheduleByPost(@PathVariable Long postId) {
+        ScheduleResDTO dto = scheduleUseCase.getScheduleByPost(postId);
+        return ApiResponse.response(HttpStatus.OK, SCHEDULE_POST_READ.getMessage(),dto);
     }
 }
