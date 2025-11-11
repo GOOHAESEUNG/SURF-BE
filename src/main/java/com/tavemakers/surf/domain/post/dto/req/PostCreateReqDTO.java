@@ -33,7 +33,10 @@ public record PostCreateReqDTO(
         LocalDateTime reservedAt,
 
         @Schema(description = "게시글 이미지 목록")
-        List<PostImageCreateReqDTO> imageUrlList
+        List<PostImageCreateReqDTO> imageUrlList,
+
+        @Schema(description = "일정 매핑 유무", example = "true")
+        boolean isScheduleExist
 
 ) implements LogPropsProvider {
 
