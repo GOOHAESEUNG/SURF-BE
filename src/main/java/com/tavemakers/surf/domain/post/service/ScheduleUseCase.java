@@ -50,11 +50,6 @@ public class ScheduleUseCase {
     //게시글별 일정 조회
     @Transactional(readOnly = true)
     public ScheduleResDTO getScheduleByPost(Long postId) {
-       Post post = postGetService.getPost(postId);
-       boolean hasSchedule = postGetService.existsSchedule(post);
-
-       if(hasSchedule) {
            return scheduleGetService.getScheduleSingleDTO(postId);
-       }else return null;
     }
 }
