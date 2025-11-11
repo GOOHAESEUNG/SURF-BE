@@ -94,6 +94,7 @@ public class Post extends BaseEntity {
         this.boardName = board.getName();
         this.category = category;
         this.categoryName = category.getName();
+        this.hasSchedule = req.hasSchedule();
     }
 
     @PrePersist
