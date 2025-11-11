@@ -121,22 +121,38 @@ public class PostService {
         return slice.map(p -> toRes(p, flags.scrappedIds, flags.likedIds));
     }
 
-    @Transactional(readOnly = true)
-    public Slice<PostResDTO> getPostsByBoard(Long boardId, Long viewerId, Pageable pageable) {
-        if (!boardRepository.existsById(boardId))
-            throw new BoardNotFoundException();
-        Slice<Post> slice = postRepository.findByBoardId(boardId, pageable);
-        Flags flags = resolveFlags(viewerId, slice);
-        return slice.map(p -> toRes(p, flags.scrappedIds, flags.likedIds));
-    }
+//    @Transactional(readOnly = true)
+//    public Slice<PostResDTO> getPostsByBoard(Long boardId, Long viewerId, Pageable pageable) {
+//        if (!boardRepository.existsById(boardId))
+//            throw new BoardNotFoundException();
+//        Slice<Post> slice = postRepository.findByBoardId(boardId, pageable);
+//        Flags flags = resolveFlags(viewerId, slice);
+//        return slice.map(p -> toRes(p, flags.scrappedIds, flags.likedIds));
+//    }
 
     @Transactional(readOnly = true)
-    public Slice<PostResDTO> getPostsByBoardAndCategory(Long boardId, Long categoryId, Long viewerId, Pageable pageable) {
-        Board board = boardRepository.findById(boardId).orElseThrow(BoardNotFoundException::new);
-        resolveCategory(board, categoryId);
-        Slice<Post> slice = postRepository.findByBoardIdAndCategoryId(boardId, categoryId, pageable);
-        Flags f = resolveFlags(viewerId, slice);
-        return slice.map(p -> toRes(p, f.scrappedIds, f.likedIds));
+    public Slice<PostResDTO> getPostsByBoardAndCategory(
+            Long boardId, String categorySlug, Long viewerId, Pageable pageable) {
+
+        Board board = boardRepository.findById(boardId)
+                .orElseThrow(BoardNotFoundException::new);
+
+        final boolean all = (categorySlug == null || categorySlug.isBlank() || "all".equalsIgnoreCase(categorySlug));
+
+        Slice<Post> slice;
+        if (all) {
+            slice = postRepository.findByBoardId(boardId, pageable);
+        } else {
+            // 보드-카테고리 소속 검증 (slug 기준)
+            BoardCategory category = boardCategoryRepository.findByBoardIdAndSlug(boardId, categorySlug)
+                    .orElseThrow(CategoryNotFoundException::new);
+
+            resolveCategory(board, category.getId());
+            slice = postRepository.findByBoardIdAndCategoryId(boardId, category.getId(), pageable);
+        }
+
+        Flags flags = resolveFlags(viewerId, slice);
+        return slice.map(p -> toRes(p, flags.scrappedIds, flags.likedIds));
     }
 
     @Transactional

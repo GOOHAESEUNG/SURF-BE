@@ -75,30 +75,29 @@ public class PostController {
         return ApiResponse.response(HttpStatus.OK, POSTS_BY_MEMBER_READ.getMessage(), response);
     }
 
-    /** 게시판별 게시글 목록 (뷰어 = 현재 로그인 사용자) */
-    @Operation(summary = "게시판별 게시글 목록", description = "특정 게시판에 속한 게시글 목록을 조회합니다.")
-    @GetMapping("/v1/user/posts/board/{boardId}")
-    public ApiResponse<Slice<PostResDTO>> getPostsByBoard(
-            @PathVariable(name = "boardId") Long boardId,
-            @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
-            Pageable pageable
-    ) {
-        Long viewerId = SecurityUtils.getCurrentMemberId();
-        Slice<PostResDTO> response = postService.getPostsByBoard(boardId, viewerId, pageable);
-        return ApiResponse.response(HttpStatus.OK, POSTS_BY_BOARD_READ.getMessage(), response);
-    }
+//    /** 게시판별 게시글 목록 (뷰어 = 현재 로그인 사용자) */
+//    @Operation(summary = "게시판별 게시글 목록", description = "특정 게시판에 속한 게시글 목록을 조회합니다.")
+//    @GetMapping("/v1/user/posts/board/{boardId}")
+//    public ApiResponse<Slice<PostResDTO>> getPostsByBoard(
+//            @PathVariable(name = "boardId") Long boardId,
+//            @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
+//            Pageable pageable
+//    ) {
+//        Long viewerId = SecurityUtils.getCurrentMemberId();
+//        Slice<PostResDTO> response = postService.getPostsByBoard(boardId, viewerId, pageable);
+//        return ApiResponse.response(HttpStatus.OK, POSTS_BY_BOARD_READ.getMessage(), response);
+//    }
 
-    /** 보드+카테고리별 게시글 목록 (뷰어 = 현재 로그인 사용자) */
-    @Operation(summary = "카테고리별 게시글 목록", description = "특정 보드의 특정 카테고리에 속한 게시글 목록을 조회합니다.")
-    @GetMapping("/v1/user/posts/board/{boardId}/category/{categoryId}")
+    @Operation(summary = "보드 게시글 목록", description = "category 미지정 또는 'all'이면 보드 전체")
+    @GetMapping("/v1/user/posts/board/{boardId}")
     public ApiResponse<Slice<PostResDTO>> getPostsByBoardAndCategory(
             @PathVariable Long boardId,
-            @PathVariable Long categoryId,
+            @RequestParam(required = false) String category,
             @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {
         Long viewerId = SecurityUtils.getCurrentMemberId();
-        Slice<PostResDTO> response = postService.getPostsByBoardAndCategory(boardId, categoryId, viewerId, pageable);
+        Slice<PostResDTO> response = postService.getPostsByBoardAndCategory(boardId, category, viewerId, pageable);
         return ApiResponse.response(HttpStatus.OK, POSTS_BY_BOARD_READ.getMessage(), response);
     }
 
