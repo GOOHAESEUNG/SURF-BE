@@ -65,8 +65,9 @@ public class ScheduleGetService {
 
     //특정 일정 개별 조회 - 게시글
     @Transactional(readOnly = true)
-    public void getScheduleSingleDTO(Long postId) {
+    public ScheduleResDTO getScheduleSingleDTO(Long postId) {
         Schedule schedule = scheduleRepository.findByPostId(postId)
                 .orElseThrow(ScheduleNotFoundException::new);
+        return ScheduleResDTO.fromEntity(schedule);
     }
 }

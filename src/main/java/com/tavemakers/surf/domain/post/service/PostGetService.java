@@ -36,4 +36,9 @@ public class PostGetService {
                 .orElseThrow(PostNotFoundException::new);
     }
 
+    //해당 게시글이 일정과 매핑 되어있는지 판단
+    @Transactional(readOnly = true)
+    public boolean existsSchedule(Post post){
+        return post.isScheduleExist();
+    }
 }
