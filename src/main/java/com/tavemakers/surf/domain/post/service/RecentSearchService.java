@@ -1,4 +1,4 @@
-package com.tavemakers.surf.domain.search.service;
+package com.tavemakers.surf.domain.post.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;

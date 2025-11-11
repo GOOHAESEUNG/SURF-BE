@@ -1,10 +1,9 @@
-package com.tavemakers.surf.domain.search.controller;
+package com.tavemakers.surf.domain.post.controller;
 
 import com.tavemakers.surf.domain.member.entity.CustomUserDetails;
 import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
-import com.tavemakers.surf.domain.post.entity.Post;
-import com.tavemakers.surf.domain.search.service.PostSearchService;
-import com.tavemakers.surf.domain.search.service.RecentSearchService;
+import com.tavemakers.surf.domain.post.service.PostSearchService;
+import com.tavemakers.surf.domain.post.service.RecentSearchService;
 import com.tavemakers.surf.global.common.response.ApiResponse;
 import com.tavemakers.surf.global.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.tavemakers.surf.domain.search.controller.ResponseMessage.*;
+import static com.tavemakers.surf.domain.post.controller.ResponseMessage.*;
 
 @RestController
 @RequiredArgsConstructor

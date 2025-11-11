@@ -1,4 +1,4 @@
-package com.tavemakers.surf.domain.search.service;
+package com.tavemakers.surf.domain.post.service;
 
 import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.entity.Post;
