@@ -20,11 +20,8 @@ import java.util.Set;
 public class PostSearchService {
 
     private final PostRepository postRepository;
-    private final ScrapRepository scrapRepository;
-    private final PostLikeRepository postLikeRepository;
     private final RecentSearchService recentSearchService;
-
-    private record Flags(Set<Long> scrappedIds, Set<Long> likedIds) {}
+    private final FlagsMapper flagsMapper;
 
     public Slice<PostResDTO> search(Long viewerId, String q, Pageable pageable) {
         // 1) 게시글 검색
@@ -35,29 +32,9 @@ public class PostSearchService {
         recentSearchService.saveQuery(viewerId, q);
 
         // 3) viewer 기준 scrapped / liked 플래그 조회
-        Flags flags = resolveFlags(viewerId, slice);
+        FlagsMapper.Flags flags = flagsMapper.resolveFlags(viewerId, slice.getContent());
 
         // 4) Post → PostResDTO 매핑 (이미 쓰던 패턴 그대로)
-        return slice.map(p -> toRes(p, flags.scrappedIds, flags.likedIds));
-    }
-
-    private Flags resolveFlags(Long viewerId, Slice<Post> slice) {
-        List<Long> ids = slice.getContent().stream()
-                .map(Post::getId)
-                .toList();
-
-        Set<Long> scrappedIds = ids.isEmpty() ? Set.of()
-                : scrapRepository.findScrappedPostIdsByMemberAndPostIds(viewerId, ids);
-
-        Set<Long> likedIds = ids.isEmpty() ? Set.of()
-                : postLikeRepository.findLikedPostIdsByMemberAndPostIds(viewerId, ids);
-
-        return new Flags(scrappedIds, likedIds);
-    }
-
-    private PostResDTO toRes(Post p, Set<Long> scrapped, Set<Long> liked) {
-        boolean scr = scrapped.contains(p.getId());
-        boolean lk  = liked.contains(p.getId());
-        return PostResDTO.from(p, scr, lk);
+        return slice.map(p -> flagsMapper.toRes(p, flags));
     }
 }

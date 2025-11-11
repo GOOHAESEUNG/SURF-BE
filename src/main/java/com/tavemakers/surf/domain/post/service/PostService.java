@@ -65,6 +65,8 @@ public class PostService {
     private final PostImageGetService postImageGetService;
     private final PostImageDeleteService postImageDeleteService;
     private final MemberGetService memberGetService;
+    private final FlagsMapper flagsMapper;
+
 
     @Transactional
     @LogEvent(value = "post.create", message = "게시글 생성 성공")
@@ -108,8 +110,8 @@ public class PostService {
         if (!memberRepository.existsById(myId))
             throw new MemberNotFoundException();
         Slice<Post> slice = postRepository.findByMemberId(myId, pageable);
-        Flags flags = resolveFlags(myId, slice);
-        return slice.map(p -> toRes(p, flags.scrappedIds, flags.likedIds));
+        FlagsMapper.Flags flags = flagsMapper.resolveFlags(myId, slice.getContent());
+        return slice.map(p -> flagsMapper.toRes(p, flags));
     }
 
     @Transactional(readOnly = true)
@@ -117,8 +119,8 @@ public class PostService {
         if (!memberRepository.existsById(authorId))
             throw new MemberNotFoundException();
         Slice<Post> slice = postRepository.findByMemberId(authorId, pageable);
-        Flags flags = resolveFlags(viewerId, slice);
-        return slice.map(p -> toRes(p, flags.scrappedIds, flags.likedIds));
+        FlagsMapper.Flags flags = flagsMapper.resolveFlags(viewerId, slice.getContent());
+        return slice.map(p -> flagsMapper.toRes(p, flags));
     }
 
     @Transactional(readOnly = true)
@@ -126,8 +128,8 @@ public class PostService {
         if (!boardRepository.existsById(boardId))
             throw new BoardNotFoundException();
         Slice<Post> slice = postRepository.findByBoardId(boardId, pageable);
-        Flags flags = resolveFlags(viewerId, slice);
-        return slice.map(p -> toRes(p, flags.scrappedIds, flags.likedIds));
+        FlagsMapper.Flags flags = flagsMapper.resolveFlags(viewerId, slice.getContent());
+        return slice.map(p -> flagsMapper.toRes(p, flags));
     }
 
     @Transactional(readOnly = true)
@@ -135,8 +137,8 @@ public class PostService {
         Board board = boardRepository.findById(boardId).orElseThrow(BoardNotFoundException::new);
         resolveCategory(board, categoryId);
         Slice<Post> slice = postRepository.findByBoardIdAndCategoryId(boardId, categoryId, pageable);
-        Flags f = resolveFlags(viewerId, slice);
-        return slice.map(p -> toRes(p, f.scrappedIds, f.likedIds));
+        FlagsMapper.Flags flags = flagsMapper.resolveFlags(viewerId, slice.getContent());
+        return slice.map(p -> flagsMapper.toRes(p, flags));
     }
 
     @Transactional
@@ -205,23 +207,6 @@ public class PostService {
             throw new InvalidCategoryMappingException();
         }
         return category;
-    }
-
-    private record Flags(Set<Long> scrappedIds, Set<Long> likedIds) {}
-
-    private Flags resolveFlags(Long viewerId, Slice<Post> slice) {
-        List<Long> ids = slice.getContent().stream().map(Post::getId).toList();
-        Set<Long> scrappedIds = ids.isEmpty() ? Set.of()
-                : scrapRepository.findScrappedPostIdsByMemberAndPostIds(viewerId, ids);
-        Set<Long> likedIds = ids.isEmpty() ? Set.of()
-                : postLikeRepository.findLikedPostIdsByMemberAndPostIds(viewerId, ids);
-        return new Flags(scrappedIds, likedIds);
-    }
-
-    private PostResDTO toRes(Post p, Set<Long> scrapped, Set<Long> liked) {
-        boolean scr = scrapped.contains(p.getId());
-        boolean lk  = liked.contains(p.getId());
-        return PostResDTO.from(p, scr, lk);
     }
 
     @Transactional(readOnly = true)
