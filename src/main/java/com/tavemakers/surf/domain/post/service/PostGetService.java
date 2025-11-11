@@ -30,4 +30,10 @@ public class PostGetService {
                 .orElseThrow(PostNotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
+    public void validatePost(Long id) {
+        postRepository.findById(id)
+                .orElseThrow(PostNotFoundException::new);
+    }
+
 }

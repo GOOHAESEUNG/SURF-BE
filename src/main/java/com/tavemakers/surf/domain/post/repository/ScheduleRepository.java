@@ -9,4 +9,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     List<Schedule> findByStartAtBetween(LocalDateTime startOfMonth, LocalDateTime endOfMonth);
+
+    List<Schedule> findByStartAtBetweenAndCategoryIn(
+            LocalDateTime startOfMonth,
+            LocalDateTime endOfMonth,
+            List<String> categories
+    );
 }
