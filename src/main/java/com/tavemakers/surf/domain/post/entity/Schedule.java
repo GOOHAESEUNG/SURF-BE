@@ -71,11 +71,15 @@ public class Schedule extends BaseEntity {
     public void updateSchedule(ScheduleUpdateReqDTO dto){
         if(dto.startAt()!=null && dto.endAt()!=null){
             validateScheduleTime(dto.startAt(), dto.endAt());
+            this.startAt = dto.startAt();
+            this.endAt = dto.endAt();
         }
         else if(dto.startAt() != null) {
             validateScheduleTime(dto.startAt(), this.endAt);
+            this.startAt = dto.startAt();
         } else if (dto.endAt() != null) {
             validateScheduleTime(this.startAt, dto.endAt());
+            this.endAt = dto.endAt();
         }
 
         if(dto.category() != null) {
