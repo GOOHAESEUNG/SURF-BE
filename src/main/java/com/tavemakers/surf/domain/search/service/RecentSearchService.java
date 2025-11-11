@@ -1,19 +1,12 @@
 package com.tavemakers.surf.domain.search.service;
 
-import com.tavemakers.surf.domain.member.entity.Member;
-import com.tavemakers.surf.domain.member.repository.MemberRepository;
-import com.tavemakers.surf.domain.search.entity.RecentSearch;
-import com.tavemakers.surf.domain.search.repository.RecentSearchRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

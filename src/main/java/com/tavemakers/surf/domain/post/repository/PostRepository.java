@@ -40,6 +40,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             " where p.id = :id and p.version = :version and p.likeCount > 0")
     int decreaseLikeCount(@Param("id") Long postId, @Param("version") Long version);
 
-    Slice<PostResDTO> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(
+    Slice<Post> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(
             String title, String content, Pageable pageable);
 }
