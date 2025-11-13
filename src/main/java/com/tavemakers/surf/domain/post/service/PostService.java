@@ -118,22 +118,7 @@ public class PostService {
         return slice.map(p -> flagsMapper.toRes(p, flags));
     }
 
-//    @Transactional(readOnly = true)
-//    public Slice<PostResDTO> getPostsByBoard(Long boardId, Long viewerId, Pageable pageable) {
-//        if (!boardRepository.existsById(boardId))
-//            throw new BoardNotFoundException();
-//        Slice<Post> slice = postRepository.findByBoardId(boardId, pageable);
-//        Flags flags = resolveFlags(viewerId, slice);
-//        return slice.map(p -> toRes(p, flags.scrappedIds, flags.likedIds));
-//    }
-
     @Transactional(readOnly = true)
-    public Slice<PostResDTO> getPostsByBoard(Long boardId, Long viewerId, Pageable pageable) {
-        if (!boardRepository.existsById(boardId))
-            throw new BoardNotFoundException();
-        Slice<Post> slice = postRepository.findByBoardId(boardId, pageable);
-        FlagsMapper.Flags flags = flagsMapper.resolveFlags(viewerId, slice.getContent());
-        return slice.map(p -> flagsMapper.toRes(p, flags));
     public Slice<PostResDTO> getPostsByBoardAndCategory(
             Long boardId, String categorySlug, Long viewerId, Pageable pageable) {
 
@@ -154,8 +139,8 @@ public class PostService {
             slice = postRepository.findByBoardIdAndCategoryId(boardId, category.getId(), pageable);
         }
 
-        Flags flags = resolveFlags(viewerId, slice);
-        return slice.map(p -> toRes(p, flags.scrappedIds, flags.likedIds));
+        FlagsMapper.Flags flags = flagsMapper.resolveFlags(viewerId, slice.getContent());
+        return slice.map(p -> flagsMapper.toRes(p, flags));
     }
 
     @Transactional(readOnly = true)

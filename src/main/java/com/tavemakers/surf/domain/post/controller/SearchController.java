@@ -1,6 +1,5 @@
 package com.tavemakers.surf.domain.post.controller;
 
-import com.tavemakers.surf.domain.member.entity.CustomUserDetails;
 import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.service.PostSearchService;
 import com.tavemakers.surf.domain.post.service.RecentSearchService;
@@ -11,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,17 +36,27 @@ public class SearchController {
 
     /** 최근 검색어 10개 */
     @GetMapping("/v1/user/search/recent")
-    public ApiResponse<List<String>> recent(@AuthenticationPrincipal CustomUserDetails principal) {
-        Long memberId = principal.getMember().getId();
+    public ApiResponse<List<String>> recent() {
+        Long memberId = SecurityUtils.getCurrentMemberId();
         List<String> response = recentSearchService.getRecent10(memberId);
         return ApiResponse.response(HttpStatus.OK, RECENT_SEARCH_READ.getMessage(),response);
     }
 
     /** 최근 검색어 전체 삭제 */
     @DeleteMapping("/v1/user/search/recent")
-    public ApiResponse<Void> clear(@AuthenticationPrincipal CustomUserDetails principal) {
-        Long memberId = principal.getMember().getId();
+    public ApiResponse<Void> clear() {
+        Long memberId = SecurityUtils.getCurrentMemberId();
         recentSearchService.clearAll(memberId);
         return ApiResponse.response(HttpStatus.NO_CONTENT, RECENT_SEARCH_DELETED.getMessage());
+    }
+
+    /** 최근 검색어 단건 삭제 */
+    @DeleteMapping("/v1/user/search/recent/{keyword}")
+    public ApiResponse<Void> deleteOne(
+            @PathVariable String keyword
+    ) {
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        recentSearchService.deleteOne(memberId, keyword);
+        return ApiResponse.response(HttpStatus.NO_CONTENT, RECENT_SEARCH_ONE_DELETED.getMessage());
     }
 }

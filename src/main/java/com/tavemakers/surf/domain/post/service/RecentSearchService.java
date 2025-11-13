@@ -46,6 +46,18 @@ public class RecentSearchService {
         redis.delete(key(memberId));
     }
 
+    @Transactional
+    public void deleteOne(Long memberId, String rawKeyword) {
+        if (rawKeyword == null) return;
+
+        String keyword = normalize(rawKeyword);
+        if (keyword.isEmpty()) return;
+
+        String key = key(memberId);
+
+        redis.opsForList().remove(key, 0, keyword);
+    }
+
     private String key(Long memberId) { return KEY_FMT.formatted(memberId); }
 
     private String normalize(String s) {
