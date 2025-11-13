@@ -1,6 +1,7 @@
 package com.tavemakers.surf.domain.post.entity;
 
 import com.tavemakers.surf.domain.post.dto.req.ScheduleCreateReqDTO;
+import com.tavemakers.surf.domain.post.dto.req.ScheduleUpdateReqDTO;
 import com.tavemakers.surf.domain.post.exception.ScheduleTimeException;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
@@ -26,6 +27,9 @@ public class Schedule extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "schedule_id")
     private Long id;
+
+    @Column(nullable = false)
+    private String category;
 
     @Column(nullable = false)
     private String title;
@@ -54,6 +58,7 @@ public class Schedule extends BaseEntity {
     public static Schedule of(ScheduleCreateReqDTO dto, Post post) {
         validateScheduleTime(dto.startAt(), dto.endAt());
         return Schedule.builder()
+                .category(dto.category())
                 .title(dto.title())
                 .content(dto.content())
                 .startAt(dto.startAt())
@@ -61,6 +66,33 @@ public class Schedule extends BaseEntity {
                 .location(dto.location())
                 .post(post)
                 .build();
+    }
+
+    public void updateSchedule(ScheduleUpdateReqDTO dto){
+        if(dto.startAt()!=null && dto.endAt()!=null){
+            validateScheduleTime(dto.startAt(), dto.endAt());
+        }
+        else if(dto.startAt() != null) {
+            validateScheduleTime(dto.startAt(), this.endAt);
+        } else if (dto.endAt() != null) {
+            validateScheduleTime(this.startAt, dto.endAt());
+        }
+
+        if(dto.category() != null) {
+            this.category = dto.category();
+        }
+
+        if(dto.title() != null) {
+            this.title = dto.title();
+        }
+
+        if(dto.content() != null) {
+            this.content = dto.content();
+        }
+
+        if(dto.location() != null) {
+            this.location = dto.location();
+        }
     }
 
     private static void validateScheduleTime(LocalDateTime startAt, LocalDateTime endAt) {

@@ -4,7 +4,6 @@ import com.tavemakers.surf.global.logging.LogPropsProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 import java.util.ArrayList;
@@ -16,14 +15,12 @@ public record ProfileUpdateReqDTO(
         @Email
         String email,
 
-        @NotNull
         String university,
         String graduateSchool,
 
         @Pattern(regexp = "^[0-9\\-]{8,15}$")
         String phoneNumber,
 
-        @NotNull
         Boolean phoneNumberPublic,
 
         @Valid

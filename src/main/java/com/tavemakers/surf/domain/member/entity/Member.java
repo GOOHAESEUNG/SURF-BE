@@ -172,6 +172,17 @@ public class Member extends BaseEntity {
         track.setMember(this); // 여기서만 add 수행
     }
 
+    /** 댓글의 멘션 기능에서 회원들의 기수별로 정렬하기 위한 메서드 */
+    public Integer getFirstGeneration() {
+        if (tracks == null || tracks.isEmpty()) return null;
+
+        // 가장 먼저 활동한 기수
+        return tracks.stream()
+                .map(Track::getGeneration)
+                .min(Integer::compareTo)
+                .orElse(null);
+    }
+
     //프로필 수정하기
     public void updateProfile(ProfileUpdateReqDTO request) {
 

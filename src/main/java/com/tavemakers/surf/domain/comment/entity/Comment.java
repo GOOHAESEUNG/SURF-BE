@@ -1,6 +1,5 @@
 package com.tavemakers.surf.domain.comment.entity;
 
-import com.tavemakers.surf.domain.comment.exception.AlreadyDeletedCommentException;
 import com.tavemakers.surf.domain.comment.exception.CommentDepthExceedException;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.post.entity.Post;
@@ -10,9 +9,14 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Where;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
+@DynamicUpdate
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Where(clause="deleted=false")
@@ -37,11 +41,17 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<CommentLike> likes = new ArrayList<>();
+
     @Column(nullable = false, length = 1000)
     private String content;
 
     @Column(nullable = false)
     private boolean deleted = false;
+
+    @Column(nullable = false)
+    private Long likeCount = 0L;
 
     public void softDelete() {
         this.deleted = true;
@@ -92,10 +102,13 @@ public class Comment extends BaseEntity {
         }
     }
 
-    public void update(String content) {
-        if (this.deleted) {
-            throw new AlreadyDeletedCommentException();
-        }
-        this.content = content;
+    /** 좋아요 증가 */
+    public void increaseLikeCount() {
+        this.likeCount++;
+    }
+
+    /** 좋아요 감소 */
+    public void decreaseLikeCount() {
+        if (this.likeCount > 0) this.likeCount--;
     }
 }

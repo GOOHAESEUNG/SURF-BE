@@ -2,6 +2,7 @@ package com.tavemakers.surf.domain.post.dto.res;
 
 import com.tavemakers.surf.domain.post.entity.Schedule;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -9,6 +10,8 @@ import java.util.List;
 public record ScheduleResDTO(
         @Schema(description = "일정 ID", example = "5")
         Long scheduleId,
+        @Schema(description = "일정 카테고리", example = "정규행사")
+        String category,
         @Schema(description = "일정 제목", example = "만남의 장")
         String title,
         @Schema(description = "일정 설명", example = "만남의 장을 할 예정입니다. 준비물은 ~~")
@@ -30,6 +33,7 @@ public record ScheduleResDTO(
 
         return new ScheduleResDTO(
                 schedule.getId(),
+                schedule.getCategory(),
                 schedule.getTitle(),
                 schedule.getContent(),
                 schedule.getStartAt(),

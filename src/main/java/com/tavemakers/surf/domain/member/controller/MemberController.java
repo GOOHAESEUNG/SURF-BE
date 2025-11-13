@@ -11,6 +11,7 @@ import com.tavemakers.surf.global.logging.LogParam;
 import com.tavemakers.surf.global.logging.LogEventEmitter;
 import com.tavemakers.surf.global.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +40,7 @@ public class MemberController {
     @PostMapping("/v1/user/members/signup")
     public ApiResponse<MemberSignupResDTO> signup(
             @Valid @RequestBody MemberSignupReqDTO request,
-            @LogParam("request_id") String requestId
+            @Parameter(hidden = true) @LogParam("request_id") String requestId
     ) {
         Long userId = SecurityUtils.getCurrentMemberId();
 
