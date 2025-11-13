@@ -23,13 +23,13 @@ public class PostSearchService {
     private final RecentSearchService recentSearchService;
     private final FlagsMapper flagsMapper;
 
-    public Slice<PostResDTO> search(Long viewerId, String q, Pageable pageable) {
+    public Slice<PostResDTO> search(Long viewerId, String param, Pageable pageable) {
         // 1) 게시글 검색
         Slice<Post> slice = postRepository
-                .findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(q, q, pageable);
+                .findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(param, param, pageable);
 
         // 2) 최근 검색어 저장
-        recentSearchService.saveQuery(viewerId, q);
+        recentSearchService.saveQuery(viewerId, param);
 
         // 3) viewer 기준 scrapped / liked 플래그 조회
         FlagsMapper.Flags flags = flagsMapper.resolveFlags(viewerId, slice.getContent());

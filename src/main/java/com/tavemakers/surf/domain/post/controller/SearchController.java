@@ -28,11 +28,11 @@ public class SearchController {
     /** 게시글 검색 + 최근검색 저장 */
     @GetMapping("/v1/user/search/posts")
     public ApiResponse<Slice<PostResDTO>> searchPosts(
-            @RequestParam String q,
+            @RequestParam String param,
             @PageableDefault(size = 20, sort = {"postedAt","id"}) Pageable pageable) {
 
         Long memberId = SecurityUtils.getCurrentMemberId();
-        Slice<PostResDTO> response = postSearchService.search(memberId, q, pageable);
+        Slice<PostResDTO> response = postSearchService.search(memberId, param, pageable);
         return ApiResponse.response(HttpStatus.OK, SEARCH_COMPLETED.getMessage(), response);
     }
 
