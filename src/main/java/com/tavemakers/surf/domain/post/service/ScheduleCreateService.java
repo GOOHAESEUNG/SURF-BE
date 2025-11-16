@@ -14,14 +14,14 @@ public class ScheduleCreateService {
     private final ScheduleRepository scheduleRepository;
 
     @Transactional
-    public Schedule createScheduleAtPost(ScheduleCreateReqDTO dto, Post post) {
+    public void createScheduleAtPost(ScheduleCreateReqDTO dto, Post post) {
         Schedule schedule = Schedule.of(dto, post);
-        return scheduleRepository.save(schedule);
+        scheduleRepository.save(schedule);
     }
 
     @Transactional
-    public Schedule createScheduleSingle(ScheduleCreateReqDTO dto) {
+    public void createScheduleSingle(ScheduleCreateReqDTO dto) {
         Schedule schedule = Schedule.from(dto);
-        return scheduleRepository.save(schedule);
+        scheduleRepository.save(schedule);
     }
 }

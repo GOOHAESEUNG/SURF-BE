@@ -65,6 +65,8 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    private Boolean hasSchedule;
+
     public static Post of(PostCreateReqDTO req, Board board, BoardCategory category, Member member) {
         return Post.builder()
                 .title(req.title())
@@ -80,6 +82,7 @@ public class Post extends BaseEntity {
                 .likeCount(0L)
                 .commentCount(0L)
                 .isReserved(req.isReserved())
+                .hasSchedule(req.hasSchedule())
                 .build();
     }
 
@@ -91,6 +94,7 @@ public class Post extends BaseEntity {
         this.boardName = board.getName();
         this.category = category;
         this.categoryName = category.getName();
+        this.hasSchedule = req.hasSchedule();
     }
 
     @PrePersist

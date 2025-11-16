@@ -2,6 +2,7 @@ package com.tavemakers.surf.domain.post.service;
 
 import com.tavemakers.surf.domain.post.dto.req.ScheduleCreateReqDTO;
 import com.tavemakers.surf.domain.post.dto.req.ScheduleUpdateReqDTO;
+import com.tavemakers.surf.domain.post.dto.res.ScheduleResDTO;
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.entity.Schedule;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ public class ScheduleUseCase {
     private final SchedulePatchService schedulePatchService;
     private final ScheduleDeleteService scheduleDeleteService;
     private final PostService postService;
+    private final PostGetService postGetService;
 
     //게시글 생성 시 일정 생성
     @Transactional
@@ -43,5 +45,16 @@ public class ScheduleUseCase {
     public void deleteSchedule(Long id) {
         Schedule schedule = scheduleGetService.getScheduleById(id);
         scheduleDeleteService.deleteSchedule(schedule);
+    }
+
+    //게시글별 일정 조회
+    @Transactional(readOnly = true)
+    public ScheduleResDTO getScheduleByPost(Long postId) {
+       Post post = postGetService.getPost(postId);
+       boolean hasSchedule = postGetService.existsSchedule(post);
+
+       if(hasSchedule) {
+           return scheduleGetService.getScheduleSingleDTO(postId);
+       }else return null;
     }
 }
