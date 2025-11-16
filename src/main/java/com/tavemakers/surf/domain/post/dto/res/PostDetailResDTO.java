@@ -52,7 +52,10 @@ public record PostDetailResDTO(
         boolean isMine,
 
         @Schema(description = "게시글 이미지 링크")
-        List<PostImageResDTO> imageUrlList
+        List<PostImageResDTO> imageUrlList,
+
+        @Schema(description = "게시글 조회수", example = "100")
+        int viewCount
 ) {
     public static PostDetailResDTO of(
             Post post,
@@ -76,6 +79,7 @@ public record PostDetailResDTO(
                 .nickname(post.getMember().getName())
                 .isMine(isMine)
                 .imageUrlList(imageUrlList)
+                .viewCount(post.getViewCount())
                 .build();
     }
 }
