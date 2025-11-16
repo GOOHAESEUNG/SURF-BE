@@ -48,6 +48,9 @@ public record PostDetailResDTO(
         @Schema(description = "게시글 작성자 닉네임", example = "홍길동")
         String nickname,
 
+        @Schema(description = "게시글 작성자 썸네일 이미지 URL", example = "https://example.com/profile.jpg")
+        String profileImageUrl,
+
         @Schema(description = "내 게시글 여부", example = "true")
         boolean isMine,
 
@@ -77,6 +80,7 @@ public record PostDetailResDTO(
                 .likeCount(post.getLikeCount())
                 .commentCount(post.getCommentCount())
                 .nickname(post.getMember().getName())
+                .profileImageUrl(post.getMember().getProfileImageUrl())
                 .isMine(isMine)
                 .imageUrlList(imageUrlList)
                 .viewCount(post.getViewCount())
