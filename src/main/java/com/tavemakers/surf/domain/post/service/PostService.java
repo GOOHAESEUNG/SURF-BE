@@ -84,10 +84,10 @@ public class PostService {
             List<PostImageCreateReqDTO> imageUrlList = req.imageUrlList();
             saved.addThumbnailUrl(findFirstImage(imageUrlList));
             List<PostImageResDTO> imageUrlResponseList = imageSaveService.saveAll(saved, imageUrlList);
-            return PostDetailResDTO.of(saved, false, false, imageUrlResponseList);
+            return PostDetailResDTO.of(saved, false, false, true, imageUrlResponseList);
         }
 
-        return PostDetailResDTO.of(saved, false, false, null);
+        return PostDetailResDTO.of(saved, false, false,true,null);
     }
 
     @Transactional(readOnly = true)
@@ -96,8 +96,9 @@ public class PostService {
                 .orElseThrow(PostNotFoundException::new);
         boolean scrappedByMe = scrapService.isScrappedByMe(memberId, postId);
         boolean likedByMe = postLikeService.isLikedByMe(memberId, postId);
+        boolean isMine = post.isOwner(memberId);
         List<PostImageResDTO> imageUrlList = getImageUrlList(post);
-        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, imageUrlList);
+        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, isMine, imageUrlList);
     }
 
     @Transactional(readOnly = true)
@@ -180,11 +181,11 @@ public class PostService {
             List<PostImageCreateReqDTO> changeImage = req.imageUrlList();
             post.addThumbnailUrl(findFirstImage(changeImage));
             List<PostImageResDTO> savedChangedImage = imageSaveService.saveAll(post, changeImage);
-            return PostDetailResDTO.of(post, scrappedByMe, likedByMe, savedChangedImage);
+            return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, savedChangedImage);
         }
 
         List<PostImageResDTO> imageDtoList = getImageUrlList(post);
-        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, imageDtoList);
+        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, imageDtoList);
     }
 
     private void deleteExistingImage(Post post) {

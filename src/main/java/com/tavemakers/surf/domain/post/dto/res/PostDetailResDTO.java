@@ -48,10 +48,18 @@ public record PostDetailResDTO(
         @Schema(description = "게시글 작성자 닉네임", example = "홍길동")
         String nickname,
 
+        @Schema(description = "내 게시글 여부", example = "true")
+        boolean isMine,
+
         @Schema(description = "게시글 이미지 링크")
         List<PostImageResDTO> imageUrlList
 ) {
-    public static PostDetailResDTO of(Post post, boolean scrappedByMe, boolean likedByMe, List<PostImageResDTO> imageUrlList) {
+    public static PostDetailResDTO of(
+            Post post,
+            boolean scrappedByMe,
+            boolean likedByMe,
+            boolean isMine,
+            List<PostImageResDTO> imageUrlList) {
         return PostDetailResDTO.builder()
                 .postId(post.getId())
                 .title(post.getTitle())
@@ -66,6 +74,7 @@ public record PostDetailResDTO(
                 .likeCount(post.getLikeCount())
                 .commentCount(post.getCommentCount())
                 .nickname(post.getMember().getName())
+                .isMine(isMine)
                 .imageUrlList(imageUrlList)
                 .build();
     }
