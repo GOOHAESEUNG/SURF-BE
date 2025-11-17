@@ -58,7 +58,10 @@ public record PostDetailResDTO(
         List<PostImageResDTO> imageUrlList,
 
         @Schema(description = "게시글 조회수", example = "100")
-        int viewCount
+        int viewCount,
+
+        @Schema(description = "일정 매핑 유무", example = "true")
+        Boolean hasSchedule
 ) {
     public static PostDetailResDTO of(
             Post post,
@@ -84,6 +87,7 @@ public record PostDetailResDTO(
                 .isMine(isMine)
                 .imageUrlList(imageUrlList)
                 .viewCount(post.getViewCount())
+                .hasSchedule(post.getHasSchedule())
                 .build();
     }
 }

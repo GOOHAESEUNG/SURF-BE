@@ -34,7 +34,10 @@ public record PostUpdateReqDTO(
         Boolean isImageChanged,
 
         @Schema(description = "게시글 이미지")
-        List<PostImageCreateReqDTO> imageUrlList
+        List<PostImageCreateReqDTO> imageUrlList,
+
+        @Schema(description = "일정 매핑 유무", example = "true")
+        Boolean hasSchedule
 
 ) implements LogPropsProvider {
 
