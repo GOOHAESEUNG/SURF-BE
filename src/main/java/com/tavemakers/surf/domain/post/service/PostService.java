@@ -23,9 +23,7 @@ import com.tavemakers.surf.domain.post.entity.PostImageUrl;
 import com.tavemakers.surf.domain.post.exception.PostDeleteAccessDeniedException;
 import com.tavemakers.surf.domain.post.exception.PostImageListEmptyException;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
-import com.tavemakers.surf.domain.post.repository.PostLikeRepository;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
-import com.tavemakers.surf.domain.scrap.repository.ScrapRepository;
 import com.tavemakers.surf.domain.reservation.usecase.ReservationUsecase;
 import com.tavemakers.surf.domain.scrap.service.ScrapService;
 import com.tavemakers.surf.global.logging.LogEvent;
@@ -38,7 +36,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
 
 import java.util.Comparator;
 
@@ -52,8 +49,6 @@ public class PostService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final BoardCategoryRepository boardCategoryRepository;
-    private final ScrapRepository scrapRepository;
-    private final PostLikeRepository postLikeRepository;
 
     private final ScrapService scrapService;
     private final PostLikeService postLikeService;
@@ -65,6 +60,8 @@ public class PostService {
     private final PostImageGetService postImageGetService;
     private final PostImageDeleteService postImageDeleteService;
     private final MemberGetService memberGetService;
+    private final FlagsMapper flagsMapper;
+
 
     @Transactional
     @LogEvent(value = "post.create", message = "게시글 생성 성공")
@@ -87,10 +84,10 @@ public class PostService {
             List<PostImageCreateReqDTO> imageUrlList = req.imageUrlList();
             saved.addThumbnailUrl(findFirstImage(imageUrlList));
             List<PostImageResDTO> imageUrlResponseList = imageSaveService.saveAll(saved, imageUrlList);
-            return PostDetailResDTO.of(saved, false, false, imageUrlResponseList);
+            return PostDetailResDTO.of(saved, false, false, true, imageUrlResponseList);
         }
 
-        return PostDetailResDTO.of(saved, false, false, null);
+        return PostDetailResDTO.of(saved, false, false,true,null);
     }
 
     @Transactional(readOnly = true)
@@ -99,8 +96,9 @@ public class PostService {
                 .orElseThrow(PostNotFoundException::new);
         boolean scrappedByMe = scrapService.isScrappedByMe(memberId, postId);
         boolean likedByMe = postLikeService.isLikedByMe(memberId, postId);
+        boolean isMine = post.isOwner(memberId);
         List<PostImageResDTO> imageUrlList = getImageUrlList(post);
-        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, imageUrlList);
+        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, isMine, imageUrlList);
     }
 
     @Transactional(readOnly = true)
@@ -108,8 +106,8 @@ public class PostService {
         if (!memberRepository.existsById(myId))
             throw new MemberNotFoundException();
         Slice<Post> slice = postRepository.findByMemberId(myId, pageable);
-        Flags flags = resolveFlags(myId, slice);
-        return slice.map(p -> toRes(p, flags.scrappedIds, flags.likedIds));
+        FlagsMapper.Flags flags = flagsMapper.resolveFlags(myId, slice.getContent());
+        return slice.map(p -> flagsMapper.toRes(p, flags));
     }
 
     @Transactional(readOnly = true)
@@ -117,18 +115,9 @@ public class PostService {
         if (!memberRepository.existsById(authorId))
             throw new MemberNotFoundException();
         Slice<Post> slice = postRepository.findByMemberId(authorId, pageable);
-        Flags flags = resolveFlags(viewerId, slice);
-        return slice.map(p -> toRes(p, flags.scrappedIds, flags.likedIds));
+        FlagsMapper.Flags flags = flagsMapper.resolveFlags(viewerId, slice.getContent());
+        return slice.map(p -> flagsMapper.toRes(p, flags));
     }
-
-//    @Transactional(readOnly = true)
-//    public Slice<PostResDTO> getPostsByBoard(Long boardId, Long viewerId, Pageable pageable) {
-//        if (!boardRepository.existsById(boardId))
-//            throw new BoardNotFoundException();
-//        Slice<Post> slice = postRepository.findByBoardId(boardId, pageable);
-//        Flags flags = resolveFlags(viewerId, slice);
-//        return slice.map(p -> toRes(p, flags.scrappedIds, flags.likedIds));
-//    }
 
     @Transactional(readOnly = true)
     public Slice<PostResDTO> getPostsByBoardAndCategory(
@@ -151,8 +140,17 @@ public class PostService {
             slice = postRepository.findByBoardIdAndCategoryId(boardId, category.getId(), pageable);
         }
 
-        Flags flags = resolveFlags(viewerId, slice);
-        return slice.map(p -> toRes(p, flags.scrappedIds, flags.likedIds));
+        FlagsMapper.Flags flags = flagsMapper.resolveFlags(viewerId, slice.getContent());
+        return slice.map(p -> flagsMapper.toRes(p, flags));
+    }
+
+    @Transactional(readOnly = true)
+    public Slice<PostResDTO> getPostsByBoardAndCategory(Long boardId, Long categoryId, Long viewerId, Pageable pageable) {
+        Board board = boardRepository.findById(boardId).orElseThrow(BoardNotFoundException::new);
+        resolveCategory(board, categoryId);
+        Slice<Post> slice = postRepository.findByBoardIdAndCategoryId(boardId, categoryId, pageable);
+        FlagsMapper.Flags flags = flagsMapper.resolveFlags(viewerId, slice.getContent());
+        return slice.map(p -> flagsMapper.toRes(p, flags));
     }
 
     @Transactional
@@ -183,11 +181,11 @@ public class PostService {
             List<PostImageCreateReqDTO> changeImage = req.imageUrlList();
             post.addThumbnailUrl(findFirstImage(changeImage));
             List<PostImageResDTO> savedChangedImage = imageSaveService.saveAll(post, changeImage);
-            return PostDetailResDTO.of(post, scrappedByMe, likedByMe, savedChangedImage);
+            return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, savedChangedImage);
         }
 
         List<PostImageResDTO> imageDtoList = getImageUrlList(post);
-        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, imageDtoList);
+        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, imageDtoList);
     }
 
     private void deleteExistingImage(Post post) {
@@ -221,23 +219,6 @@ public class PostService {
             throw new InvalidCategoryMappingException();
         }
         return category;
-    }
-
-    private record Flags(Set<Long> scrappedIds, Set<Long> likedIds) {}
-
-    private Flags resolveFlags(Long viewerId, Slice<Post> slice) {
-        List<Long> ids = slice.getContent().stream().map(Post::getId).toList();
-        Set<Long> scrappedIds = ids.isEmpty() ? Set.of()
-                : scrapRepository.findScrappedPostIdsByMemberAndPostIds(viewerId, ids);
-        Set<Long> likedIds = ids.isEmpty() ? Set.of()
-                : postLikeRepository.findLikedPostIdsByMemberAndPostIds(viewerId, ids);
-        return new Flags(scrappedIds, likedIds);
-    }
-
-    private PostResDTO toRes(Post p, Set<Long> scrapped, Set<Long> liked) {
-        boolean scr = scrapped.contains(p.getId());
-        boolean lk  = liked.contains(p.getId());
-        return PostResDTO.from(p, scr, lk);
     }
 
     @Transactional(readOnly = true)

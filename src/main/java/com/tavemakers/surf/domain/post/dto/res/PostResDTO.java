@@ -52,7 +52,10 @@ public record PostResDTO(
         @Schema(description = "게시글 작성자 닉네임", example = "홍길동")
         String nickname,
 
-        boolean isReserved
+        boolean isReserved,
+
+        @Schema(description = "게시글 조회수", example = "100")
+        int viewCount
 
 ) {
     public static PostResDTO from(Post post, boolean scrappedByMe, boolean likedByMe) {
@@ -71,6 +74,7 @@ public record PostResDTO(
                 .commentCount(post.getCommentCount())
                 .nickname(post.getMember().getName())
                 .isReserved(post.isReserved())
+                .viewCount(post.getViewCount())
                 .build();
     }
 }

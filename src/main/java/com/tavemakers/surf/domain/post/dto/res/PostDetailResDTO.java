@@ -27,6 +27,9 @@ public record PostDetailResDTO(
         @Schema(description = "게시판 ID", example = "1")
         Long boardId,
 
+        @Schema(description = "세부 카테고리 ID", example = "2")
+        Long categoryId,
+
         @Schema(description = "내가 스크랩한 게시글인지 여부", example = "true")
         boolean scrappedByMe,
 
@@ -45,13 +48,27 @@ public record PostDetailResDTO(
         @Schema(description = "게시글 작성자 닉네임", example = "홍길동")
         String nickname,
 
+        @Schema(description = "게시글 작성자 썸네일 이미지 URL", example = "https://example.com/profile.jpg")
+        String profileImageUrl,
+
+        @Schema(description = "내 게시글 여부", example = "true")
+        boolean isMine,
+
         @Schema(description = "게시글 이미지 링크")
         List<PostImageResDTO> imageUrlList,
+
+        @Schema(description = "게시글 조회수", example = "100")
+        int viewCount,
 
         @Schema(description = "일정 매핑 유무", example = "true")
         Boolean hasSchedule
 ) {
-    public static PostDetailResDTO of(Post post, boolean scrappedByMe, boolean likedByMe, List<PostImageResDTO> imageUrlList) {
+    public static PostDetailResDTO of(
+            Post post,
+            boolean scrappedByMe,
+            boolean likedByMe,
+            boolean isMine,
+            List<PostImageResDTO> imageUrlList) {
         return PostDetailResDTO.builder()
                 .postId(post.getId())
                 .title(post.getTitle())
@@ -59,13 +76,17 @@ public record PostDetailResDTO(
                 .pinned(post.isPinned())
                 .postedAt(post.getPostedAt())
                 .boardId(post.getBoard().getId())
+                .categoryId(post.getCategory().getId())
                 .scrappedByMe(scrappedByMe)
                 .scrapCount(post.getScrapCount())
                 .likedByMe(likedByMe)
                 .likeCount(post.getLikeCount())
                 .commentCount(post.getCommentCount())
                 .nickname(post.getMember().getName())
+                .profileImageUrl(post.getMember().getProfileImageUrl())
+                .isMine(isMine)
                 .imageUrlList(imageUrlList)
+                .viewCount(post.getViewCount())
                 .hasSchedule(post.getHasSchedule())
                 .build();
     }
