@@ -51,6 +51,8 @@ public class Post extends BaseEntity {
 
     private boolean isReserved;
 
+    private int viewCount;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "board_id", nullable = false)
     private Board board;
@@ -83,6 +85,7 @@ public class Post extends BaseEntity {
                 .commentCount(0L)
                 .isReserved(req.isReserved())
                 .hasSchedule(req.hasSchedule())
+                .viewCount(0)
                 .build();
     }
 
