@@ -25,7 +25,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     long countByPostIdAndDeletedFalse(Long postId);
 
     /** 대댓글이 있는 루트댓글의 경우 소프트 삭제 */
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE Comment c SET c.deleted = true, c.content = '(삭제된 댓글입니다.)' WHERE c.id = :id")
     void softDeleteById(Long id);
 }
