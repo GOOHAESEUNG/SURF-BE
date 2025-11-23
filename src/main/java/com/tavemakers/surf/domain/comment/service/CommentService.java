@@ -104,6 +104,10 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(CommentNotFoundException::new);
 
+        if (comment.isDeleted()) {
+            throw new AlreadyDeletedCommentException();
+        }
+
         // 본인이 쓴 댓글인지 확인
         if (!comment.getPost().getId().equals(postId) || !comment.getMember().getId().equals(memberId))
             throw new NotMyCommentException();
