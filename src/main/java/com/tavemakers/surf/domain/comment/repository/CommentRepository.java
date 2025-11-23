@@ -10,8 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    /** 자식 댓글 존재 여부 확인용 (삭제 시) */
-    boolean existsByParentId(Long parentId);
+    boolean existsByRootIdAndDepth(Long rootId, int depth);
 
     /** 본인 댓글만 삭제 */
     @Transactional
@@ -21,4 +20,14 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     /** 게시글 내 모든 댓글 + 대댓글 조회 (작성 시간순) */
     Slice<Comment> findByPostIdOrderByCreatedAtAsc(Long postId, Pageable pageable);
+
+    /** 댓글 총 개수 */
+    long countByPostIdAndDeletedFalse(Long postId);
+
+    /** 대댓글이 있는 루트댓글의 경우 소프트 삭제 */
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Comment c SET c.deleted = true, c.content = '(삭제된 댓글입니다.)' WHERE c.id = :id")
+    void softDeleteById(Long id);
 }
+
+
