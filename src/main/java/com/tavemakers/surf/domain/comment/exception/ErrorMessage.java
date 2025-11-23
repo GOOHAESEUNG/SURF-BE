@@ -13,7 +13,8 @@ public enum ErrorMessage {
     INVALID_BLANK_COMMENT(HttpStatus.BAD_REQUEST, "[댓글] 내용은 공백일 수 없습니다."),
     ALREADY_DELETED_COMMENT(HttpStatus.BAD_REQUEST, "이미 삭제된 [댓글]입니다."),
     COMMENT_MENTION_SELF(HttpStatus.BAD_REQUEST, "자기 자신을 멘션할 수 없습니다."),
-    INVALID_MENTION_SEARCH_KEYWORD(HttpStatus.BAD_REQUEST, "회원 멘션은 @으로 시작해야 하며, 이름은 두 글자 이상 입력해주세요. ex) @홍길");
+    INVALID_MENTION_SEARCH_KEYWORD(HttpStatus.BAD_REQUEST, "회원 멘션은 @으로 시작해야 하며, 이름은 두 글자 이상 입력해주세요. ex) @홍길"),
+    CANNOT_REPLY_TO_DELETED_COMMENT(HttpStatus.BAD_REQUEST, "삭제된 [댓글]에는 대댓글을 작성할 수 없습니다.");
 
     private final HttpStatus status;
     private final String message;
