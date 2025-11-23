@@ -3,6 +3,7 @@ package com.tavemakers.surf.domain.post.service;
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
+import com.tavemakers.surf.domain.post.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,10 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostGetService {
 
     private final PostRepository postRepository;
+    private final ScheduleRepository scheduleRepository;
 
     @Transactional
     public Post getPost(Long id) {
-        return  postRepository.findById(id)
+        return postRepository.findById(id)
                 .orElseThrow(PostNotFoundException::new);
     }
 
@@ -26,7 +28,7 @@ public class PostGetService {
 
     @Transactional(readOnly = true)
     public Post readPost(Long id) {
-        return  postRepository.findById(id)
+        return postRepository.findById(id)
                 .orElseThrow(PostNotFoundException::new);
     }
 
@@ -36,9 +38,9 @@ public class PostGetService {
                 .orElseThrow(PostNotFoundException::new);
     }
 
-    //해당 게시글이 일정과 매핑 되어있는지 판단
-    @Transactional(readOnly = true)
-    public boolean existsSchedule(Post post){
-        return post.getHasSchedule();
+    @Transactional
+    public Post findByScheduleId(Long scheduleId) {
+        return scheduleRepository.findPostByScheduleId(scheduleId)
+                .orElseThrow(PostNotFoundException::new);
     }
 }

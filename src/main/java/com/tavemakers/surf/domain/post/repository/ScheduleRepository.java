@@ -1,10 +1,12 @@
 package com.tavemakers.surf.domain.post.repository;
 
+import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.entity.Schedule;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -18,4 +20,8 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     );
 
     Optional<Schedule> findByPostId(Long postId);
+
+
+    @Query("SELECT s.post FROM Schedule s WHERE s.id = :scheduleId")
+    Optional<Post> findPostByScheduleId(Long scheduleId);
 }

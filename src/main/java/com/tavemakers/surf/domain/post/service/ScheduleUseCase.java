@@ -44,17 +44,14 @@ public class ScheduleUseCase {
     @Transactional
     public void deleteSchedule(Long id) {
         Schedule schedule = scheduleGetService.getScheduleById(id);
+        Post post = postGetService.findByScheduleId(id);
+        post.changeHasSchedule();
         scheduleDeleteService.deleteSchedule(schedule);
     }
 
     //게시글별 일정 조회
     @Transactional(readOnly = true)
     public ScheduleResDTO getScheduleByPost(Long postId) {
-       Post post = postGetService.getPost(postId);
-       boolean hasSchedule = postGetService.existsSchedule(post);
-
-       if(hasSchedule) {
            return scheduleGetService.getScheduleSingleDTO(postId);
-       }else return null;
     }
 }
