@@ -65,6 +65,7 @@ public record PostResDTO(
                 .content(post.getContent())
                 .pinned(post.isPinned())
                 .postedAt(post.getPostedAt())
+                .thumbnailImageUrl(post.getThumbnailUrl())
                 .boardId(post.getBoard().getId())
                 .categoryId(post.getCategory().getId())
                 .scrappedByMe(scrappedByMe)
