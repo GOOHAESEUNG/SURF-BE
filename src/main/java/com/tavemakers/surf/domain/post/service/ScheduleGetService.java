@@ -70,4 +70,12 @@ public class ScheduleGetService {
                 .orElseThrow(ScheduleNotFoundException::new);
         return ScheduleResDTO.fromEntity(schedule);
     }
+
+    //특정 일정 개별 조회 - 캘린터에서 수정하기/삭제로 넘어갈시
+    @Transactional(readOnly = true)
+    public ScheduleResDTO getScheduleSingleAtCalendar(Long scheduleId) {
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(ScheduleNotFoundException::new);
+        return ScheduleResDTO.fromEntity(schedule);
+    }
 }

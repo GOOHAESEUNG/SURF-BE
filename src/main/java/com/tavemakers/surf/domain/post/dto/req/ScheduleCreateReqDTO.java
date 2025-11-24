@@ -15,10 +15,6 @@ public record ScheduleCreateReqDTO(
         @NotBlank
         String title,
 
-        @Schema(description = "일정 설명", example = "만남의 장을 할 예정입니다. 준비물은 ~~")
-        @NotNull
-        String content,
-
         @Schema(description = "일정 시작 시간", example = "2025-11-15T14:00:00")
         @NotNull
         LocalDateTime startAt,

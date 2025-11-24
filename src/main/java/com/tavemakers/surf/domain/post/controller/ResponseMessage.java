@@ -24,6 +24,7 @@ public enum ResponseMessage {
     SCHEDULE_CALENDAR_READ("[일정]이 성공적으로 월별 조회되었습니다."),
     SCHEDULE_DELETED("[일정]이 성공적으로 삭제되었습니다."),
     SCHEDULE_POST_READ("[게시글]과 매핑된 [일정]이 성공적으로 조회되었습니다."),
+    SCHEDULE_READ("[일정]이 성공적으로 조회되었습니다."),
 
     SEARCH_COMPLETED("검색이 성공적으로 완료되었습니다."),
     RECENT_SEARCH_READ("최근 검색어 목록이 성공적으로 조회되었습니다."),

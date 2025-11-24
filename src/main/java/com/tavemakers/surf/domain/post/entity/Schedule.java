@@ -35,9 +35,6 @@ public class Schedule extends BaseEntity {
     private String title;
 
     @Column(nullable = false)
-    private String content;
-
-    @Column(nullable = false)
     private LocalDateTime startAt;
 
     @Column(nullable = false)
@@ -60,7 +57,6 @@ public class Schedule extends BaseEntity {
         return Schedule.builder()
                 .category(dto.category())
                 .title(dto.title())
-                .content(dto.content())
                 .startAt(dto.startAt())
                 .endAt(dto.endAt())
                 .location(dto.location())
@@ -88,10 +84,6 @@ public class Schedule extends BaseEntity {
 
         if(dto.title() != null) {
             this.title = dto.title();
-        }
-
-        if(dto.content() != null) {
-            this.content = dto.content();
         }
 
         if(dto.location() != null) {

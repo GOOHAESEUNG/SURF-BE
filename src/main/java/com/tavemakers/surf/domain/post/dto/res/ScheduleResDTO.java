@@ -14,8 +14,6 @@ public record ScheduleResDTO(
         String category,
         @Schema(description = "일정 제목", example = "만남의 장")
         String title,
-        @Schema(description = "일정 설명", example = "만남의 장을 할 예정입니다. 준비물은 ~~")
-        String content,
         @Schema(description = "일정 시작 시간", example = "2025-11-15T14:00:00")
         LocalDateTime startAt,
         @Schema(description = "일정 종료 시간", example = "2025-11-15T16:00:00")
@@ -35,7 +33,6 @@ public record ScheduleResDTO(
                 schedule.getId(),
                 schedule.getCategory(),
                 schedule.getTitle(),
-                schedule.getContent(),
                 schedule.getStartAt(),
                 schedule.getEndAt(),
                 schedule.getLocation(),
