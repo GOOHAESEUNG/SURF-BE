@@ -3,6 +3,7 @@ package com.tavemakers.surf.domain.post.controller;
 import static com.tavemakers.surf.domain.post.controller.ResponseMessage.SCHEDULE_CALENDAR_READ;
 import static com.tavemakers.surf.domain.post.controller.ResponseMessage.SCHEDULE_CREATED;
 import static com.tavemakers.surf.domain.post.controller.ResponseMessage.SCHEDULE_POST_READ;
+import static com.tavemakers.surf.domain.post.controller.ResponseMessage.SCHEDULE_READ;
 
 import com.tavemakers.surf.domain.post.dto.req.ScheduleCreateReqDTO;
 import com.tavemakers.surf.domain.post.dto.res.ScheduleMonthlyResDTO;
@@ -48,5 +49,12 @@ public class ScheduleGetController {
     public ApiResponse<ScheduleResDTO> getScheduleByPost(@PathVariable Long postId) {
         ScheduleResDTO dto = scheduleUseCase.getScheduleByPost(postId);
         return ApiResponse.response(HttpStatus.OK, SCHEDULE_POST_READ.getMessage(),dto);
+    }
+
+    @Operation(summary = "특정 일정 조회", description = "특정 일정을 캘린더에서 수정/삭제할 때 조회")
+    @GetMapping("/v1/admin/calendar/schedules/{scheduleId}")
+    public ApiResponse<ScheduleResDTO> getScheduleByScheduleId(@PathVariable Long scheduleId) {
+        ScheduleResDTO dto = scheduleGetService.getScheduleSingleAtCalendar(scheduleId);
+        return ApiResponse.response(HttpStatus.OK, SCHEDULE_READ.getMessage(),dto);
     }
 }
