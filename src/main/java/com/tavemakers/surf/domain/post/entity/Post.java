@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseEntity {
 
+    private static final String WEBP_EXTENSION = ".webp";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_id")
@@ -120,7 +122,9 @@ public class Post extends BaseEntity {
     }
 
     public void addThumbnailUrl(String originalUrl) {
-        this.thumbnailUrl = originalUrl.replace("/original/", "/thumbnail/");
+        String url = originalUrl.replace("/original/", "/thumbnail/");
+        int dotIndex = url.lastIndexOf('.');
+        this.thumbnailUrl = url.substring(0, dotIndex) + WEBP_EXTENSION;
     }
 
     public boolean isOwner(Long memberId) {
