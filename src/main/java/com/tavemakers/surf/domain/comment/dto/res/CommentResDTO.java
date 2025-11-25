@@ -14,10 +14,13 @@ public record CommentResDTO(
         @Schema(description = "게시글 ID", example = "3")
         Long postId,
 
-        @Schema(description = "루트 댓글 ID", example = "15")
+        @Schema(description = "루트 댓글 ID (최상위 댓글)", example = "15")
         Long rootId,
 
-        @Schema(description = "댓글 깊이 (0=루트, 1=대댓글)", example = "0")
+        @Schema(description = "부모 댓글 ID (루트면 null)", example = "null")
+        Long parentId,
+
+        @Schema(description = "댓글 깊이 (0=루트, 그 외=대댓글)", example = "0")
         int depth,
 
         @Schema(description = "댓글 내용", example = "좋은 공지 감사합니다!")
@@ -52,6 +55,7 @@ public record CommentResDTO(
                 comment.getId(),
                 comment.getPost().getId(),
                 comment.getRootId(),
+                comment.getParent() != null ? comment.getParent().getId() : null,
                 comment.getDepth(),
                 comment.getContent(),
                 comment.getMember().getId(),
