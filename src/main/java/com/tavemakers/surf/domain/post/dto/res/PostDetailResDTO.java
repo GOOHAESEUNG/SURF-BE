@@ -68,7 +68,9 @@ public record PostDetailResDTO(
             boolean scrappedByMe,
             boolean likedByMe,
             boolean isMine,
-            List<PostImageResDTO> imageUrlList) {
+            List<PostImageResDTO> imageUrlList,
+            int viewCount
+            ) {
         return PostDetailResDTO.builder()
                 .postId(post.getId())
                 .title(post.getTitle())
@@ -86,7 +88,7 @@ public record PostDetailResDTO(
                 .profileImageUrl(post.getMember().getProfileImageUrl())
                 .isMine(isMine)
                 .imageUrlList(imageUrlList)
-                .viewCount(post.getViewCount())
+                .viewCount(viewCount)
                 .hasSchedule(post.getHasSchedule())
                 .build();
     }
