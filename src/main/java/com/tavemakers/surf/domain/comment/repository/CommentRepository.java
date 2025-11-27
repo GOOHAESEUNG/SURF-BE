@@ -28,6 +28,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Comment c SET c.deleted = true, c.content = '(삭제된 댓글입니다.)' WHERE c.id = :id")
     void softDeleteById(Long id);
+
+    void deleteByPostId(Long postId);
 }
 
 

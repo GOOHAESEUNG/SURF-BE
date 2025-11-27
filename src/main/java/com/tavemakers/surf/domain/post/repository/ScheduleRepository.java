@@ -24,4 +24,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
     @Query("SELECT s.post FROM Schedule s WHERE s.id = :scheduleId")
     Optional<Post> findPostByScheduleId(Long scheduleId);
+
+    void deleteByPostId(Long postId);
 }

@@ -8,6 +8,7 @@ import com.tavemakers.surf.domain.board.exception.CategoryRequiredException;
 import com.tavemakers.surf.domain.board.exception.InvalidCategoryMappingException;
 import com.tavemakers.surf.domain.board.repository.BoardCategoryRepository;
 import com.tavemakers.surf.domain.board.repository.BoardRepository;
+import com.tavemakers.surf.domain.comment.repository.CommentRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
@@ -23,8 +24,11 @@ import com.tavemakers.surf.domain.post.entity.PostImageUrl;
 import com.tavemakers.surf.domain.post.exception.PostDeleteAccessDeniedException;
 import com.tavemakers.surf.domain.post.exception.PostImageListEmptyException;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
+import com.tavemakers.surf.domain.post.repository.PostLikeRepository;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
+import com.tavemakers.surf.domain.post.repository.ScheduleRepository;
 import com.tavemakers.surf.domain.reservation.usecase.ReservationUsecase;
+import com.tavemakers.surf.domain.scrap.repository.ScrapRepository;
 import com.tavemakers.surf.domain.scrap.service.ScrapService;
 import com.tavemakers.surf.global.logging.LogEvent;
 import com.tavemakers.surf.global.logging.LogParam;
@@ -49,6 +53,10 @@ public class PostService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final BoardCategoryRepository boardCategoryRepository;
+    private final ScheduleRepository scheduleRepository;
+    private final ScrapRepository scrapRepository;
+    private final CommentRepository commentRepository;
+    private final PostLikeRepository postLikeRepository;
 
     private final ScrapService scrapService;
     private final PostLikeService postLikeService;
@@ -200,6 +208,11 @@ public class PostService {
         Post post = postGetService.getPost(postId);
         Member member = memberGetService.getMember(SecurityUtils.getCurrentMemberId());
         validateOwnerOrManager(post, member);
+
+        scheduleRepository.deleteByPostId(postId);
+        postLikeRepository.deleteByPostId(postId);
+        scrapRepository.deleteByPostId(postId);
+        commentRepository.deleteByPostId(postId);
 
         List<PostImageUrl> postImageUrls = postImageGetService.getPostImageUrls(post.getId());
         if (postImageUrls != null && !postImageUrls.isEmpty()) {
