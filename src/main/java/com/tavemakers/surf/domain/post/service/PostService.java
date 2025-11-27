@@ -134,18 +134,25 @@ public class PostService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(BoardNotFoundException::new);
 
+        Member viewer = memberGetService.getMember(viewerId);
+        boolean isManager = viewer.hasDeleteRole();
+
         final boolean all = (categorySlug == null || categorySlug.isBlank() || "all".equalsIgnoreCase(categorySlug));
 
         Slice<Post> slice;
         if (all) {
-            slice = postRepository.findByBoardId(boardId, pageable);
+            slice = isManager
+                    ? postRepository.findByBoardId(boardId, pageable)
+                    : postRepository.findByBoardIdAndIsReservedFalse(boardId, pageable);
         } else {
             // 보드-카테고리 소속 검증 (slug 기준)
             BoardCategory category = boardCategoryRepository.findByBoardIdAndSlug(boardId, categorySlug)
                     .orElseThrow(CategoryNotFoundException::new);
 
             resolveCategory(board, category.getId());
-            slice = postRepository.findByBoardIdAndCategoryId(boardId, category.getId(), pageable);
+            slice = isManager
+                    ? postRepository.findByBoardIdAndCategoryId(boardId, category.getId(), pageable)
+                    : postRepository.findByBoardIdAndCategoryIdAndIsReservedFalse(boardId, category.getId(), pageable);
         }
 
         FlagsMapper.Flags flags = flagsMapper.resolveFlags(viewerId, slice.getContent());
