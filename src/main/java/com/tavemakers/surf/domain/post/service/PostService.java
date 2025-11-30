@@ -219,7 +219,7 @@ public class PostService {
         scheduleRepository.deleteByPostId(postId);
         postLikeRepository.deleteByPostId(postId);
         scrapRepository.deleteByPostId(postId);
-        commentRepository.deleteByPostId(postId);
+        commentRepository.deleteAllByPostId(postId);
 
         List<PostImageUrl> postImageUrls = postImageGetService.getPostImageUrls(post.getId());
         if (postImageUrls != null && !postImageUrls.isEmpty()) {

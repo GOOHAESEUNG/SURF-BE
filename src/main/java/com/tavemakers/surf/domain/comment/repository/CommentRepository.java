@@ -6,6 +6,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
@@ -29,7 +30,9 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("UPDATE Comment c SET c.deleted = true, c.content = '(삭제된 댓글입니다.)' WHERE c.id = :id")
     void softDeleteById(Long id);
 
-    void deleteByPostId(Long postId);
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("delete from Comment c where c.post.id = :postId")
+    void deleteAllByPostId(@Param("postId") Long postId);
 }
 
 
