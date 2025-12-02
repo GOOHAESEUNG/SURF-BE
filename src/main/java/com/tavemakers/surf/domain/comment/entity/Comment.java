@@ -1,6 +1,5 @@
 package com.tavemakers.surf.domain.comment.entity;
 
-import com.tavemakers.surf.domain.comment.exception.CommentDepthExceedException;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
@@ -10,7 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,18 +17,21 @@ import java.util.List;
 @DynamicUpdate
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Where(clause="deleted=false")
 public class Comment extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** 최상위 root 댓글 id */
     private Long rootId;
 
+    /** 부모 댓글 id (트리 구조용) */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Comment parent;
 
+    /** 깊이(depth): parent.depth + 1 */
+    @Column(nullable = false)
     private int depth = 0;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -53,13 +54,9 @@ public class Comment extends BaseEntity {
     @Column(nullable = false)
     private Long likeCount = 0L;
 
-    public void softDelete() {
-        this.deleted = true;
-        this.content = "(삭제된 댓글입니다.)";
-    }
-
     @Builder
-    private Comment(Post post, Member member, String content, Comment parent, Long rootId, int depth) {
+    private Comment(Post post, Member member, String content,
+                    Comment parent, Long rootId, int depth) {
         this.post = post;
         this.member = member;
         this.content = content;
@@ -75,31 +72,27 @@ public class Comment extends BaseEntity {
                 .member(member)
                 .content(content)
                 .parent(null)
+                .rootId(null)
                 .depth(0)
                 .build();
     }
 
-    /** 대댓글 생성 */
+    /** 대댓글(무한 depth) 생성 */
     public static Comment child(Post post, Member member, String content, Comment parent) {
-        if (parent.getDepth() >= 1) { // 루트(0) 밑의 한 단계(1)까지만 허용
-            throw new CommentDepthExceedException();
-        }
-        Long root = (parent.getParent() == null) ? parent.getId() : parent.getRootId(); // 안전
+
         return Comment.builder()
                 .post(post)
                 .member(member)
                 .content(content)
                 .parent(parent)
-                .rootId(root)
+                .rootId(parent.getRootId() == null ? parent.getId() : parent.getRootId())
                 .depth(parent.getDepth() + 1)
                 .build();
     }
 
     /** 저장 후 rootId 세팅 (루트 댓글일 때만) */
     public void markAsRoot() {
-        if (this.parent == null && this.rootId == null) {
-            this.rootId = this.id;
-        }
+        if (this.depth == 0 && this.rootId == null) this.rootId = this.id;
     }
 
     /** 좋아요 증가 */
@@ -111,4 +104,11 @@ public class Comment extends BaseEntity {
     public void decreaseLikeCount() {
         if (this.likeCount > 0) this.likeCount--;
     }
+
+    /** 소프트 삭제 */
+    public void softDelete() {
+        this.deleted = true;
+        this.content = "(삭제된 댓글입니다.)";
+    }
 }
+

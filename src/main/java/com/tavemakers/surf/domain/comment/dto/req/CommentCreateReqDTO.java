@@ -9,7 +9,14 @@ import java.util.List;
 @Schema(description = "댓글 생성 DTO")
 public record CommentCreateReqDTO(
 
-        @Schema(description = "부모 댓글 ID (루트면 null)", example = "null")
+        @Schema(
+                description = """
+                부모 댓글 ID (바로 위 상위 댓글).
+                자동 멘션(=대댓글)일 때만 값 있음.
+                수동 멘션 또는 일반 루트 댓글이면 null.
+                """,
+                example = "null"
+        )
         Long parentId,
 
         @Schema(description = "내용", example = "좋은 공지 감사합니다!")
@@ -18,5 +25,18 @@ public record CommentCreateReqDTO(
         String content,
 
         @Schema(description = "멘션할 회원 ID 목록", example = "[5]")
-        List<Long> mentionMemberIds
+        List<Long> mentionMemberIds,
+
+        @Schema(
+                description = """
+                자동 멘션 여부.
+                true: 원 댓글을 클릭하여 자동으로 멘션된 경우 (대댓글)
+                false: 사용자가 직접 @입력으로 멘션한 경우 (루트 댓글로 취급)
+                """,
+                example = "false"
+        )
+        Boolean isAutoMention
 ) {}
+
+
+

@@ -14,13 +14,13 @@ public record CommentResDTO(
         @Schema(description = "게시글 ID", example = "3")
         Long postId,
 
+        @Schema(description = "루트 댓글 ID (최상위 댓글)", example = "15")
+        Long rootId,
+
         @Schema(description = "부모 댓글 ID (루트면 null)", example = "null")
         Long parentId,
 
-        @Schema(description = "루트 댓글 ID", example = "15")
-        Long rootId,
-
-        @Schema(description = "댓글 깊이 (0=루트, 1=대댓글)", example = "0")
+        @Schema(description = "댓글 깊이 (0=루트, 그 외=대댓글)", example = "0")
         int depth,
 
         @Schema(description = "댓글 내용", example = "좋은 공지 감사합니다!")
@@ -32,6 +32,9 @@ public record CommentResDTO(
         @Schema(description = "작성자 닉네임", example = "민수")
         String nickname,
 
+        @Schema(description = "작성자 프로필 이미지 URL", example = "https://.../profile.png")
+        String profileImageUrl,
+
         @Schema(description = "좋아요 수", example = "0")
         Long likeCount,
 
@@ -41,11 +44,9 @@ public record CommentResDTO(
         @Schema(description = "작성일시")
         LocalDateTime createdAt,
 
-        @Schema(description = "수정일시")
-        LocalDateTime updatedAt,
-
         @Schema(description = "멘션 목록")
         List<MentionResDTO> mentions
+
 ) {
     public static CommentResDTO from(Comment comment,
                                      List<MentionResDTO> mentions,
@@ -53,17 +54,18 @@ public record CommentResDTO(
         return new CommentResDTO(
                 comment.getId(),
                 comment.getPost().getId(),
+                comment.getRootId(),
                 comment.getParent() != null ? comment.getParent().getId() : null,
-                comment.getParent() == null ? comment.getId() : comment.getRootId(),
                 comment.getDepth(),
                 comment.getContent(),
                 comment.getMember().getId(),
                 comment.getMember().getName(),
+                comment.getMember().getProfileImageUrl(),
                 comment.getLikeCount(),
                 liked,
                 comment.getCreatedAt(),
-                comment.getUpdatedAt(),
                 mentions
         );
     }
 }
+

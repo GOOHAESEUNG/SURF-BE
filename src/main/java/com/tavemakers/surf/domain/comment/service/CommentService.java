@@ -1,13 +1,11 @@
 package com.tavemakers.surf.domain.comment.service;
 
 import com.tavemakers.surf.domain.comment.dto.req.CommentCreateReqDTO;
+import com.tavemakers.surf.domain.comment.dto.res.CommentListResDTO;
 import com.tavemakers.surf.domain.comment.dto.res.CommentResDTO;
 import com.tavemakers.surf.domain.comment.dto.res.MentionResDTO;
 import com.tavemakers.surf.domain.comment.entity.Comment;
-import com.tavemakers.surf.domain.comment.exception.CommentDepthExceedException;
-import com.tavemakers.surf.domain.comment.exception.CommentNotFoundException;
-import com.tavemakers.surf.domain.comment.exception.InvalidBlankCommentException;
-import com.tavemakers.surf.domain.comment.exception.NotMyCommentException;
+import com.tavemakers.surf.domain.comment.exception.*;
 import com.tavemakers.surf.domain.comment.repository.CommentLikeRepository;
 import com.tavemakers.surf.domain.comment.repository.CommentRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
@@ -49,16 +47,42 @@ public class CommentService {
 
         // 댓글 생성 (루트/대댓글 분기)
         Comment saved;
+
+        // 1) 루트 댓글 (parentId == null)
         if (req.parentId() == null) {
+
+            // 루트 댓글 생성
             Comment comment = Comment.root(post, member, req.content());
             saved = commentRepository.save(comment);
             saved.markAsRoot();
+
         } else {
-            Comment parent = commentRepository.findById(req.parentId()).orElseThrow(CommentNotFoundException::new);
-            if (!parent.getPost().getId().equals(postId)) throw new CommentNotFoundException();
-            if (parent.getDepth() >= 1) throw new CommentDepthExceedException();
-            Comment comment = Comment.child(post, member, req.content(), parent);
-            saved = commentRepository.save(comment);
+
+            // 2) 대댓글 생성 (parentId != null)
+            Comment parent = commentRepository.findById(req.parentId())
+                    .orElseThrow(CommentNotFoundException::new);
+
+            // 다른 게시글의 루트 댓글이면 안됨
+            if (!parent.getPost().getId().equals(postId))
+                throw new CommentNotFoundException();
+
+            // 삭제된 댓글에는 대댓글 불가
+            if (parent.isDeleted())
+                throw new CannotReplyToDeletedCommentException();
+
+            // 자동 멘션 여부 검사
+            boolean isAuto = Boolean.TRUE.equals(req.isAutoMention());
+
+            if (isAuto) {
+                // 자동 멘션 → 대댓글
+                Comment child = Comment.child(post, member, req.content(), parent);
+                saved = commentRepository.save(child);
+            } else {
+                // 수동 멘션 → 루트 댓글로 생성
+                Comment newRoot = Comment.root(post, member, req.content());
+                saved = commentRepository.save(newRoot);
+                saved.markAsRoot();
+            }
         }
         // 멘션 등록
         commentMentionService.createMentions(saved, req.mentionMemberIds());
@@ -83,42 +107,89 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(CommentNotFoundException::new);
 
+        if (comment.isDeleted()) {
+            throw new AlreadyDeletedCommentException();
+        }
+
+        // 본인이 쓴 댓글인지 확인
         if (!comment.getPost().getId().equals(postId) || !comment.getMember().getId().equals(memberId))
             throw new NotMyCommentException();
 
+        Comment parent = null;
+        if (comment.getParent() != null) {
+            Long parentId = comment.getParent().getId();
+            parent = commentRepository.findById(parentId).orElse(null);
+        }
+
+        // 자식 존재 여부 (parentId 기반)
         boolean hasChild = commentRepository.existsByParentId(commentId);
+
+        // 1) 자식 존재 → 소프트 삭제
         if (hasChild) {
-            // 자식 댓글이 있을 경우 soft delete
-            if (!comment.isDeleted()) {
-                commentLikeRepository.deleteAllByComment(comment);
-                commentMentionService.deleteAllByComment(comment);
-                comment.softDelete();
-            }
+
+            commentLikeRepository.deleteAllByComment(comment);
+            commentMentionService.deleteAllByComment(comment);
+
+            commentRepository.softDeleteById(commentId);
+
+            Post post = postRepository.findById(postId)
+                    .orElseThrow(PostNotFoundException::new);
+            post.decreaseCommentCount();
+
             return;
         }
 
-        // 자식이 없을 경우 완전 삭제
+        // 2) 그 외 = 하드 삭제 (대댓글 포함)
         commentLikeRepository.deleteAllByComment(comment);
         commentMentionService.deleteAllByComment(comment);
 
         int deleted = commentRepository.deleteByIdAndPostIdAndMemberId(commentId, postId, memberId);
         if (deleted > 0) {
-
             Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
             post.decreaseCommentCount();
+        }
+
+        // 후손들도 모두 삭제되었을 경우, softdelete된 댓글 완전 삭제
+        while (parent != null) {
+            if (parent.isDeleted() && !commentRepository.existsByParentId(parent.getId())) {
+                Long nextParentId = parent.getParent() != null ? parent.getParent().getId() : null;
+
+                commentRepository.delete(parent);
+
+                parent = (nextParentId != null)
+                        ? commentRepository.findById(nextParentId).orElse(null)
+                        : null;
+            } else {
+                break;
+            }
         }
     }
 
     /** 댓글 목록 조회 (Slice) */
     @Transactional(readOnly = true)
-    public Slice<CommentResDTO> getComments(Long postId, Pageable pageable, Long memberId) {
+    public CommentListResDTO getComments(Long postId, Pageable pageable, Long memberId) {
+
+        // 1) 댓글 Slice 조회
         Slice<Comment> commentSlice =
                 commentRepository.findByPostIdOrderByCreatedAtAsc(postId, pageable);
 
-        return commentSlice.map(comment -> {
-            List<MentionResDTO> mentions = commentMentionService.getMentions(comment.getId());
-            boolean liked = memberId != null && commentLikeService.isLikedByMe(comment.getId(), memberId);
-            return CommentResDTO.from(comment, mentions, liked);
-        });
+        // 2) 댓글 총 개수 조회
+        long totalCount = commentRepository.countByPostIdAndDeletedFalse(postId);
+
+        // 3) 각 댓글 → DTO 변환
+        List<CommentResDTO> commentDtoList = commentSlice.getContent().stream()
+                .map(comment -> {
+                    List<MentionResDTO> mentions = commentMentionService.getMentions(comment.getId());
+                    boolean liked = memberId != null && commentLikeService.isLikedByMe(comment.getId(), memberId);
+                    return CommentResDTO.from(comment, mentions, liked);
+                })
+                .toList();
+
+        // 4) CommentListResDTO로 감싸서 반환
+        return new CommentListResDTO(
+                commentDtoList,
+                totalCount,
+                commentSlice.hasNext()
+        );
     }
 }
