@@ -48,34 +48,37 @@ public class CommentService {
         // 댓글 생성 (루트/대댓글 분기)
         Comment saved;
 
-        if (req.rootId() == null) {
+        // 1) 루트 댓글 (parentId == null)
+        if (req.parentId() == null) {
+
             // 루트 댓글 생성
             Comment comment = Comment.root(post, member, req.content());
             saved = commentRepository.save(comment);
             saved.markAsRoot();
+
         } else {
-            // 대댓글 생성
-            Comment root = commentRepository.findById(req.rootId())
+
+            // 2) 대댓글 생성 (parentId != null)
+            Comment parent = commentRepository.findById(req.parentId())
                     .orElseThrow(CommentNotFoundException::new);
 
             // 다른 게시글의 루트 댓글이면 안됨
-            if (!root.getPost().getId().equals(postId)) throw new CommentNotFoundException();
+            if (!parent.getPost().getId().equals(postId))
+                throw new CommentNotFoundException();
 
             // 삭제된 댓글에는 대댓글 불가
-            if (root.isDeleted()) throw new CannotReplyToDeletedCommentException();
-
-            // depth=1만 허용이므로 root는 무조건 depth=0이어야 함
-            if (root.getDepth() >= 1) throw new CommentDepthExceedException();
+            if (parent.isDeleted())
+                throw new CannotReplyToDeletedCommentException();
 
             // 자동 멘션 여부 검사
             boolean isAuto = Boolean.TRUE.equals(req.isAutoMention());
 
             if (isAuto) {
-                // depth = 1
-                Comment child = Comment.child(post, member, req.content(), root);
+                // 자동 멘션 → 대댓글
+                Comment child = Comment.child(post, member, req.content(), parent);
                 saved = commentRepository.save(child);
             } else {
-                // depth = 0 (루트 댓글 취급)
+                // 수동 멘션 → 루트 댓글로 생성
                 Comment newRoot = Comment.root(post, member, req.content());
                 saved = commentRepository.save(newRoot);
                 saved.markAsRoot();
@@ -112,13 +115,17 @@ public class CommentService {
         if (!comment.getPost().getId().equals(postId) || !comment.getMember().getId().equals(memberId))
             throw new NotMyCommentException();
 
-        boolean isRoot = comment.getDepth() == 0;
+        Comment parent = null;
+        if (comment.getParent() != null) {
+            Long parentId = comment.getParent().getId();
+            parent = commentRepository.findById(parentId).orElse(null);
+        }
 
-        // 자식 댓글 존재 여부 (depth = 1 자식만 체크)
-        boolean hasChild = commentRepository.existsByRootIdAndDepth(commentId, 1);
+        // 자식 존재 여부 (parentId 기반)
+        boolean hasChild = commentRepository.existsByParentId(commentId);
 
-        // 1) 루트 + 자식 존재 → 소프트 삭제
-        if (isRoot && hasChild) {
+        // 1) 자식 존재 → 소프트 삭제
+        if (hasChild) {
 
             commentLikeRepository.deleteAllByComment(comment);
             commentMentionService.deleteAllByComment(comment);
@@ -140,6 +147,21 @@ public class CommentService {
         if (deleted > 0) {
             Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
             post.decreaseCommentCount();
+        }
+
+        // 후손들도 모두 삭제되었을 경우, softdelete된 댓글 완전 삭제
+        while (parent != null) {
+            if (parent.isDeleted() && !commentRepository.existsByParentId(parent.getId())) {
+                Long nextParentId = parent.getParent() != null ? parent.getParent().getId() : null;
+
+                commentRepository.delete(parent);
+
+                parent = (nextParentId != null)
+                        ? commentRepository.findById(nextParentId).orElse(null)
+                        : null;
+            } else {
+                break;
+            }
         }
     }
 
