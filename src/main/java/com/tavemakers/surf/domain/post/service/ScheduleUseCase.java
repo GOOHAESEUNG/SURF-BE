@@ -44,8 +44,7 @@ public class ScheduleUseCase {
     @Transactional
     public void deleteSchedule(Long id) {
         Schedule schedule = scheduleGetService.getScheduleById(id);
-        Post post = postGetService.findByScheduleId(id);
-        post.changeHasSchedule();
+        postGetService.findByScheduleId(id);
         scheduleDeleteService.deleteSchedule(schedule);
     }
 

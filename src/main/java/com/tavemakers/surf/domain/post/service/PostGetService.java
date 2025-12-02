@@ -39,8 +39,10 @@ public class PostGetService {
     }
 
     @Transactional
-    public Post findByScheduleId(Long scheduleId) {
-        return scheduleRepository.findPostByScheduleId(scheduleId)
-                .orElseThrow(PostNotFoundException::new);
+    public void findByScheduleId(Long scheduleId) {
+        Post post = scheduleRepository.findPostByScheduleId(scheduleId);
+        if (post!=null){
+            post.changeHasSchedule();
+        }
     }
 }
