@@ -68,6 +68,7 @@ public class PostService {
     private final PostImageGetService postImageGetService;
     private final PostImageDeleteService postImageDeleteService;
     private final MemberGetService memberGetService;
+    private final ViewCountService viewCountService;
     private final FlagsMapper flagsMapper;
 
 
@@ -92,10 +93,10 @@ public class PostService {
             List<PostImageCreateReqDTO> imageUrlList = req.imageUrlList();
             saved.addThumbnailUrl(findFirstImage(imageUrlList));
             List<PostImageResDTO> imageUrlResponseList = imageSaveService.saveAll(saved, imageUrlList);
-            return PostDetailResDTO.of(saved, false, false, true, imageUrlResponseList);
+            return PostDetailResDTO.of(saved, false, false, true, imageUrlResponseList, 0);
         }
 
-        return PostDetailResDTO.of(saved, false, false,true,null);
+        return PostDetailResDTO.of(saved, false, false,true,null, 0);
     }
 
     @Transactional(readOnly = true)
@@ -106,7 +107,8 @@ public class PostService {
         boolean likedByMe = postLikeService.isLikedByMe(memberId, postId);
         boolean isMine = post.isOwner(memberId);
         List<PostImageResDTO> imageUrlList = getImageUrlList(post);
-        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, isMine, imageUrlList);
+        int viewCount = viewCountService.increaseViewCount(post, memberId);
+        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, isMine, imageUrlList, viewCount);
     }
 
     @Transactional(readOnly = true)
@@ -184,6 +186,7 @@ public class PostService {
 
         boolean scrappedByMe = scrapService.isScrappedByMe(viewerId, postId);
         boolean likedByMe = postLikeService.isLikedByMe(viewerId, postId);
+        int viewCount = viewCountService.increaseViewCount(post, viewerId);
 
         // 예약 시간 변경 시 -> 기존의 예약 시간 조회 -> 기존의 예약 시간을 CANCELD로 수정하고 schedule 호출하면 끝.
         if (req.isReservationChanged()) {
@@ -196,11 +199,11 @@ public class PostService {
             List<PostImageCreateReqDTO> changeImage = req.imageUrlList();
             post.addThumbnailUrl(findFirstImage(changeImage));
             List<PostImageResDTO> savedChangedImage = imageSaveService.saveAll(post, changeImage);
-            return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, savedChangedImage);
+            return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, savedChangedImage, viewCount);
         }
 
         List<PostImageResDTO> imageDtoList = getImageUrlList(post);
-        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, imageDtoList);
+        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, imageDtoList, viewCount);
     }
 
     private void deleteExistingImage(Post post) {
