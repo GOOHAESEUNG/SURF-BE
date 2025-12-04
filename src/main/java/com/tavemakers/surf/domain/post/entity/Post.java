@@ -2,9 +2,11 @@ package com.tavemakers.surf.domain.post.entity;
 
 import com.tavemakers.surf.domain.board.entity.Board;
 import com.tavemakers.surf.domain.board.entity.BoardCategory;
+import com.tavemakers.surf.domain.comment.entity.Comment;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.post.dto.req.PostCreateReqDTO;
 import com.tavemakers.surf.domain.post.dto.req.PostUpdateReqDTO;
+import com.tavemakers.surf.domain.scrap.entity.Scrap;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -14,12 +16,16 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseEntity {
+
+    private static final String WEBP_EXTENSION = ".webp";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -120,7 +126,9 @@ public class Post extends BaseEntity {
     }
 
     public void addThumbnailUrl(String originalUrl) {
-        this.thumbnailUrl = originalUrl.replace("/original/", "/thumbnail/");
+        String url = originalUrl.replace("/original/", "/thumbnail/");
+        int dotIndex = url.lastIndexOf('.');
+        this.thumbnailUrl = url.substring(0, dotIndex) + WEBP_EXTENSION;
     }
 
     public boolean isOwner(Long memberId) {

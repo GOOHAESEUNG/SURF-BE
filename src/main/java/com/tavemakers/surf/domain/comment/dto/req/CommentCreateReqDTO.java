@@ -11,12 +11,13 @@ public record CommentCreateReqDTO(
 
         @Schema(
                 description = """
-                루트 댓글을 생성할 때는 null,
-                대댓글을 생성할 때는 루트 댓글의 ID를 입력합니다.
+                부모 댓글 ID (바로 위 상위 댓글).
+                자동 멘션(=대댓글)일 때만 값 있음.
+                수동 멘션 또는 일반 루트 댓글이면 null.
                 """,
                 example = "null"
         )
-        Long rootId, // 해당 값 null 이면 루트 댓글, 값 있으면 대댓글
+        Long parentId,
 
         @Schema(description = "내용", example = "좋은 공지 감사합니다!")
         @NotBlank

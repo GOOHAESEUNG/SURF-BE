@@ -6,13 +6,15 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    boolean existsByRootIdAndDepth(Long rootId, int depth);
+    /** 대댓글(자식 댓글) 존재 여부 확인, parentId 기반으로만 확인 */
+    boolean existsByParentId(Long parentId);
 
-    /** 본인 댓글만 삭제 */
+    /** 본인 댓글만 삭제 (hard delete) */
     @Transactional
     @Modifying(clearAutomatically = true)
     @Query(value = "DELETE FROM comment WHERE id = :id AND post_id = :postId AND member_id = :memberId", nativeQuery = true)
@@ -28,6 +30,10 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Comment c SET c.deleted = true, c.content = '(삭제된 댓글입니다.)' WHERE c.id = :id")
     void softDeleteById(Long id);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("delete from Comment c where c.post.id = :postId")
+    void deleteAllByPostId(@Param("postId") Long postId);
 }
 
 
