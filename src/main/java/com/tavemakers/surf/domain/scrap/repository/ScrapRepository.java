@@ -33,4 +33,6 @@ public interface ScrapRepository extends JpaRepository<Scrap, Long> {
              and s.post.id in :postIds
            """)
     Set<Long> findScrappedPostIdsByMemberAndPostIds(Long memberId, Collection<Long> postIds);
+
+    void deleteByPostId(Long postId);
 }
