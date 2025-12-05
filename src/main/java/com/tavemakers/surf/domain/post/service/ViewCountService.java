@@ -40,7 +40,8 @@ public class ViewCountService {
             return viewCount != null ? Integer.parseInt(viewCount) : post.getViewCount();
         } catch (Exception e) {
             log.error("Redis 커넥션 에러로 Database에서 조회합니다. Error: {}", e.getMessage());
-            return increaseViewCountInDatabase(post.getId());
+            post.increaseViewCount();
+            return post.getViewCount();
         }
     }
 
@@ -50,12 +51,6 @@ public class ViewCountService {
 
     private String generateViewersKey(Long postId, Long viewerId) {
         return String.format(VIEWERS_KEY, postId, viewerId);
-    }
-
-    private int increaseViewCountInDatabase(Long postId) {
-        postUpdateService.increaseViewCount(postId);
-        Post updatedPost = postGetService.readPost(postId);
-        return updatedPost.getViewCount();
     }
 
 }

@@ -138,4 +138,8 @@ public class Post extends BaseEntity {
     public void changeHasSchedule(){
         this.hasSchedule = false;
     }
+
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
 }
