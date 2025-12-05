@@ -46,4 +46,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Slice<Post> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(
             String title, String content, Pageable pageable);
+
+    @Modifying
+    @Query("UPDATE Post p SET p.viewCount = p.viewCount + 1 WHERE p.id = :postId")
+    void increaseViewCount(@Param("postId") Long postId);
 }
