@@ -19,8 +19,4 @@ public class PostUpdateService {
         postJdbcRepository.viewCountBulkUpdate(updateDtoList);
     }
 
-    public void increaseViewCount(Long postId) {
-        postRepository.increaseViewCount(postId);
-    }
-
 }
