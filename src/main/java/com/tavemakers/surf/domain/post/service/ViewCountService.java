@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 
@@ -21,6 +22,7 @@ public class ViewCountService {
     private final PostUpdateService postUpdateService;
     private final PostGetService postGetService;
 
+    @Transactional
     public int increaseViewCount(Post post, Long viewerId) {
         String viewCountKey = generateViewCountKey(post.getId());
         String viewersKey = generateViewersKey(post.getId(), viewerId);
