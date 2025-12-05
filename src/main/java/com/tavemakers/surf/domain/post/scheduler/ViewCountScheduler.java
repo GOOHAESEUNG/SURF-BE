@@ -30,7 +30,7 @@ public class ViewCountScheduler {
     private final PostUpdateService postUpdateService;
 
     private static final String VIEW_COUNT_PATTERN = "post:*:view:count";
-    private static final int SCAN_SIZE = 1000;
+    private static final int SCAN_SIZE = 100;
 
     @Scheduled(cron = "0 0 * * * *")
     @ExecutionTimeLog(jobName = "조회수 동기화 작업")
