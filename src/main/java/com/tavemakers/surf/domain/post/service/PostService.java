@@ -8,6 +8,7 @@ import com.tavemakers.surf.domain.board.exception.CategoryRequiredException;
 import com.tavemakers.surf.domain.board.exception.InvalidCategoryMappingException;
 import com.tavemakers.surf.domain.board.repository.BoardCategoryRepository;
 import com.tavemakers.surf.domain.board.repository.BoardRepository;
+import com.tavemakers.surf.domain.comment.repository.CommentRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
@@ -23,8 +24,11 @@ import com.tavemakers.surf.domain.post.entity.PostImageUrl;
 import com.tavemakers.surf.domain.post.exception.PostDeleteAccessDeniedException;
 import com.tavemakers.surf.domain.post.exception.PostImageListEmptyException;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
+import com.tavemakers.surf.domain.post.repository.PostLikeRepository;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
+import com.tavemakers.surf.domain.post.repository.ScheduleRepository;
 import com.tavemakers.surf.domain.reservation.usecase.ReservationUsecase;
+import com.tavemakers.surf.domain.scrap.repository.ScrapRepository;
 import com.tavemakers.surf.domain.scrap.service.ScrapService;
 import com.tavemakers.surf.global.logging.LogEvent;
 import com.tavemakers.surf.global.logging.LogParam;
@@ -49,6 +53,10 @@ public class PostService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     private final BoardCategoryRepository boardCategoryRepository;
+    private final ScheduleRepository scheduleRepository;
+    private final ScrapRepository scrapRepository;
+    private final CommentRepository commentRepository;
+    private final PostLikeRepository postLikeRepository;
 
     private final ScrapService scrapService;
     private final PostLikeService postLikeService;
@@ -60,8 +68,8 @@ public class PostService {
     private final PostImageGetService postImageGetService;
     private final PostImageDeleteService postImageDeleteService;
     private final MemberGetService memberGetService;
+    private final ViewCountService viewCountService;
     private final FlagsMapper flagsMapper;
-
 
     @Transactional
     @LogEvent(value = "post.create", message = "게시글 생성 성공")
@@ -84,10 +92,10 @@ public class PostService {
             List<PostImageCreateReqDTO> imageUrlList = req.imageUrlList();
             saved.addThumbnailUrl(findFirstImage(imageUrlList));
             List<PostImageResDTO> imageUrlResponseList = imageSaveService.saveAll(saved, imageUrlList);
-            return PostDetailResDTO.of(saved, false, false, true, imageUrlResponseList);
+            return PostDetailResDTO.of(saved, false, false, true, imageUrlResponseList, 0);
         }
 
-        return PostDetailResDTO.of(saved, false, false,true,null);
+        return PostDetailResDTO.of(saved, false, false,true,null, 0);
     }
 
     @Transactional(readOnly = true)
@@ -98,7 +106,8 @@ public class PostService {
         boolean likedByMe = postLikeService.isLikedByMe(memberId, postId);
         boolean isMine = post.isOwner(memberId);
         List<PostImageResDTO> imageUrlList = getImageUrlList(post);
-        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, isMine, imageUrlList);
+        int viewCount = viewCountService.increaseViewCount(post, memberId);
+        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, isMine, imageUrlList, viewCount);
     }
 
     @Transactional(readOnly = true)
@@ -126,18 +135,25 @@ public class PostService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(BoardNotFoundException::new);
 
+        Member viewer = memberGetService.getMember(viewerId);
+        boolean isManager = viewer.hasDeleteRole();
+
         final boolean all = (categorySlug == null || categorySlug.isBlank() || "all".equalsIgnoreCase(categorySlug));
 
         Slice<Post> slice;
         if (all) {
-            slice = postRepository.findByBoardId(boardId, pageable);
+            slice = isManager
+                    ? postRepository.findByBoardId(boardId, pageable)
+                    : postRepository.findByBoardIdAndIsReservedFalse(boardId, pageable);
         } else {
             // 보드-카테고리 소속 검증 (slug 기준)
             BoardCategory category = boardCategoryRepository.findByBoardIdAndSlug(boardId, categorySlug)
                     .orElseThrow(CategoryNotFoundException::new);
 
             resolveCategory(board, category.getId());
-            slice = postRepository.findByBoardIdAndCategoryId(boardId, category.getId(), pageable);
+            slice = isManager
+                    ? postRepository.findByBoardIdAndCategoryId(boardId, category.getId(), pageable)
+                    : postRepository.findByBoardIdAndCategoryIdAndIsReservedFalse(boardId, category.getId(), pageable);
         }
 
         FlagsMapper.Flags flags = flagsMapper.resolveFlags(viewerId, slice.getContent());
@@ -169,6 +185,7 @@ public class PostService {
 
         boolean scrappedByMe = scrapService.isScrappedByMe(viewerId, postId);
         boolean likedByMe = postLikeService.isLikedByMe(viewerId, postId);
+        int viewCount = viewCountService.increaseViewCount(post, viewerId);
 
         // 예약 시간 변경 시 -> 기존의 예약 시간 조회 -> 기존의 예약 시간을 CANCELD로 수정하고 schedule 호출하면 끝.
         if (req.isReservationChanged()) {
@@ -181,11 +198,11 @@ public class PostService {
             List<PostImageCreateReqDTO> changeImage = req.imageUrlList();
             post.addThumbnailUrl(findFirstImage(changeImage));
             List<PostImageResDTO> savedChangedImage = imageSaveService.saveAll(post, changeImage);
-            return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, savedChangedImage);
+            return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, savedChangedImage, viewCount);
         }
 
         List<PostImageResDTO> imageDtoList = getImageUrlList(post);
-        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, imageDtoList);
+        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, imageDtoList, viewCount);
     }
 
     private void deleteExistingImage(Post post) {
@@ -200,6 +217,12 @@ public class PostService {
         Post post = postGetService.getPost(postId);
         Member member = memberGetService.getMember(SecurityUtils.getCurrentMemberId());
         validateOwnerOrManager(post, member);
+
+        //일정 삭제
+        scheduleRepository.deleteByPost(post);
+        postLikeRepository.deleteByPostId(postId);
+        scrapRepository.deleteByPostId(postId);
+        commentRepository.deleteAllByPostId(postId);
 
         List<PostImageUrl> postImageUrls = postImageGetService.getPostImageUrls(post.getId());
         if (postImageUrls != null && !postImageUrls.isEmpty()) {

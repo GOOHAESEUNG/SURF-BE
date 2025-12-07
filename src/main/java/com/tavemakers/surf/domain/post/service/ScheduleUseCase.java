@@ -40,12 +40,20 @@ public class ScheduleUseCase {
         schedulePatchService.updateSchedule(schedule, dto);
     }
 
-    //일정 삭제
+    //일정 삭제 - 개별
     @Transactional
     public void deleteSchedule(Long id) {
         Schedule schedule = scheduleGetService.getScheduleById(id);
-        postGetService.findByScheduleId(id);
         scheduleDeleteService.deleteSchedule(schedule);
+    }
+
+    @Transactional
+    public void deleteScheduleAtPost(Long postId, Long scheduleId) {
+        Schedule schedule = scheduleGetService.getScheduleById(scheduleId);
+        scheduleDeleteService.deleteSchedule(schedule);
+
+        Post post = postGetService.getPost(postId);
+        schedulePatchService.updateHasScheduleTrue(post,false);
     }
 
     //게시글별 일정 조회
