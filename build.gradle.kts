@@ -63,6 +63,8 @@ dependencies {
     // AWS S3
     implementation ("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
 
+    implementation ("io.github.cdimascio:dotenv-java:2.2.4")
+
 }
 
 // log4j2 사용을 위해 추가
