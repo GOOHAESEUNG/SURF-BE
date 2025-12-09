@@ -42,7 +42,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public void markAsRead(Long memberId, Long notificationId) {
+    public void markAsRead(Long notificationId, Long memberId) {
         int updated = notificationRepository.markAsRead(notificationId, memberId);
 
         if (updated == 0) {
