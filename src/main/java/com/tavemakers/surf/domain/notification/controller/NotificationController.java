@@ -34,7 +34,7 @@ public class NotificationController {
     }
 
     @Operation(summary = "알람 읽음 처리", description = "특정 알람을 읽음 처리합니다.")
-    @PatchMapping("/v1/user/{notificationId}/read")
+    @PatchMapping("/v1/user/notifications/{notificationId}/read")
     public ApiResponse<Void> markRead(
             @PathVariable Long notificationId
     ) {
