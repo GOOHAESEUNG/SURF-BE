@@ -4,6 +4,8 @@ import com.tavemakers.surf.domain.notification.entity.Notification;
 import com.tavemakers.surf.domain.notification.entity.NotificationType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.time.LocalDateTime;
+
 public record NotificationResDTO (
         @Schema(description = "알람 ID", example = "1")
         Long id,
@@ -21,7 +23,7 @@ public record NotificationResDTO (
         boolean read,
 
         @Schema(description = "알람 생성 일시", example = "2023-10-05T14:48:00")
-        String createdAt
+        LocalDateTime createdAt
 ){
     public static NotificationResDTO from(Notification n) {
         return new NotificationResDTO(
@@ -30,7 +32,7 @@ public record NotificationResDTO (
                 n.getType().getCategory().name(),
                 n.getBody(),
                 n.isRead(),
-                n.getCreatedAt().toString()
+                n.getCreatedAt()
         );
     }
 }
