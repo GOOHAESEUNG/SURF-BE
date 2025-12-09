@@ -7,6 +7,7 @@ import com.tavemakers.surf.domain.notification.entity.NotificationType;
 import com.tavemakers.surf.domain.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,33 +18,27 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
-    public List<NotificationResDTO> getList(Long memberId) {
-        return notificationRepository.findByMemberIdOrderByIdDesc(memberId)
-                .stream()
-                .map(NotificationResDTO::from)
-                .toList();
-    }
+    @Transactional(readOnly = true)
+    public List<NotificationResDTO> getNotifications(Long memberId, NotificationCategory category) {
 
-    public List<NotificationResDTO> getActivity(Long memberId) {
-        List<NotificationType> types = Arrays.stream(NotificationType.values())
-                .filter(t -> t.getCategory() == NotificationCategory.ACTIVITY)
-                .toList();
+        List<Notification> notifications;
 
-        List<Notification> list = notificationRepository
-                .findByMemberIdAndTypeInOrderByIdDesc(memberId, types);
-        return list.stream()
-                .map(NotificationResDTO::from)
-                .toList();
-    }
+        if (category == null) {
+            // 전체 알림
+            notifications = notificationRepository
+                    .findByMemberIdOrderByIdDesc(memberId);
 
-    public List<NotificationResDTO> getSchedule(Long memberId) {
-        List<NotificationType> types = Arrays.stream(NotificationType.values())
-                .filter(t -> t.getCategory() == NotificationCategory.SCHEDULE)
-                .toList();
+        } else {
+            // 해당 카테고리의 타입 목록 추출
+            List<NotificationType> types = Arrays.stream(NotificationType.values())
+                    .filter(t -> t.getCategory() == category)
+                    .toList();
 
-        List<Notification> list = notificationRepository
-                .findByMemberIdAndTypeInOrderByIdDesc(memberId, types);
-        return list.stream()
+            notifications = notificationRepository
+                    .findByMemberIdAndTypeInOrderByIdDesc(memberId, types);
+        }
+
+        return notifications.stream()
                 .map(NotificationResDTO::from)
                 .toList();
     }
