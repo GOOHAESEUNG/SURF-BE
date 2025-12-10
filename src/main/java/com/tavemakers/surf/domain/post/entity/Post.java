@@ -135,8 +135,8 @@ public class Post extends BaseEntity {
         return member.getId().equals(memberId);
     }
 
-    public void changeHasSchedule(){
-        this.hasSchedule = false;
+    public void changeHasSchedule(boolean hasSchedule) {
+        this.hasSchedule = hasSchedule;
     }
 
     public void increaseViewCount() {

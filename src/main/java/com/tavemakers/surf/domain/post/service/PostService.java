@@ -71,7 +71,6 @@ public class PostService {
     private final ViewCountService viewCountService;
     private final FlagsMapper flagsMapper;
 
-
     @Transactional
     @LogEvent(value = "post.create", message = "게시글 생성 성공")
     public PostDetailResDTO createPost(PostCreateReqDTO req, Long memberId) {
@@ -219,7 +218,8 @@ public class PostService {
         Member member = memberGetService.getMember(SecurityUtils.getCurrentMemberId());
         validateOwnerOrManager(post, member);
 
-        scheduleRepository.deleteByPostId(postId);
+        //일정 삭제
+        scheduleRepository.deleteByPost(post);
         postLikeRepository.deleteByPostId(postId);
         scrapRepository.deleteByPostId(postId);
         commentRepository.deleteAllByPostId(postId);
