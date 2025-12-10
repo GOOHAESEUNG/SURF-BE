@@ -196,6 +196,11 @@ public class PostService {
         if (req.isImageChanged()) {
             deleteExistingImage(post);
             List<PostImageCreateReqDTO> changeImage = req.imageUrlList();
+            if(changeImage.isEmpty()){
+                post.addThumbnailUrl(null);
+                return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, null, viewCount);
+            }
+
             post.addThumbnailUrl(findFirstImage(changeImage));
             List<PostImageResDTO> savedChangedImage = imageSaveService.saveAll(post, changeImage);
             return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, savedChangedImage, viewCount);
