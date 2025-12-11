@@ -98,7 +98,7 @@ public class PostService {
         return PostDetailResDTO.of(saved, false, false,true,null, 0);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public PostDetailResDTO getPost(Long postId, Long memberId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
