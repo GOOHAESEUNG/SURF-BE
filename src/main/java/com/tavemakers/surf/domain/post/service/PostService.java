@@ -198,6 +198,7 @@ public class PostService {
             List<PostImageCreateReqDTO> changeImage = req.imageUrlList();
             if(changeImage.isEmpty()){
                 post.addThumbnailUrl(null);
+                // TODO Spring Event로 PostImageUrl 삭제 로직 분리.
                 return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, null, viewCount);
             }
 
