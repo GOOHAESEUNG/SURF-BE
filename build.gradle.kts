@@ -65,6 +65,8 @@ dependencies {
 
     implementation ("io.github.cdimascio:dotenv-java:2.2.4")
 
+    // 쪽지의 email 전송 기능
+    implementation ("org.springframework.boot:spring-boot-starter-mail")
 }
 
 // log4j2 사용을 위해 추가
