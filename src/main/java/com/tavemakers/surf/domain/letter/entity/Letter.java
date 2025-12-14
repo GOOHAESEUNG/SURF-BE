@@ -8,6 +8,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@Table(
+    indexes = {
+        @Index(name = "idx_letter_sender_id", columnList = "sender_id")
+    }
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Letter extends BaseEntity {
@@ -30,7 +35,7 @@ public class Letter extends BaseEntity {
     @JoinColumn(name = "sender_id", nullable = false)
     private Member sender;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 100)
     private String replyEmail;
 
     @ManyToOne(fetch = FetchType.LAZY)
