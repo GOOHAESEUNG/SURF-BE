@@ -2,9 +2,11 @@ package com.tavemakers.surf.domain.letter.service;
 
 import com.tavemakers.surf.domain.letter.entity.Letter;
 import com.tavemakers.surf.domain.letter.repository.LetterRepository;
-import com.tavemakers.surf.domain.letter.exception.LetterNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -12,8 +14,8 @@ public class LetterGetService {
 
     private final LetterRepository letterRepository;
 
-    public Letter getById(Long id) {
-        return letterRepository.findById(id)
-                .orElseThrow(LetterNotFoundException::new);
+    @Transactional(readOnly = true)
+    public Slice<Letter> getSentLetters(Long senderId, Pageable pageable) {
+        return letterRepository.findBySenderId(senderId, pageable);
     }
 }
