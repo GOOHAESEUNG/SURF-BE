@@ -12,6 +12,7 @@ import com.tavemakers.surf.global.util.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.mail.MailException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -54,7 +55,7 @@ public class LetterFacade {
                     req.getTitle(),
                     emailBody
             );
-        } catch (Exception e) {
+        } catch (MailException e) {
             throw new LetterMailSendFailException();
         }
 
@@ -73,18 +74,7 @@ public class LetterFacade {
         Letter saved = letterSaveService.save(letter);
 
         // 7) 저장된 엔티티 기반으로 Response 생성
-        return LetterResponse.builder()
-                .letterId(saved.getNoteId())
-                .title(saved.getTitle())
-                .content(saved.getContent())
-                .sns(saved.getSns())
-                .replyEmail(saved.getReplyEmail())
-                .senderId(sender.getId())
-                .senderName(sender.getName())
-                .receiverId(receiver.getId())
-                .receiverName(receiver.getName())
-                .createdAt(saved.getCreatedAt())
-                .build();
+        return LetterResponse.from(saved);
     }
 
     public Slice<LetterResponse> getSentLetters(Long senderId, Pageable pageable) {
