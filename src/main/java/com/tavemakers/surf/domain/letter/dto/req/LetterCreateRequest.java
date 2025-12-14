@@ -18,12 +18,13 @@ public class LetterCreateRequest {
     private Long receiverId;
 
     @Schema(description = "쪽지 제목", example = "문의드립니다.")
-    @NotNull
+    @NotBlank
     @Size(max = 100)
     private String title;
 
     @Schema(description = "쪽지 본문 내용", example = "안녕하세요, 몇 가지 질문이 있어 쪽지드립니다.")
     @NotBlank
+    @Size(max = 10000)
     private String content;
 
     @Schema(description = "추가 연락 SNS (선택사항)", example = "@instagram_user")
@@ -33,6 +34,7 @@ public class LetterCreateRequest {
     @Schema(description = "회신 받을 이메일", example = "sender@example.com")
     @NotBlank
     @Email
+    @Size(max = 100)
     private String replyEmail;
 
 }
