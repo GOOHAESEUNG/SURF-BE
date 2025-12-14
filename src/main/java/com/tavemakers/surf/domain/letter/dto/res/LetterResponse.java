@@ -3,6 +3,7 @@ package com.tavemakers.surf.domain.letter.dto.res;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
+import com.tavemakers.surf.domain.letter.entity.Letter;
 
 import java.time.LocalDateTime;
 
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 public class LetterResponse {
 
     @Schema(description = "쪽지 ID", example = "12")
-    private Long noteId;
+    private Long letterId;
 
     @Schema(description = "쪽지 제목", example = "문의드립니다.")
     private String title;
@@ -40,4 +41,19 @@ public class LetterResponse {
 
     @Schema(description = "쪽지 작성 시각", example = "2025-12-25T14:12:33")
     private LocalDateTime createdAt;
+
+    public static LetterResponse from(Letter letter) {
+        return LetterResponse.builder()
+                .letterId(letter.getNoteId())
+                .title(letter.getTitle())
+                .content(letter.getContent())
+                .sns(letter.getSns())
+                .replyEmail(letter.getReplyEmail())
+                .senderId(letter.getSender().getId())
+                .senderName(letter.getSender().getName())
+                .receiverId(letter.getReceiver().getId())
+                .receiverName(letter.getReceiver().getName())
+                .createdAt(letter.getCreatedAt())
+                .build();
+    }
 }
