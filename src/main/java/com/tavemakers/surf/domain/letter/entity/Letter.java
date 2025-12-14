@@ -14,7 +14,7 @@ public class Letter extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long noteId;
+    private Long letterId;
 
     @Column(nullable = false, length = 100)
     private String title;

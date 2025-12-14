@@ -44,7 +44,7 @@ public class LetterResponse {
 
     public static LetterResponse from(Letter letter) {
         return LetterResponse.builder()
-                .letterId(letter.getNoteId())
+                .letterId(letter.getLetterId())
                 .title(letter.getTitle())
                 .content(letter.getContent())
                 .sns(letter.getSns())
