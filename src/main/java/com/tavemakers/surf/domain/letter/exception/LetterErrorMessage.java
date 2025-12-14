@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum LetterErrorMessage {
 
-    LETTER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 [쪽지]입니다.");
+    LETTER_MAIL_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "메일 발송에 실패했습니다.");
 
     private final HttpStatus status;
     private final String message;
