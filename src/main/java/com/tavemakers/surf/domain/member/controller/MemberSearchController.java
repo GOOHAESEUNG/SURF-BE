@@ -77,7 +77,7 @@ public class MemberSearchController {
             @RequestParam(required = false) Integer generation,
             @RequestParam(required = false) String part
     ) {
-        MemberSearchSliceResDTO response = memberUsecase.searchMembers(pageNum, pageSize, generation, keyword, part);
+        MemberSearchSliceResDTO response = memberUsecase.searchMembers(pageNum, pageSize, generation, part, keyword);
         return ApiResponse.response(HttpStatus.OK, MEMBER_LIST_SEARCH_SUCCESS.getMessage(), response);
     }
 
