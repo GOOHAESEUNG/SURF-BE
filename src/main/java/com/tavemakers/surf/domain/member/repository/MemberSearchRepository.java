@@ -26,6 +26,10 @@ public class MemberSearchRepository {
 
     private final JPAQueryFactory queryFactory;
 
+    /*
+    * NOTE: SURF 규칙
+    * "기수 > 이름 > 대학 > 가입일" 순으로 정렬
+    * */
     public Slice<Member> searchMembers(Integer generation, Part part, String keyword, Pageable pageable) {
         BooleanBuilder builder = new BooleanBuilder();
 
