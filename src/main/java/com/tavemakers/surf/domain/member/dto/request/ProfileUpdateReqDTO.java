@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,13 +15,17 @@ import java.util.Map;
 public record ProfileUpdateReqDTO(
         @Email
         String email,
-
         String university,
         String graduateSchool,
 
+        @Size(max = 1024)
+        String selfIntroduction,
+
+        @Size(max = 256)
+        String link,
+
         @Pattern(regexp = "^[0-9\\-]{8,15}$")
         String phoneNumber,
-
         Boolean phoneNumberPublic,
 
         @Valid
@@ -28,6 +33,7 @@ public record ProfileUpdateReqDTO(
 
         @Valid
         List<CareerUpdateReqDTO> careersToUpdate,
+
         List<Long> careerIdsToDelete
 ) implements LogPropsProvider {
     public Map<String, Object> buildProps() {

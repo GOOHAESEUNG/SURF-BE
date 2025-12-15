@@ -17,6 +17,8 @@ import com.tavemakers.surf.domain.member.entity.enums.Part;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,6 +50,12 @@ public class Member extends BaseEntity {
     private String email;
 
     private String phoneNumber;
+
+    @Column(length = 256)
+    private String selfIntroduction;
+
+    @Column(length = 1024)
+    private String link;
 
     private Boolean phoneNumberPublic=false;
 
