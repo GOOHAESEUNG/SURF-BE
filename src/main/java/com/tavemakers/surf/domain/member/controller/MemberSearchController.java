@@ -65,6 +65,10 @@ public class MemberSearchController {
         return ApiResponse.response(HttpStatus.OK, MYPAGE_MY_PROFILE_READ.getMessage(), response);
     }
 
+    @Operation(
+            summary = "회원이름 및 학교로 검색 (기수/파트 필터링)",
+            description = "회원이름 및 학교로 검색 (기수/파트 필터링)"
+    )
     @GetMapping("/v1/user/members")
     public ApiResponse<MemberSearchSliceResDTO> searchMembers(
             @RequestParam int pageNum,
