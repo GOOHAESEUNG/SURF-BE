@@ -65,6 +65,12 @@ dependencies {
 
     implementation ("io.github.cdimascio:dotenv-java:2.2.4")
 
+    // QueryDSL
+    implementation ("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+    annotationProcessor ("com.querydsl:querydsl-apt:5.0.0:jakarta")
+    annotationProcessor ("jakarta.annotation:jakarta.annotation-api")
+    annotationProcessor ("jakarta.persistence:jakarta.persistence-api")
+
 }
 
 // log4j2 사용을 위해 추가
