@@ -22,4 +22,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     Optional<Schedule> findByPostId(Long postId);
 
     void deleteByPost(Post post);
+
+    Optional<Schedule> findFirstByStartAtAfterOrderByStartAtAsc(LocalDateTime now);
 }
