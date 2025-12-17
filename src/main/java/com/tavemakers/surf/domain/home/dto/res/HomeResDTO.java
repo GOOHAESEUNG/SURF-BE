@@ -9,7 +9,6 @@ public record HomeResDTO(
         Integer memberGeneration,
         String memberPart,
         String nextScheduleTitle,
-        Long nextScheduleDaysLeft,
-        String nextScheduleDdayLabel
+        Long nextScheduleDaysLeft
 ) {
 }

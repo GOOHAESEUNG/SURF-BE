@@ -69,15 +69,12 @@ public class HomeService {
         // 4) next schedule
         String nextTitle = null;
         Long nextDaysLeft = null;
-        String nextLabel = null;
 
         var next = scheduleRepository.findFirstByStartAtAfterOrderByStartAtAsc(LocalDateTime.now()); // 필드명 맞춰 수정
         if (next.isPresent()) {
             var s = next.get();
             nextTitle = s.getTitle();
-            long daysLeft = ChronoUnit.DAYS.between(LocalDate.now(), s.getStartAt().toLocalDate());
-            nextDaysLeft = daysLeft;
-            nextLabel = toDdayLabel(daysLeft);
+            nextDaysLeft = ChronoUnit.DAYS.between(LocalDate.now(), s.getStartAt().toLocalDate());
         }
 
         return new HomeResDTO(
@@ -87,14 +84,7 @@ public class HomeService {
                 memberGeneration,
                 memberPart,
                 nextTitle,
-                nextDaysLeft,
-                nextLabel
+                nextDaysLeft
         );
-    }
-
-    private static String toDdayLabel(long daysLeft) {
-        if (daysLeft > 0) return "D-" + daysLeft;
-        if (daysLeft == 0) return "D-DAY";
-        return "D+" + Math.abs(daysLeft);
     }
 }
