@@ -18,10 +18,10 @@ public record ProfileUpdateReqDTO(
         String university,
         String graduateSchool,
 
-        @Size(max = 1024)
+        @Size(max = 256)
         String selfIntroduction,
 
-        @Size(max = 256)
+        @Size(max = 1024)
         String link,
 
         @Pattern(regexp = "^[0-9\\-]{8,15}$")
