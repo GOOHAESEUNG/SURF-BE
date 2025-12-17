@@ -10,6 +10,8 @@ import java.util.List;
 public record MyPageProfileResDTO(
         String username,
         String phoneNumber,
+        String selfIntroduction,
+        String link,
         String email,
         String university,
         String graduateSchool,
@@ -24,6 +26,8 @@ public record MyPageProfileResDTO(
         return MyPageProfileResDTO.builder()
                 .username(member.getName())
                 .phoneNumber(isPhoneNumberVisible ? member.getPhoneNumber() : null) // 파라미터로 받은 전화번호 사용
+                .selfIntroduction(member.getSelfIntroduction())
+                .link(member.getLink())
                 .email(member.getEmail())
                 .university(member.getUniversity())
                 .graduateSchool(member.getGraduateSchool())
