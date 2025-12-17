@@ -53,14 +53,16 @@ public class HomeService {
 
                 List<Track> tracks = m.getTracks();
                 if (tracks != null && !tracks.isEmpty()) {
-                    var firstTrack = tracks.stream()
+                    var latestTrack = tracks.stream()
                             .filter(t -> t.getGeneration() != null)
-                            .min(Comparator.comparing(Track::getGeneration))
+                            .max(Comparator.comparing(Track::getGeneration))
                             .orElse(null);
 
-                    if (firstTrack != null) {
-                        memberGeneration = firstTrack.getGeneration();
-                        memberPart = (firstTrack.getPart() != null) ? firstTrack.getPart().name() : null;
+                    if (latestTrack != null) {
+                        memberGeneration = latestTrack.getGeneration();
+                        memberPart = latestTrack.getPart() != null
+                                ? latestTrack.getPart().name()
+                                : null;
                     }
                 }
             }
