@@ -17,6 +17,8 @@ import com.tavemakers.surf.domain.member.entity.enums.Part;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,6 +50,12 @@ public class Member extends BaseEntity {
     private String email;
 
     private String phoneNumber;
+
+    @Column(length = 256)
+    private String selfIntroduction;
+
+    @Column(length = 1024)
+    private String link;
 
     private Boolean phoneNumberPublic=false;
 
@@ -184,24 +192,14 @@ public class Member extends BaseEntity {
     }
 
     //프로필 수정하기
-    public void updateProfile(ProfileUpdateReqDTO request) {
-
-        if (request.phoneNumber() != null) {
-            this.phoneNumber = request.phoneNumber();
-        }
-        if (request.email() != null) {
-            // 이메일은 중복 체크 등 추가 로직이 필요할 수 있음
-            this.email = request.email();
-        }
-        if (request.university() != null) {
-            this.university = request.university();
-        }
-        if (request.graduateSchool() != null) {
-            this.graduateSchool = request.graduateSchool();
-        }
-        if (request.phoneNumberPublic() != null) {
-            this.phoneNumberPublic = request.phoneNumberPublic();
-        }
+    public void updateProfile(ProfileUpdateReqDTO dto) {
+        updateIfNotNull(dto.phoneNumber(), phoneNumber -> this.phoneNumber = phoneNumber);
+        updateIfNotNull(dto.email(), email -> this.email = email);
+        updateIfNotNull(dto.university(),university -> this.university = university);
+        updateIfNotNull(dto.graduateSchool(), graduateSchool -> this.graduateSchool = graduateSchool);
+        updateIfNotNull(dto.phoneNumberPublic(), phoneNumberPublic -> this.phoneNumberPublic = phoneNumberPublic);
+        updateIfNotNull(dto.selfIntroduction(), selfIntroduction -> this.selfIntroduction = selfIntroduction);
+        updateIfNotNull(dto.link(), link -> this.link = link);
     }
 
     //유저 권한 변경
@@ -234,6 +232,12 @@ public class Member extends BaseEntity {
 
     public boolean isAdmin() {
         return this.role == MemberRole.ADMIN;
+    }
+
+    private <T> void updateIfNotNull(T value, Consumer<T> updater) {
+        if (value != null) {
+            updater.accept(value);
+        }
     }
 
 }

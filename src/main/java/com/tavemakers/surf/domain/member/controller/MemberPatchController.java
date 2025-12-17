@@ -4,6 +4,7 @@ import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateReqDTO;
 import com.tavemakers.surf.domain.member.entity.CustomUserDetails;
 import com.tavemakers.surf.domain.member.usecase.MemberUsecase;
 import com.tavemakers.surf.global.common.response.ApiResponse;
+import com.tavemakers.surf.global.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -27,11 +28,11 @@ public class MemberPatchController {
             description = "마이페이지에서 프로필을 수정하는 API 입니다.")
     @PatchMapping("/v1/user/members/profile/update")
     public ApiResponse<List<ProfileUpdateReqDTO>> updateProfile(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody ProfileUpdateReqDTO profileUpdateReqDTO
             )
     {
-        memberUsecase.updateProfile(userDetails.getId(), profileUpdateReqDTO);
+        Long memberId = SecurityUtils.getCurrentMemberId();
+        memberUsecase.updateProfile(memberId, profileUpdateReqDTO);
         return ApiResponse.response(
                 HttpStatus.OK,
                 ResponseMessage.MYPAGE_PROFILE_UPDATE_SUCCESS.getMessage(),
