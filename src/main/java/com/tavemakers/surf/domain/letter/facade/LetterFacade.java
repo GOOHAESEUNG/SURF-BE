@@ -8,7 +8,7 @@ import com.tavemakers.surf.domain.letter.service.LetterGetService;
 import com.tavemakers.surf.domain.letter.service.LetterSaveService;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.service.MemberGetService;
-import com.tavemakers.surf.global.util.EmailService;
+import com.tavemakers.surf.global.util.EmailSender;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -21,7 +21,7 @@ public class LetterFacade {
 
     private final MemberGetService memberGetService;
     private final LetterSaveService letterSaveService;
-    private final EmailService emailService;
+    private final EmailSender emailSender;
     private final LetterGetService letterGetService;
 
     public LetterResDTO createLetter(Long senderId, LetterCreateReqDTO req) {
@@ -50,7 +50,7 @@ public class LetterFacade {
 
         // 4) 이메일 전송 (실패 시 예외)
         try {
-            emailService.sendMail(
+            emailSender.sendMail(
                     receiver.getEmail(),
                     req.getTitle(),
                     emailBody
