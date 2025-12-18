@@ -1,7 +1,7 @@
 package com.tavemakers.surf.domain.letter.controller;
 
-import com.tavemakers.surf.domain.letter.dto.req.LetterCreateRequest;
-import com.tavemakers.surf.domain.letter.dto.res.LetterResponse;
+import com.tavemakers.surf.domain.letter.dto.req.LetterCreateReqDTO;
+import com.tavemakers.surf.domain.letter.dto.res.LetterResDTO;
 import com.tavemakers.surf.domain.letter.facade.LetterFacade;
 import com.tavemakers.surf.global.common.response.ApiResponse;
 import com.tavemakers.surf.domain.member.entity.CustomUserDetails;
@@ -26,19 +26,19 @@ public class LetterController {
 
     @PostMapping("/v1/user/letters")
     @Operation(summary = "쪽지 전송", description = "로그인한 사용자가 다른 회원에게 쪽지를 전송합니다.")
-    public ApiResponse<LetterResponse> createLetter(
+    public ApiResponse<LetterResDTO> createLetter(
             @AuthenticationPrincipal CustomUserDetails user,
-            @Valid @RequestBody LetterCreateRequest request
+            @Valid @RequestBody LetterCreateReqDTO request
     ) {
         // Facade 처리 후 최종 응답 반환
-        LetterResponse response = letterFacade.createLetter(user.getId(), request);
+        LetterResDTO response = letterFacade.createLetter(user.getId(), request);
 
         return ApiResponse.response(HttpStatus.OK, LETTER_CREATED.getMessage(), response);
     }
 
     @GetMapping("/v1/user/letters/sent")
     @Operation(summary = "쪽지 조회", description = "자신이 보낸 쪽지 목록을 확인합니다.")
-    public ApiResponse<Slice<LetterResponse>> getSentLetters(
+    public ApiResponse<Slice<LetterResDTO>> getSentLetters(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size

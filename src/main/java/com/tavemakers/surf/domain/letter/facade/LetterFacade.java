@@ -1,7 +1,7 @@
 package com.tavemakers.surf.domain.letter.facade;
 
-import com.tavemakers.surf.domain.letter.dto.req.LetterCreateRequest;
-import com.tavemakers.surf.domain.letter.dto.res.LetterResponse;
+import com.tavemakers.surf.domain.letter.dto.req.LetterCreateReqDTO;
+import com.tavemakers.surf.domain.letter.dto.res.LetterResDTO;
 import com.tavemakers.surf.domain.letter.entity.Letter;
 import com.tavemakers.surf.domain.letter.exception.LetterMailSendFailException;
 import com.tavemakers.surf.domain.letter.service.LetterGetService;
@@ -24,7 +24,7 @@ public class LetterFacade {
     private final EmailService emailService;
     private final LetterGetService letterGetService;
 
-    public LetterResponse createLetter(Long senderId, LetterCreateRequest req) {
+    public LetterResDTO createLetter(Long senderId, LetterCreateReqDTO req) {
 
         // 1) 발신자 조회
         Member sender = memberGetService.getMember(senderId);
@@ -74,12 +74,12 @@ public class LetterFacade {
         Letter saved = letterSaveService.save(letter);
 
         // 7) 저장된 엔티티 기반으로 Response 생성
-        return LetterResponse.from(saved);
+        return LetterResDTO.from(saved);
     }
 
-    public Slice<LetterResponse> getSentLetters(Long senderId, Pageable pageable) {
+    public Slice<LetterResDTO> getSentLetters(Long senderId, Pageable pageable) {
         return letterGetService.getSentLetters(senderId, pageable)
-                .map(LetterResponse::from);
+                .map(LetterResDTO::from);
     }
 
 }

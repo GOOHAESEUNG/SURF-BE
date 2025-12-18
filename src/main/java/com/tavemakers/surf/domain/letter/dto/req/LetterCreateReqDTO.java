@@ -11,7 +11,7 @@ import jakarta.validation.constraints.Size;
 @Getter
 @NoArgsConstructor
 @Schema(description = "쪽지 생성 요청 DTO")
-public class LetterCreateRequest {
+public class LetterCreateReqDTO {
 
     @Schema(description = "수신자 memberId", example = "3")
     @NotNull

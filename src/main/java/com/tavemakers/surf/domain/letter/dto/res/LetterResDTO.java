@@ -6,7 +6,7 @@ import com.tavemakers.surf.domain.letter.entity.Letter;
 import java.time.LocalDateTime;
 
 @Schema(description = "쪽지 조회 응답 DTO")
-public record LetterResponse(
+public record LetterResDTO(
 
         @Schema(description = "쪽지 ID", example = "12")
         Long letterId,
@@ -39,8 +39,8 @@ public record LetterResponse(
         LocalDateTime createdAt
 
 ) {
-    public static LetterResponse from(Letter letter) {
-        return new LetterResponse(
+    public static LetterResDTO from(Letter letter) {
+        return new LetterResDTO(
                 letter.getLetterId(),
                 letter.getTitle(),
                 letter.getContent(),
