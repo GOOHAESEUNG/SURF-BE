@@ -53,14 +53,6 @@ public class CommentService {
         // 댓글 생성 (루트/대댓글 분기)
         Comment saved;
 
-        notificationCreateService.create(
-                post.getMember().getId(),
-                NotificationType.POST_COMMENT,
-                Map.of(
-                        "actorName", member.getName(),
-                        "postId", postId
-                )
-        );
 
         // 1) 루트 댓글 (parentId == null)
         if (req.parentId() == null) {
@@ -69,6 +61,16 @@ public class CommentService {
             Comment comment = Comment.root(post, member, req.content());
             saved = commentRepository.save(comment);
             saved.markAsRoot();
+
+            // 댓글 생성 알림
+            notificationCreateService.create(
+                    post.getMember().getId(),
+                    NotificationType.POST_COMMENT,
+                    Map.of(
+                            "actorName", member.getName(),
+                            "postId", postId
+                    )
+            );
 
         } else {
 
@@ -97,6 +99,26 @@ public class CommentService {
                 saved = commentRepository.save(newRoot);
                 saved.markAsRoot();
             }
+
+            // 댓글 생성 알림 - 게시글 작성자에게
+            notificationCreateService.create(
+                    post.getMember().getId(),
+                    NotificationType.POST_COMMENT,
+                    Map.of(
+                            "actorName", member.getName(),
+                            "postId", postId
+                    )
+            );
+
+            // 댓글 생성 알림 - 루트 댓글 작성자에게
+            notificationCreateService.create(
+                    post.getMember().getId(),
+                    NotificationType.COMMENT_REPLY,
+                    Map.of(
+                            "actorName", member.getName(),
+                            "postId", postId
+                    )
+            );
         }
         // 멘션 등록
         commentMentionService.createMentions(saved, req.mentionMemberIds());
