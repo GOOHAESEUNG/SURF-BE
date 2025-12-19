@@ -11,11 +11,14 @@ import com.tavemakers.surf.domain.comment.repository.CommentRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
+import com.tavemakers.surf.domain.notification.entity.NotificationType;
+import com.tavemakers.surf.domain.notification.service.NotificationCreateService;
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
 import com.tavemakers.surf.global.logging.LogEvent;
 import com.tavemakers.surf.global.logging.LogParam;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -35,6 +38,8 @@ public class CommentService {
     private final CommentLikeService commentLikeService;
     private final CommentLikeRepository commentLikeRepository;
 
+    private final NotificationCreateService notificationCreateService;
+
     /** 댓글 작성 */
     @Transactional
     @LogEvent(value = "comment.create", message = "댓글 생성 성공")
@@ -47,6 +52,15 @@ public class CommentService {
 
         // 댓글 생성 (루트/대댓글 분기)
         Comment saved;
+
+        notificationCreateService.create(
+                post.getMember().getId(),
+                NotificationType.POST_COMMENT,
+                Map.of(
+                        "actorName", member.getName(),
+                        "postId", postId
+                )
+        );
 
         // 1) 루트 댓글 (parentId == null)
         if (req.parentId() == null) {

@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -35,15 +36,25 @@ public class Notification extends BaseEntity {
 
     /** 읽음 여부 */
     @Column(nullable = false)
-    private boolean read = false;
+    private boolean isRead = false;
 
-    public Notification(Long memberId, NotificationType type, String payload) {
+
+    @Builder
+    private Notification(Long memberId, NotificationType type, String payload) {
         this.memberId = memberId;
         this.type = type;
         this.payload = payload;
     }
 
+    public static Notification of(Long memberId, NotificationType type, String payload) {
+        return Notification.builder()
+                .memberId(memberId)
+                .type(type)
+                .payload(payload)
+                .build();
+    }
+
     public void read() {
-        this.read = true;
+        this.isRead = true;
     }
 }
