@@ -68,7 +68,14 @@ dependencies {
     //FCM
     implementation ("com.google.firebase:firebase-admin:9.7.0")
 
+    // QueryDSL
+    implementation ("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+    annotationProcessor ("com.querydsl:querydsl-apt:5.0.0:jakarta")
+    annotationProcessor ("jakarta.annotation:jakarta.annotation-api")
+    annotationProcessor ("jakarta.persistence:jakarta.persistence-api")
 
+    // 쪽지의 email 전송 기능
+    implementation ("org.springframework.boot:spring-boot-starter-mail")
 }
 
 // log4j2 사용을 위해 추가

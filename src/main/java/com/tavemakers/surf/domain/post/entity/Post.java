@@ -126,6 +126,11 @@ public class Post extends BaseEntity {
     }
 
     public void addThumbnailUrl(String originalUrl) {
+        if (originalUrl == null) {
+            this.thumbnailUrl = null;
+            return;
+        }
+
         String url = originalUrl.replace("/original/", "/thumbnail/");
         int dotIndex = url.lastIndexOf('.');
         this.thumbnailUrl = url.substring(0, dotIndex) + WEBP_EXTENSION;
@@ -137,5 +142,9 @@ public class Post extends BaseEntity {
 
     public void changeHasSchedule(boolean hasSchedule) {
         this.hasSchedule = hasSchedule;
+    }
+
+    public void increaseViewCount() {
+        this.viewCount++;
     }
 }
