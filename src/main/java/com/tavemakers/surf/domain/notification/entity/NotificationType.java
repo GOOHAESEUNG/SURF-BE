@@ -1,26 +1,52 @@
 package com.tavemakers.surf.domain.notification.entity;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum NotificationType {
 
-    // ===== 활동(ACTIVITY) =====
-    POST_LIKE(NotificationCategory.ACTIVITY),           // 본인 작성 글 좋아요
-    POST_COMMENT(NotificationCategory.ACTIVITY),        // 본인 작성 글 댓글
-    COMMENT_LIKE(NotificationCategory.ACTIVITY),        // 본인 댓글에 좋아요
-    COMMENT_REPLY(NotificationCategory.ACTIVITY),       // 본인 댓글에 대댓글
-    MESSAGE_RECEIVED(NotificationCategory.ACTIVITY),    // 쪽지
-    BADGE_UPDATED(NotificationCategory.ACTIVITY),       // 활동 뱃지 업데이트
-    SCORE_UPDATED(NotificationCategory.ACTIVITY),       // 활동 점수 업데이트
+    POST_LIKE(
+            "{actorName}님이 회원님의 게시글에 좋아요를 달았습니다",
+            "/posts/{postId}"
+    ),
 
-    // ===== 일정(SCHEDULE) =====
-    EVENT_NOTICE(NotificationCategory.SCHEDULE);        // 행사 공지사항 등록
+    POST_COMMENT(
+            "{actorName}님이 회원님의 게시글에 댓글을 달았습니다",
+            "/posts/{postId}"
+    ),
 
-    private final NotificationCategory category;
+    COMMENT_LIKE(
+            "{actorName}님이 회원님의 댓글에 좋아요를 달았습니다",
+            "/comments/{commentId}"
+    ),
 
-    NotificationType(NotificationCategory category) {
-        this.category = category;
-    }
+    COMMENT_REPLY(
+            "{actorName}님이 회원님의 댓글에 답글을 달았습니다",
+            "/comments/{commentId}"
+    ),
 
-    public NotificationCategory getCategory() {
-        return category;
-    }
+    MESSAGE(
+            "{actorName}님이 쪽지를 보냈습니다",
+            "/messages/{roomId}"
+    ),
+
+    BADGE_UPDATE(
+            "활동 뱃지가 업데이트 되었습니다",
+            "/profile/badges"
+    ),
+
+    SCORE_UPDATE(
+            "활동 점수가 업데이트 되었습니다",
+            "/profile"
+    ),
+
+    NOTICE(
+            "새로운 공지사항이 업데이트 되었습니다",
+            "/notices/{noticeId}"
+    );
+
+    private final String template;
+    private final String deeplink;
 }

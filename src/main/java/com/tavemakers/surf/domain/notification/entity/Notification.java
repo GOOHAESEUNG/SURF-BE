@@ -29,11 +29,21 @@ public class Notification extends BaseEntity {
     @Column(nullable = false, length = 40)
     private NotificationType type;
 
-    @Column(nullable = false, length = 500)
-    private String body;
+    /** 알림 변수 데이터 */
+    @Column(nullable = false, columnDefinition = "json")
+    private String payload;
 
     /** 읽음 여부 */
     @Column(nullable = false)
-    private boolean read;
+    private boolean read = false;
 
+    public Notification(Long memberId, NotificationType type, String payload) {
+        this.memberId = memberId;
+        this.type = type;
+        this.payload = payload;
+    }
+
+    public void read() {
+        this.read = true;
+    }
 }
