@@ -71,6 +71,8 @@ dependencies {
     annotationProcessor ("jakarta.annotation:jakarta.annotation-api")
     annotationProcessor ("jakarta.persistence:jakarta.persistence-api")
 
+    // 쪽지의 email 전송 기능
+    implementation ("org.springframework.boot:spring-boot-starter-mail")
 }
 
 // log4j2 사용을 위해 추가
