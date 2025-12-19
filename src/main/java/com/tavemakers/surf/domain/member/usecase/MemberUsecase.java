@@ -11,6 +11,7 @@ import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.Track;
 import com.tavemakers.surf.domain.member.entity.enums.MemberRole;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
+import com.tavemakers.surf.domain.member.entity.enums.Part;
 import com.tavemakers.surf.domain.member.exception.TrackNotFoundException;
 import com.tavemakers.surf.domain.member.service.*;
 import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
@@ -20,6 +21,9 @@ import com.tavemakers.surf.global.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -216,4 +220,18 @@ public class MemberUsecase {
         return trackGetService.getTrack(memberId)
                 .stream().map(TrackResDTO::from).toList();
     }
+
+    public MemberSearchSliceResDTO searchMembers( int pageNum, int pageSize, Integer generation, String part, String keyword) {
+        Pageable pageable = PageRequest.of(pageNum, pageSize);
+        Part memberPart = part == null ? null : Part.valueOf(part);
+
+        Slice<MemberSearchDetailResDTO> slice = search(generation, memberPart, keyword, pageable);
+        return MemberSearchSliceResDTO.from(slice);
+    }
+
+    private Slice<MemberSearchDetailResDTO> search(Integer generation, Part part, String keyword, Pageable pageable) {
+        return memberGetService.searchMembers(generation, part, keyword, pageable)
+                .map(MemberSearchDetailResDTO::from);
+    }
+
 }

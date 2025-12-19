@@ -1,6 +1,7 @@
 package com.tavemakers.surf.domain.member.controller;
 
 import com.tavemakers.surf.domain.member.dto.response.MemberSearchResDTO;
+import com.tavemakers.surf.domain.member.dto.response.MemberSearchSliceResDTO;
 import com.tavemakers.surf.domain.member.dto.response.MemberSimpleResDTO;
 import com.tavemakers.surf.domain.member.dto.response.MyPageProfileResDTO;
 import com.tavemakers.surf.domain.member.usecase.MemberUsecase;
@@ -62,6 +63,22 @@ public class MemberSearchController {
         memberId = (memberId == null ? SecurityUtils.getCurrentMemberId() : memberId);
         MyPageProfileResDTO response = memberUsecase.getMyPageAndProfile(memberId);
         return ApiResponse.response(HttpStatus.OK, MYPAGE_MY_PROFILE_READ.getMessage(), response);
+    }
+
+    @Operation(
+            summary = "회원이름 및 학교로 검색 (기수/파트 필터링)",
+            description = "회원이름 및 학교로 검색 (기수/파트 필터링)"
+    )
+    @GetMapping("/v1/user/members")
+    public ApiResponse<MemberSearchSliceResDTO> searchMembers(
+            @RequestParam int pageNum,
+            @RequestParam int pageSize,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer generation,
+            @RequestParam(required = false) String part
+    ) {
+        MemberSearchSliceResDTO response = memberUsecase.searchMembers(pageNum, pageSize, generation, part, keyword);
+        return ApiResponse.response(HttpStatus.OK, MEMBER_LIST_SEARCH_SUCCESS.getMessage(), response);
     }
 
 }
