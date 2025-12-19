@@ -99,7 +99,7 @@ public class CommentLikeService {
                 .toList();
     }
 
-    /** 좋아요 생성시 알림 - 게시글 작성자에게 */
+    /** 좋아요 생성시 알림 - 댓글 작성자에게 */
     protected void createNotificationAtCommentLike(
             Member member,
             Long commentId,
