@@ -25,14 +25,4 @@ public record NotificationResDTO (
         @Schema(description = "알람 생성 일시", example = "2023-10-05T14:48:00")
         LocalDateTime createdAt
 ){
-    public static NotificationResDTO from(Notification n) {
-        return new NotificationResDTO(
-                n.getId(),
-                n.getType(),
-                n.getType().getCategory().name(),
-                n.getBody(),
-                n.isRead(),
-                n.getCreatedAt()
-        );
-    }
 }
