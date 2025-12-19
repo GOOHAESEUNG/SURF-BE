@@ -4,8 +4,10 @@ import com.tavemakers.surf.domain.home.dto.res.HomeBannerResDTO;
 import com.tavemakers.surf.domain.home.dto.res.HomeResDTO;
 import com.tavemakers.surf.domain.home.repository.HomeBannerRepository;
 import com.tavemakers.surf.domain.home.repository.HomeContentRepository;
+import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.Track;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
+import com.tavemakers.surf.domain.post.entity.Schedule;
 import com.tavemakers.surf.domain.post.repository.ScheduleRepository;
 import com.tavemakers.surf.global.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -45,14 +47,14 @@ public class HomeService {
 
         Long memberId = SecurityUtils.getCurrentMemberId();
         if (memberId != null) {
-            var m = memberRepository.findById(memberId).orElse(null);
+            Member m = memberRepository.findById(memberId).orElse(null);
 
             if (m != null) {
                 memberName = m.getName();
 
                 List<Track> tracks = m.getTracks();
                 if (tracks != null && !tracks.isEmpty()) {
-                    var latestTrack = tracks.stream()
+                    Track latestTrack = tracks.stream()
                             .filter(t -> t.getGeneration() != null)
                             .max(Comparator.comparing(Track::getGeneration))
                             .orElse(null);
@@ -73,7 +75,7 @@ public class HomeService {
 
         var next = scheduleRepository.findFirstByStartAtAfterOrderByStartAtAsc(LocalDateTime.now()); // 필드명 맞춰 수정
         if (next.isPresent()) {
-            var s = next.get();
+            Schedule s = next.get();
             nextTitle = s.getTitle();
             nextScheduleDate = s.getStartAt().toLocalDate();
         }
