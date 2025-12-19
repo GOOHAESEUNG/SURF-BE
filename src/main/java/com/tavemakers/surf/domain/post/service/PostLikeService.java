@@ -46,7 +46,7 @@ public class PostLikeService {
 
         try {
             postLikeRepository.save(PostLike.of(post, member));
-            createNotificationAtPostLike(member, postId);
+            createNotificationAtPostLike(member, post.getBoard().getId(), postId);
             // 버전 기반 단일 UPDATE (+재시도)
             for (int i = 0; i < 3; i++) {
                 Long v = postRepository.findVersionById(postId);
@@ -88,6 +88,7 @@ public class PostLikeService {
     /** 좋아요 생성시 알림 - 게시글 작성자에게 */
     protected void createNotificationAtPostLike(
             Member member,
+            Long boardId,
             Long postId
     ) {
         Long postOwnerId   = postRepository.findPostOwnerId(postId);
@@ -102,6 +103,7 @@ public class PostLikeService {
                 NotificationType.POST_LIKE,
                 Map.of(
                         "actorName", member.getName(),
+                        "boardId", boardId,
                         "postId", postId
                 )
         );

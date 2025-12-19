@@ -61,7 +61,7 @@ public class CommentLikeService {
             commentLikeRepository.save(CommentLike.of(comment, member));
             comment.increaseLikeCount();
             commentRepository.save(comment);
-            createNotificationAtCommentLike(member, commentId, post.getId());
+            createNotificationAtCommentLike(member, commentId, post.getBoard().getId(), post.getId());
 
             return true; // 새로 좋아요 등록
         } catch (DataIntegrityViolationException e) {
@@ -103,6 +103,7 @@ public class CommentLikeService {
     protected void createNotificationAtCommentLike(
             Member member,
             Long commentId,
+            Long boardId,
             Long postId
     ) {
         Long commentOwnerId = commentRepository.findCommentOwnerId(commentId);
@@ -117,6 +118,7 @@ public class CommentLikeService {
                 NotificationType.COMMENT_LIKE,
                 Map.of(
                         "actorName", member.getName(),
+                        "boardId", boardId,
                         "postId", postId
                 )
         );

@@ -17,6 +17,7 @@ public class NotificationQueryService {
                 n.getType(),
                 n.getType().getCategory().name(),
                 renderer.renderBody(n),
+                renderer.renderDeeplink(n),
                 n.isRead(),
                 n.getCreatedAt()
         );

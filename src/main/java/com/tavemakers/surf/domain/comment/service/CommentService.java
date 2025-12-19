@@ -70,6 +70,7 @@ public class CommentService {
                         NotificationType.POST_COMMENT,
                         Map.of(
                                 "actorName", member.getName(),
+                                "boardId", post.getBoard().getId(),
                                 "postId", postId
                         )
                 );
@@ -111,6 +112,7 @@ public class CommentService {
                         NotificationType.POST_COMMENT,
                         Map.of(
                                 "actorName", member.getName(),
+                                "boardId", post.getBoard().getId(),
                                 "postId", postId
                         )
                 );
@@ -122,6 +124,7 @@ public class CommentService {
                     NotificationType.COMMENT_REPLY,
                     Map.of(
                             "actorName", member.getName(),
+                            "boardId", post.getBoard().getId(),
                             "postId", postId
                     )
             );
