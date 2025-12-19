@@ -8,12 +8,17 @@ import com.tavemakers.surf.domain.letter.service.LetterGetService;
 import com.tavemakers.surf.domain.letter.service.LetterSaveService;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.service.MemberGetService;
+import com.tavemakers.surf.domain.notification.entity.NotificationType;
+import com.tavemakers.surf.domain.notification.service.NotificationCreateService;
+import com.tavemakers.surf.domain.notification.service.NotificationService;
 import com.tavemakers.surf.global.util.EmailSender;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.mail.MailException;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -23,7 +28,9 @@ public class LetterFacade {
     private final LetterSaveService letterSaveService;
     private final EmailSender emailSender;
     private final LetterGetService letterGetService;
+    private final NotificationCreateService notificationCreateService;
 
+    @Transactional
     public LetterResDTO createLetter(Long senderId, LetterCreateReqDTO req) {
 
         // 1) 발신자 조회
@@ -73,13 +80,31 @@ public class LetterFacade {
         // 6) 저장
         Letter saved = letterSaveService.save(letter);
 
+        //알림 발송
+        createNotificationAtCommentLike(receiver,sender);
+
         // 7) 저장된 엔티티 기반으로 Response 생성
         return LetterResDTO.from(saved);
     }
 
+    @Transactional
     public Slice<LetterResDTO> getSentLetters(Long senderId, Pageable pageable) {
         return letterGetService.getSentLetters(senderId, pageable)
                 .map(LetterResDTO::from);
     }
 
+    /** 쪽지 발송시 알림 - 쪽지 수신자에게 */
+    protected void createNotificationAtCommentLike(
+            Member recipient,
+            Member sender
+    ) {
+
+        notificationCreateService.createAndSend(
+                recipient.getId(),
+                NotificationType.MESSAGE,
+                Map.of(
+                        "actorName", sender.getName()
+                )
+        );
+    }
 }

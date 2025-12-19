@@ -17,7 +17,7 @@ public class FirebaseConfig {
             if (!FirebaseApp.getApps().isEmpty()) return;
 
             InputStream is = getClass().getClassLoader()
-                    .getResourceAsStream("firebase/taveDevFCMKey.json");
+                    .getResourceAsStream("firebase/tave-surf-dev-firebase-adminsdk.json");
 
             if (is == null) {
                 throw new IllegalStateException("Firebase service account json not found in classpath");

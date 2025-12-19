@@ -16,7 +16,7 @@ public class FcmService {
     private final DeviceTokenRepository deviceTokenRepository;
 
     @Transactional
-    public void sendToMember(Long memberId, String title, String body) {
+    public void sendToMember(Long memberId, String body, String deeplink) {
         List<DeviceToken> tokens = deviceTokenRepository.findAllByMemberIdAndEnabledTrue(memberId);
         if (tokens.isEmpty()) return;
 
@@ -24,8 +24,8 @@ public class FcmService {
 
         MulticastMessage message = MulticastMessage.builder()
                 .setNotification(Notification.builder()
-                        .setTitle(title)
-                        .setBody(body)
+                        .setTitle(body)
+                        .setBody(deeplink)
                         .build())
                 // data payload는 나중에 딥링크/타입 붙일 때 추가하면 됨
                 .addAllTokens(tokenStrings)

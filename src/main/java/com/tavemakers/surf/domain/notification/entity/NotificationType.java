@@ -34,7 +34,7 @@ public enum NotificationType {
     MESSAGE(
             NotificationCategory.ACTIVITY,
             "{actorName}님이 쪽지를 보냈습니다",
-            "/messages/{roomId}"
+            "null"
     ),
 
     BADGE_UPDATE(
