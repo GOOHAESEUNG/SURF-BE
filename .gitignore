@@ -56,3 +56,4 @@ src/main/resources/application-local.yml
 
 .idea/
 .idea
+/src/main/resources/firebase/taveDevFCMKey.json

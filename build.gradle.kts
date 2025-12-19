@@ -65,6 +65,10 @@ dependencies {
 
     implementation ("io.github.cdimascio:dotenv-java:2.2.4")
 
+    //FCM
+    implementation ("com.google.firebase:firebase-admin:9.7.0")
+
+
 }
 
 // log4j2 사용을 위해 추가
