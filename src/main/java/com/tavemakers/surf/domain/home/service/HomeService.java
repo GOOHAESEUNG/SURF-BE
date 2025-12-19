@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
 
@@ -70,13 +69,13 @@ public class HomeService {
 
         // 4) next schedule
         String nextTitle = null;
-        Long nextDaysLeft = null;
+        LocalDate nextScheduleDate = null;
 
         var next = scheduleRepository.findFirstByStartAtAfterOrderByStartAtAsc(LocalDateTime.now()); // 필드명 맞춰 수정
         if (next.isPresent()) {
             var s = next.get();
             nextTitle = s.getTitle();
-            nextDaysLeft = ChronoUnit.DAYS.between(LocalDate.now(), s.getStartAt().toLocalDate());
+            nextScheduleDate = s.getStartAt().toLocalDate();
         }
 
         return new HomeResDTO(
@@ -86,7 +85,7 @@ public class HomeService {
                 memberGeneration,
                 memberPart,
                 nextTitle,
-                nextDaysLeft
+                nextScheduleDate
         );
     }
 }

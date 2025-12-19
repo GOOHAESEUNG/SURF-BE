@@ -1,5 +1,6 @@
 package com.tavemakers.surf.domain.home.dto.res;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public record HomeResDTO(
@@ -9,6 +10,6 @@ public record HomeResDTO(
         Integer memberGeneration,
         String memberPart,
         String nextScheduleTitle,
-        Long nextScheduleDaysLeft
+        LocalDate nextScheduleDate
 ) {
 }
