@@ -10,7 +10,11 @@ import com.tavemakers.surf.domain.comment.repository.CommentRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
+import com.tavemakers.surf.domain.notification.entity.NotificationType;
+import com.tavemakers.surf.domain.notification.service.NotificationCreateService;
 import com.tavemakers.surf.domain.post.entity.Post;
+import com.tavemakers.surf.domain.post.repository.PostRepository;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +29,9 @@ public class CommentLikeService {
     private final CommentLikeRepository commentLikeRepository;
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
+    private final PostRepository postRepository;
+
+    private final NotificationCreateService notificationCreateService;
 
     /** 좋아요 및 좋아요 취소 */
     @Transactional
@@ -54,6 +61,8 @@ public class CommentLikeService {
             commentLikeRepository.save(CommentLike.of(comment, member));
             comment.increaseLikeCount();
             commentRepository.save(comment);
+            createNotificationAtCommentLike(member, commentId, post.getId());
+
             return true; // 새로 좋아요 등록
         } catch (DataIntegrityViolationException e) {
             return true; // 이미 저장되어 있던 상태 (중복 insert 방어)
@@ -88,6 +97,29 @@ public class CommentLikeService {
                         member.getName(),
                         member.getProfileImageUrl()))
                 .toList();
+    }
+
+    /** 좋아요 생성시 알림 - 게시글 작성자에게 */
+    protected void createNotificationAtCommentLike(
+            Member member,
+            Long commentId,
+            Long postId
+    ) {
+        Long commentOwnerId = commentRepository.findCommentOwnerId(commentId);
+
+        // 자기 글이면 알림 안 보냄
+        if (commentOwnerId.equals(member.getId())) {
+            return;
+        }
+
+        notificationCreateService.createAndSend(
+                commentOwnerId,
+                NotificationType.COMMENT_LIKE,
+                Map.of(
+                        "actorName", member.getName(),
+                        "postId", postId
+                )
+        );
     }
 
 }
