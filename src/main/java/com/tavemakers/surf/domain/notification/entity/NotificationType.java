@@ -14,12 +14,12 @@ public enum NotificationType {
 
     POST_COMMENT(
             "{actorName}님이 회원님의 게시글에 댓글을 달았습니다",
-            "/posts/{postId}"
+            "v1/user/posts/{postId}"
     ),
 
     COMMENT_LIKE(
             "{actorName}님이 회원님의 댓글에 좋아요를 달았습니다",
-            "/comments/{commentId}"
+            "v1/user/posts/{postId}"
     ),
 
     COMMENT_REPLY(

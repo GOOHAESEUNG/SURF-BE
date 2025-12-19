@@ -62,15 +62,18 @@ public class CommentService {
             saved = commentRepository.save(comment);
             saved.markAsRoot();
 
-            // 댓글 생성 알림
-            notificationCreateService.create(
-                    post.getMember().getId(),
-                    NotificationType.POST_COMMENT,
-                    Map.of(
-                            "actorName", member.getName(),
-                            "postId", postId
-                    )
-            );
+            //if(!post.getMember().getId().equals(memberId)) {
+
+                // 댓글 생성 알림 - 게시글 작성자에게
+                notificationCreateService.createAndSend(
+                        post.getMember().getId(),
+                        NotificationType.POST_COMMENT,
+                        Map.of(
+                                "actorName", member.getName(),
+                                "postId", postId
+                        )
+                );
+          //  }
 
         } else {
 
@@ -100,18 +103,21 @@ public class CommentService {
                 saved.markAsRoot();
             }
 
-            // 댓글 생성 알림 - 게시글 작성자에게
-            notificationCreateService.create(
-                    post.getMember().getId(),
-                    NotificationType.POST_COMMENT,
-                    Map.of(
-                            "actorName", member.getName(),
-                            "postId", postId
-                    )
-            );
+            if(!post.getMember().getId().equals(memberId)) {
+
+                // 댓글 생성 알림 - 게시글 작성자에게
+                notificationCreateService.createAndSend(
+                        post.getMember().getId(),
+                        NotificationType.POST_COMMENT,
+                        Map.of(
+                                "actorName", member.getName(),
+                                "postId", postId
+                        )
+                );
+            }
 
             // 댓글 생성 알림 - 루트 댓글 작성자에게
-            notificationCreateService.create(
+            notificationCreateService.createAndSend(
                     post.getMember().getId(),
                     NotificationType.COMMENT_REPLY,
                     Map.of(
