@@ -1,6 +1,6 @@
 package com.tavemakers.surf.domain.home.controller;
 
-import com.tavemakers.surf.domain.home.dto.res.HomeResDTO;
+import com.tavemakers.surf.domain.home.dto.response.HomeResDTO;
 import com.tavemakers.surf.domain.home.service.HomeService;
 import com.tavemakers.surf.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,7 +16,7 @@ public class HomeController {
 
     private final HomeService homeService;
 
-    @GetMapping("/home")
+    @GetMapping("/v1/home")
     public ApiResponse<HomeResDTO> home() {
         HomeResDTO response = homeService.getHome();
         return ApiResponse.response(HttpStatus.OK, "홈 화면 렌더링 성공", response);

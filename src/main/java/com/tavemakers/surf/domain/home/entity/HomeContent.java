@@ -27,4 +27,8 @@ public class HomeContent extends BaseEntity {
                 .mainText(mainText)
                 .build();
     }
+
+    public void changeMainText(String mainText) {
+        this.mainText = mainText;
+    }
 }

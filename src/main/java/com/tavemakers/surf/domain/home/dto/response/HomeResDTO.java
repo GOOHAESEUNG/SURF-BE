@@ -1,4 +1,4 @@
-package com.tavemakers.surf.domain.home.dto.res;
+package com.tavemakers.surf.domain.home.dto.response;
 
 import java.time.LocalDate;
 import java.util.List;

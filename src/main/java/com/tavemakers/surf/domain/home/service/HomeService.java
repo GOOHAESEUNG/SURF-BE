@@ -1,7 +1,7 @@
 package com.tavemakers.surf.domain.home.service;
 
-import com.tavemakers.surf.domain.home.dto.res.HomeBannerResDTO;
-import com.tavemakers.surf.domain.home.dto.res.HomeResDTO;
+import com.tavemakers.surf.domain.home.dto.response.HomeBannerResDTO;
+import com.tavemakers.surf.domain.home.dto.response.HomeResDTO;
 import com.tavemakers.surf.domain.home.repository.HomeBannerRepository;
 import com.tavemakers.surf.domain.home.repository.HomeContentRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -73,7 +74,7 @@ public class HomeService {
         String nextTitle = null;
         LocalDate nextScheduleDate = null;
 
-        var next = scheduleRepository.findFirstByStartAtAfterOrderByStartAtAsc(LocalDateTime.now()); // 필드명 맞춰 수정
+        Optional<Schedule> next = scheduleRepository.findFirstByStartAtAfterOrderByStartAtAsc(LocalDateTime.now());
         if (next.isPresent()) {
             Schedule s = next.get();
             nextTitle = s.getTitle();
