@@ -25,7 +25,7 @@ public record HomeResDTO(
         @Schema(description = "다음 일정 이름", example = "만남의장")
         String nextScheduleTitle,
 
-        @Schema(description = "다음 일정 날짜", example = "2024-07-15")
+        @Schema(description = "다음 일정 날짜", example = "01.01")
         String nextScheduleDate
 ) {
 }
