@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -72,13 +73,15 @@ public class HomeService {
 
         // 4) next schedule
         String nextTitle = null;
-        LocalDate nextScheduleDate = null;
+        String nextScheduleDate = null;
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd");
 
         Optional<Schedule> next = scheduleRepository.findFirstByStartAtAfterOrderByStartAtAsc(LocalDateTime.now());
         if (next.isPresent()) {
             Schedule s = next.get();
             nextTitle = s.getTitle();
-            nextScheduleDate = s.getStartAt().toLocalDate();
+            nextScheduleDate = s.getStartAt().toLocalDate().format(formatter);
         }
 
         return new HomeResDTO(
