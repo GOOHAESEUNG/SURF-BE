@@ -3,6 +3,7 @@ package com.tavemakers.surf.domain.home.controller;
 import com.tavemakers.surf.domain.home.dto.response.HomeResDTO;
 import com.tavemakers.surf.domain.home.service.HomeService;
 import com.tavemakers.surf.global.common.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ public class HomeController {
 
     private final HomeService homeService;
 
+    @Operation(summary = "홈 화면 렌더링", description = "홈 화면에 필요한 데이터를 렌더링합니다.")
     @GetMapping("/v1/user/home")
     public ApiResponse<HomeResDTO> home() {
         HomeResDTO response = homeService.getHome();

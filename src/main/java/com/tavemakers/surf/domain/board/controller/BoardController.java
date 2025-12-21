@@ -1,8 +1,8 @@
 package com.tavemakers.surf.domain.board.controller;
 
-import com.tavemakers.surf.domain.board.dto.req.BoardCreateReqDTO;
-import com.tavemakers.surf.domain.board.dto.req.BoardUpdateReqDTO;
-import com.tavemakers.surf.domain.board.dto.res.BoardResDTO;
+import com.tavemakers.surf.domain.board.dto.request.BoardCreateReqDTO;
+import com.tavemakers.surf.domain.board.dto.request.BoardUpdateReqDTO;
+import com.tavemakers.surf.domain.board.dto.response.BoardResDTO;
 import com.tavemakers.surf.domain.board.service.BoardService;
 import com.tavemakers.surf.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
