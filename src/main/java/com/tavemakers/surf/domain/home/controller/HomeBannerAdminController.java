@@ -45,7 +45,7 @@ public class HomeBannerAdminController {
         return ApiResponse.response(HttpStatus.NO_CONTENT, HOME_BANNER_DELETED.getMessage());
     }
 
-    @PutMapping("/v1/admin/home/banners/order")
+    @PutMapping("/v1/admin/home/banners/reorder")
     public ApiResponse<List<HomeBannerResDTO>> reorderBanners(
             @RequestBody @Valid HomeBannerReorderReqDTO req
     ) {
