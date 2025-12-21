@@ -53,7 +53,7 @@ public class HomeBannerAdminController {
         return ApiResponse.response(HttpStatus.OK, HOME_BANNER_REORDERED.getMessage(), response);
     }
 
-    @PatchMapping("/v1/admin/home/banners/{bannerId}")
+    @PutMapping("/v1/admin/home/banners/{bannerId}")
     public ApiResponse<HomeBannerResDTO> update(
             @PathVariable Long bannerId,
             @RequestBody @Valid HomeBannerUpdateReqDTO req
