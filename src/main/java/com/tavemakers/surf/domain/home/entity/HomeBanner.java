@@ -34,6 +34,9 @@ public class HomeBanner {
     }
 
     public void changeImageUrl(String imageUrl) {
+        if (imageUrl == null || imageUrl.isBlank()) {
+            throw new IllegalArgumentException("imageUrl은 null이거나 빈 값일 수 없습니다.");
+        }
         this.imageUrl = imageUrl;
     }
 
