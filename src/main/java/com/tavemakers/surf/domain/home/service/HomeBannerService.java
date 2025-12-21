@@ -83,8 +83,8 @@ public class HomeBannerService {
         HomeBanner banner = homeBannerRepository.findById(bannerId)
                 .orElseThrow(() -> new IllegalArgumentException("배너가 존재하지 않습니다."));
 
-        if (req.imageUrl() != null && !req.imageUrl().isBlank())
-            banner.changeImageUrl(req.imageUrl());
+        banner.changeImageUrl(req.imageUrl());
+
         if (req.linkUrl() != null)
             banner.changeLinkUrl(req.linkUrl());
 

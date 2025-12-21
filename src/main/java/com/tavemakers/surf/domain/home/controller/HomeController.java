@@ -16,7 +16,7 @@ public class HomeController {
 
     private final HomeService homeService;
 
-    @GetMapping("/v1/home")
+    @GetMapping("/v1/user/home")
     public ApiResponse<HomeResDTO> home() {
         HomeResDTO response = homeService.getHome();
         return ApiResponse.response(HttpStatus.OK, "홈 화면 렌더링 성공", response);

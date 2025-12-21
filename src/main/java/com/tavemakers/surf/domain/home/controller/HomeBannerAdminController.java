@@ -56,7 +56,7 @@ public class HomeBannerAdminController {
     @PatchMapping("/v1/admin/home/banners/{bannerId}")
     public ApiResponse<HomeBannerResDTO> update(
             @PathVariable Long bannerId,
-            @RequestBody HomeBannerUpdateReqDTO req
+            @RequestBody @Valid HomeBannerUpdateReqDTO req
     ) {
         HomeBannerResDTO response = homeBannerService.updateBanner(bannerId, req);
         return ApiResponse.response(HttpStatus.OK, HOME_BANNER_UPDATED.getMessage(), response);

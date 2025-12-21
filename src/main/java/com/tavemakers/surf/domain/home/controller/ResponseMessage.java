@@ -14,7 +14,7 @@ public enum ResponseMessage {
     HOME_BANNER_CREATED("[홈 배너]를 생성했습니다."),
     HOME_BANNER_DELETED("[홈 배너]를 삭제했습니다."),
     HOME_BANNER_REORDERED("[홈 배너] 순서를 변경했습니다."),
-    HOME_BANNER_UPDATED("[홈 배너]를 수정했습니다."),;
+    HOME_BANNER_UPDATED("[홈 배너]를 수정했습니다.");
 
     private final String message;
 }
