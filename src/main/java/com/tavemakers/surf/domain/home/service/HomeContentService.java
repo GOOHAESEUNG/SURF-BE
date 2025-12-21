@@ -17,7 +17,7 @@ public class HomeContentService {
     private final HomeContentRepository homeContentRepository;
 
     @Transactional
-    public HomeContentResDTO upsert(HomeContentUpsertReqDTO req) {
+    public HomeContentResDTO upsertContent(HomeContentUpsertReqDTO req) {
 
         HomeContent content = homeContentRepository.findById(HOME_CONTENT_ID)
                 .orElseGet(() -> HomeContent.of(req.mainText()));
@@ -32,7 +32,7 @@ public class HomeContentService {
     }
 
     @Transactional(readOnly = true)
-    public HomeContentResDTO get() {
+    public HomeContentResDTO getContent() {
         return homeContentRepository.findById(HOME_CONTENT_ID)
                 .map(HomeContentResDTO::from)
                 .orElse(new HomeContentResDTO(HOME_CONTENT_ID, ""));

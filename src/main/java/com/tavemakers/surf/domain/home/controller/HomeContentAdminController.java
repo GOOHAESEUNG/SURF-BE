@@ -14,22 +14,22 @@ import static com.tavemakers.surf.domain.home.controller.ResponseMessage.HOME_CO
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/admin/home")
-public class HomeAdminController {
+@RequestMapping
+public class HomeContentAdminController {
 
     private final HomeContentService homeContentService;
 
-    @GetMapping("/content")
+    @GetMapping("/v1/admin/home/content")
     public ApiResponse<HomeContentResDTO> getContent() {
-        HomeContentResDTO response = homeContentService.get();
+        HomeContentResDTO response = homeContentService.getContent();
         return ApiResponse.response(HttpStatus.OK, HOME_CONTENT_READ.getMessage(), response);
     }
 
-    @PutMapping("/content")
+    @PutMapping("/v1/admin/home/content")
     public ApiResponse<HomeContentResDTO> upsertContent(
             @RequestBody @Valid HomeContentUpsertReqDTO req
     ) {
-        HomeContentResDTO response = homeContentService.upsert(req);
+        HomeContentResDTO response = homeContentService.upsertContent(req);
         return ApiResponse.response(HttpStatus.OK, HOME_CONTENT_UPSERTED.getMessage(), response);
     }
 }

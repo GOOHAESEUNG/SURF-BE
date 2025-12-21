@@ -84,7 +84,7 @@ public class AuthController {
             // 사용자 정보 조회
             KakaoUserInfoDto userInfo = kakaoAuthService.getUserInfo(token.accessToken());
 
-            // 회원 upsert
+            // 회원 upsertContent
             Member member = memberUpsertService.upsertRegisteringFromKakao(userInfo);
 
             // JWT 발급

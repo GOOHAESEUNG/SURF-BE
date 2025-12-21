@@ -23,13 +23,25 @@ public class HomeBanner {
     private String linkUrl;
 
     @Column(nullable = false)
-    private Integer sortOrder;
+    private Integer displayOrder;
 
-    public static HomeBanner of(String imageUrl, String linkUrl, Integer sortOrder) {
+    public static HomeBanner of(String imageUrl, String linkUrl, Integer displayOrder) {
         return HomeBanner.builder()
                 .imageUrl(imageUrl)
                 .linkUrl(linkUrl)
-                .sortOrder(sortOrder)
+                .displayOrder(displayOrder)
                 .build();
+    }
+
+    public void changeImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public void changeLinkUrl(String linkUrl) {
+        this.linkUrl = linkUrl;
+    }
+
+    public void changeDisplayOrder(Integer displayOrder) {
+        this.displayOrder = displayOrder;
     }
 }
