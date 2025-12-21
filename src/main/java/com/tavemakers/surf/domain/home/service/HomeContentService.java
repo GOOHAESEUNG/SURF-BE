@@ -20,13 +20,11 @@ public class HomeContentService {
     public HomeContentResDTO upsertContent(HomeContentUpsertReqDTO req) {
 
         HomeContent content = homeContentRepository.findById(HOME_CONTENT_ID)
-                .orElseGet(() -> HomeContent.of(req.mainText()));
-
-        if (homeContentRepository.existsById(HOME_CONTENT_ID)) {
-            content.changeMainText(req.mainText());
-        } else {
-            homeContentRepository.save(content);
-        }
+                .map(existing -> {
+                    existing.changeMainText(req.mainText());
+                    return existing;
+                })
+                .orElseGet(() -> homeContentRepository.save(HomeContent.of(req.mainText())));
 
         return HomeContentResDTO.from(content);
     }
