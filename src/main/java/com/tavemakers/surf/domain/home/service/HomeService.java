@@ -36,7 +36,7 @@ public class HomeService {
         String mainText = homeContentRepository.findMainText().orElse("");
 
         // 2) banners
-        List<HomeBannerResDTO> banners = homeBannerRepository.findAllByOrderBySortOrderAsc()
+        List<HomeBannerResDTO> banners = homeBannerRepository.findAllByOrderByDisplayOrderAsc()
                 .stream()
                 .map(HomeBannerResDTO::from)
                 .toList();
