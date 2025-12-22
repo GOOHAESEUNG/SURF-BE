@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.BatchSize;
 
 
 @Entity
@@ -60,6 +61,7 @@ public class Member extends BaseEntity {
     private Boolean phoneNumberPublic=false;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 20)
     private List<Track> tracks = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
