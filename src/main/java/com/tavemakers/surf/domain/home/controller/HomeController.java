@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.tavemakers.surf.domain.home.controller.ResponseMessage.HOME_PAGE_RENDERED;
+
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "홈 화면 렌더링")
@@ -21,6 +23,6 @@ public class HomeController {
     @GetMapping("/v1/user/home")
     public ApiResponse<HomeResDTO> home() {
         HomeResDTO response = homeService.getHome();
-        return ApiResponse.response(HttpStatus.OK, "홈 화면 렌더링 성공", response);
+        return ApiResponse.response(HttpStatus.OK, HOME_PAGE_RENDERED.getMessage(), response);
     }
 }

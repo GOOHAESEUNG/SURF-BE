@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ResponseMessage {
+    HOME_PAGE_RENDERED("홈 화면 렌더링에 성공했습니다."),
 
     HOME_CONTENT_READ("[홈 화면 메시지]를 조회했습니다."),
     HOME_CONTENT_UPSERTED("[홈 화면 메시지]를 수정했습니다."),
