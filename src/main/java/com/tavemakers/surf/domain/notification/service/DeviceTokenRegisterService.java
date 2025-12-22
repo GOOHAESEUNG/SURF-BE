@@ -17,7 +17,14 @@ public class DeviceTokenRegisterService {
     public void register(Long memberId, DeviceTokenReqDTO dto) {
         deviceTokenRepository.findByToken(dto.token())
                 .ifPresentOrElse(
-                        token -> token.touch(),
+                        token -> {
+                            //토큰 소유자가 변경된 경우 업데이트
+                            if (!token.getMemberId().equals(memberId)) {
+                                token.updateOwner(memberId);
+                            } else {
+                                token.touch();
+                            }
+                        },
                         () -> deviceTokenRepository.save(
                                 DeviceToken.builder()
                                         .memberId(memberId)

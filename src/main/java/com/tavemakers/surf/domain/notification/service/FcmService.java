@@ -24,9 +24,10 @@ public class FcmService {
 
         MulticastMessage message = MulticastMessage.builder()
                 .setNotification(Notification.builder()
-                        .setTitle(body)
-                        .setBody(deeplink)
+                        .setTitle("SURF")
+                        .setBody(body)
                         .build())
+                .putData("deepLink", deeplink)
                 // data payload는 나중에 딥링크/타입 붙일 때 추가하면 됨
                 .addAllTokens(tokenStrings)
                 .build();

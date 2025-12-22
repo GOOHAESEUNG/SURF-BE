@@ -51,4 +51,9 @@ public class DeviceToken {
         this.lastSeenAt = LocalDateTime.now();
         this.enabled = true;
     }
+
+    public void updateOwner(Long newMemberId){
+        this.memberId = newMemberId;
+        this.touch();
+    }
 }

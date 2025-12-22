@@ -9,6 +9,7 @@ import com.tavemakers.surf.domain.notification.service.DeviceTokenRegisterServic
 import com.tavemakers.surf.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +39,7 @@ public class DeviceTokenPostController {
     @PostMapping("/device-tokens")
     public ApiResponse<Void> registerDeviceToken(
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestBody DeviceTokenReqDTO dto
+            @Valid @RequestBody DeviceTokenReqDTO dto
     ) {
         deviceTokenRegisterService.register(user.getMember().getId(), dto);
         return ApiResponse.response(

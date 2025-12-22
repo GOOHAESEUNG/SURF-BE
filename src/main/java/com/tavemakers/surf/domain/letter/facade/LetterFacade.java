@@ -10,7 +10,6 @@ import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.service.MemberGetService;
 import com.tavemakers.surf.domain.notification.entity.NotificationType;
 import com.tavemakers.surf.domain.notification.service.NotificationCreateService;
-import com.tavemakers.surf.domain.notification.service.NotificationService;
 import com.tavemakers.surf.global.util.EmailSender;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -81,7 +80,7 @@ public class LetterFacade {
         Letter saved = letterSaveService.save(letter);
 
         //알림 발송
-        createNotificationAtCommentLike(receiver,sender);
+        createNotificationAtLetterSend(receiver,sender);
 
         // 7) 저장된 엔티티 기반으로 Response 생성
         return LetterResDTO.from(saved);
@@ -94,7 +93,7 @@ public class LetterFacade {
     }
 
     /** 쪽지 발송시 알림 - 쪽지 수신자에게 */
-    protected void createNotificationAtCommentLike(
+    protected void createNotificationAtLetterSend(
             Member recipient,
             Member sender
     ) {

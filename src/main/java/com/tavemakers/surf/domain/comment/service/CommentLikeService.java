@@ -108,6 +108,10 @@ public class CommentLikeService {
     ) {
         Long commentOwnerId = commentRepository.findCommentOwnerId(commentId);
 
+        if (commentOwnerId == null) {
+            return;
+        }
+
         // 자기 글이면 알림 안 보냄
         if (commentOwnerId.equals(member.getId())) {
             return;

@@ -93,8 +93,7 @@ public class PostLikeService {
     ) {
         Long postOwnerId   = postRepository.findPostOwnerId(postId);
 
-        // 자기 글이면 알림 안 보냄
-        if (postOwnerId.equals(member.getId())) {
+        if (postOwnerId == null||postOwnerId.equals(member.getId())) {
             return;
         }
 
