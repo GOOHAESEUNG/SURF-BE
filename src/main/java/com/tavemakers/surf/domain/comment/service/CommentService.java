@@ -11,11 +11,14 @@ import com.tavemakers.surf.domain.comment.repository.CommentRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
+import com.tavemakers.surf.domain.notification.entity.NotificationType;
+import com.tavemakers.surf.domain.notification.service.NotificationCreateService;
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
 import com.tavemakers.surf.global.logging.LogEvent;
 import com.tavemakers.surf.global.logging.LogParam;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -35,6 +38,8 @@ public class CommentService {
     private final CommentLikeService commentLikeService;
     private final CommentLikeRepository commentLikeRepository;
 
+    private final NotificationCreateService notificationCreateService;
+
     /** 댓글 작성 */
     @Transactional
     @LogEvent(value = "comment.create", message = "댓글 생성 성공")
@@ -48,6 +53,7 @@ public class CommentService {
         // 댓글 생성 (루트/대댓글 분기)
         Comment saved;
 
+
         // 1) 루트 댓글 (parentId == null)
         if (req.parentId() == null) {
 
@@ -55,6 +61,20 @@ public class CommentService {
             Comment comment = Comment.root(post, member, req.content());
             saved = commentRepository.save(comment);
             saved.markAsRoot();
+
+            if(!post.getMember().getId().equals(memberId)) {
+
+                // 댓글 생성 알림 - 게시글 작성자에게
+                notificationCreateService.createAndSend(
+                        post.getMember().getId(),
+                        NotificationType.POST_COMMENT,
+                        Map.of(
+                                "actorName", member.getName(),
+                                "boardId", post.getBoard().getId(),
+                                "postId", postId
+                        )
+                );
+            }
 
         } else {
 
@@ -83,6 +103,32 @@ public class CommentService {
                 saved = commentRepository.save(newRoot);
                 saved.markAsRoot();
             }
+
+            if(!post.getMember().getId().equals(memberId)) {
+
+                // 댓글 생성 알림 - 게시글 작성자에게
+                notificationCreateService.createAndSend(
+                        post.getMember().getId(),
+                        NotificationType.POST_COMMENT,
+                        Map.of(
+                                "actorName", member.getName(),
+                                "boardId", post.getBoard().getId(),
+                                "postId", postId
+                        )
+                );
+            }
+
+            // 댓글 생성 알림 - 루트 댓글 작성자에게
+            Long parentOwnerId = parent.getMember().getId();
+            notificationCreateService.createAndSend(
+                    parentOwnerId,
+                    NotificationType.COMMENT_REPLY,
+                    Map.of(
+                            "actorName", member.getName(),
+                            "boardId", post.getBoard().getId(),
+                            "postId", postId
+                    )
+            );
         }
         // 멘션 등록
         commentMentionService.createMentions(saved, req.mentionMemberIds());

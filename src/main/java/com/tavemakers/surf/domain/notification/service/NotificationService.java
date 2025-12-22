@@ -18,6 +18,7 @@ import java.util.List;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final NotificationQueryService notificationQueryService;
 
     @Transactional(readOnly = true)
     public List<NotificationResDTO> getNotifications(Long memberId, NotificationCategory category) {
@@ -37,7 +38,7 @@ public class NotificationService {
         }
 
         return notifications.stream()
-                .map(NotificationResDTO::from)
+                .map(notificationQueryService::toDto)
                 .toList();
     }
 

@@ -46,4 +46,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Slice<Post> findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(
             String title, String content, Pageable pageable);
+
+    @Query("""
+        select p.member.id
+        from Post p
+        where p.id = :postId
+    """)
+    Long findPostOwnerId(@Param("postId") Long postId);
 }

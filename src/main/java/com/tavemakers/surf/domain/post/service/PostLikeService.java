@@ -3,6 +3,8 @@ package com.tavemakers.surf.domain.post.service;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
+import com.tavemakers.surf.domain.notification.entity.NotificationType;
+import com.tavemakers.surf.domain.notification.service.NotificationCreateService;
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.entity.PostLike;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
@@ -11,6 +13,7 @@ import com.tavemakers.surf.domain.post.repository.PostRepository;
 import com.tavemakers.surf.global.logging.LogEvent;
 import com.tavemakers.surf.global.logging.LogParam;
 import jakarta.persistence.OptimisticLockException;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,8 @@ public class PostLikeService {
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
     private final MemberRepository memberRepository;
+
+    private final NotificationCreateService notificationCreateService;
 
     @Transactional
     @LogEvent(value = "post.like", message = "게시물 좋아요 성공")
@@ -41,6 +46,7 @@ public class PostLikeService {
 
         try {
             postLikeRepository.save(PostLike.of(post, member));
+            createNotificationAtPostLike(member, post.getBoard().getId(), postId);
             // 버전 기반 단일 UPDATE (+재시도)
             for (int i = 0; i < 3; i++) {
                 Long v = postRepository.findVersionById(postId);
@@ -78,4 +84,28 @@ public class PostLikeService {
     public boolean isLikedByMe(Long memberId, Long postId) {
         return postLikeRepository.existsByPostIdAndMemberId(postId, memberId);
     }
+
+    /** 좋아요 생성시 알림 - 게시글 작성자에게 */
+    protected void createNotificationAtPostLike(
+            Member member,
+            Long boardId,
+            Long postId
+    ) {
+        Long postOwnerId   = postRepository.findPostOwnerId(postId);
+
+        if (postOwnerId == null||postOwnerId.equals(member.getId())) {
+            return;
+        }
+
+        notificationCreateService.createAndSend(
+                postOwnerId,
+                NotificationType.POST_LIKE,
+                Map.of(
+                        "actorName", member.getName(),
+                        "boardId", boardId,
+                        "postId", postId
+                )
+        );
+    }
+
 }
