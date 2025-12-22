@@ -29,8 +29,9 @@ public class CommentController {
 
     @Operation(summary = "댓글 생성 (루트/대댓글)", description = "rootId가 null이면 루트 댓글")
     @PostMapping("/v1/user/posts/{postId}/comments")
-    public ApiResponse<CommentResDTO> createComment(@PathVariable Long postId,
-                                                    @Valid @RequestBody CommentCreateReqDTO req) {
+    public ApiResponse<CommentResDTO> createComment(
+            @PathVariable Long postId,
+            @Valid @RequestBody CommentCreateReqDTO req) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         CommentResDTO response = commentService.createComment(postId, memberId, req);
         return ApiResponse.response(HttpStatus.CREATED, COMMENT_CREATED.getMessage(), response);

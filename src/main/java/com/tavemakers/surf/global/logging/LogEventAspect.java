@@ -103,8 +103,18 @@ public class LogEventAspect {
         } catch (Exception ignored) {}
     }
 
-    private Long tryExtractId(Object dto) {
+    private Long  tryExtractId(Object dto) {
         if (dto == null) return null;
+
+        try {
+            for (var method : dto.getClass().getMethods()) {
+                String name = method.getName();
+                if (method.getParameterCount() == 0 && name.endsWith("Id")) {
+                    Object v = method.invoke(dto);
+                    if (v instanceof Number n) return n.longValue();
+                }
+            }
+        } catch (Exception ignore) {}
 
         try {
             var m1 = dto.getClass().getMethod("id");
