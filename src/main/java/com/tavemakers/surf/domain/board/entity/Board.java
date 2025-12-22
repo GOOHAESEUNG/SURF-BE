@@ -1,6 +1,6 @@
 package com.tavemakers.surf.domain.board.entity;
 
-import com.tavemakers.surf.domain.board.dto.req.BoardCreateReqDTO;
+import com.tavemakers.surf.domain.board.dto.request.BoardCreateReqDTO;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
