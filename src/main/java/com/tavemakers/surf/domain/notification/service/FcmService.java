@@ -15,7 +15,6 @@ public class FcmService {
 
     private final DeviceTokenRepository deviceTokenRepository;
 
-    @Transactional
     public void sendToMember(Long memberId, String body, String deeplink) {
         List<DeviceToken> tokens = deviceTokenRepository.findAllByMemberIdAndEnabledTrue(memberId);
         if (tokens.isEmpty()) return;
