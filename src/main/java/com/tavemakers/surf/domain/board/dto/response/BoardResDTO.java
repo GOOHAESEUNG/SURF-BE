@@ -1,4 +1,4 @@
-package com.tavemakers.surf.domain.board.dto.res;
+package com.tavemakers.surf.domain.board.dto.response;
 
 import com.tavemakers.surf.domain.board.entity.Board;
 import com.tavemakers.surf.domain.board.entity.BoardType;

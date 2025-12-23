@@ -65,6 +65,9 @@ dependencies {
 
     implementation ("io.github.cdimascio:dotenv-java:2.2.4")
 
+    //FCM
+    implementation ("com.google.firebase:firebase-admin:9.7.0")
+
     // QueryDSL
     implementation ("com.querydsl:querydsl-jpa:5.0.0:jakarta")
     annotationProcessor ("com.querydsl:querydsl-apt:5.0.0:jakarta")

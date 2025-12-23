@@ -1,8 +1,8 @@
 package com.tavemakers.surf.domain.board.service;
 
-import com.tavemakers.surf.domain.board.dto.req.BoardCreateReqDTO;
-import com.tavemakers.surf.domain.board.dto.req.BoardUpdateReqDTO;
-import com.tavemakers.surf.domain.board.dto.res.BoardResDTO;
+import com.tavemakers.surf.domain.board.dto.request.BoardCreateReqDTO;
+import com.tavemakers.surf.domain.board.dto.request.BoardUpdateReqDTO;
+import com.tavemakers.surf.domain.board.dto.response.BoardResDTO;
 import com.tavemakers.surf.domain.board.entity.Board;
 import com.tavemakers.surf.domain.board.exception.BoardNotFoundException;
 import com.tavemakers.surf.domain.board.repository.BoardRepository;

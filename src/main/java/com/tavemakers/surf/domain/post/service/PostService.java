@@ -176,6 +176,8 @@ public class PostService {
             PostUpdateReqDTO req, Long viewerId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFoundException::new);
+        Member member = memberGetService.getMember(SecurityUtils.getCurrentMemberId());
+        validateOwnerOrManager(post, member);
 
         BoardCategory newCategory = (req.categoryId() != null)
                 ? resolveCategory(post.getBoard(), req.categoryId())
