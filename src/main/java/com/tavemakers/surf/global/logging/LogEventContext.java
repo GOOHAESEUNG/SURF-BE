@@ -7,28 +7,20 @@ import java.util.Map;
 public class LogEventContext {
 
     public static void put(String key, Object value) {
-        if (value == null) return;
+        if (key == null || key.isBlank() || value == null) return;
 
+        RequestLogContext.get().pendingProps.put(key, value);
+    }
+
+    static Map<String, Object> drain() {
         RequestLogContext ctx = RequestLogContext.get();
-        if (ctx.events.isEmpty()) return;
 
-        Map<String, Object> lastEvent = ctx.events.get(ctx.events.size() - 1);
-
-        Object propsObj = lastEvent.get("props");
-        Map<String, Object> props;
-
-        if (propsObj instanceof Map<?, ?> map) {
-            props = new HashMap<>();
-            map.forEach((k, v) -> {
-                if (k instanceof String) {
-                    props.put((String) k, v);
-                }
-            });
-        } else {
-            props = new HashMap<>();
+        if (ctx.pendingProps.isEmpty()) {
+            return Map.of();
         }
 
-        props.put(key, value);
-        lastEvent.put("props", props);
+        Map<String, Object> copy = new HashMap<>(ctx.pendingProps);
+        ctx.pendingProps.clear();
+        return copy;
     }
 }

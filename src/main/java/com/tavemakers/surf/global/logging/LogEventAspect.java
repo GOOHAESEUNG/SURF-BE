@@ -45,6 +45,8 @@ public class LogEventAspect {
             // ✅ 2. 리턴값에서 ID 자동 보강
             enrichWithReturn(props, ret);
 
+            props.putAll(LogEventContext.drain());
+
             // ✅ 3. 성공 로그 emit
             if (msg == null || msg.isBlank()) {
                 emitter.emit(event, props);
@@ -54,6 +56,7 @@ public class LogEventAspect {
             return ret;
         }catch (Exception ex) {
             Map<String, Object> fail = new HashMap<>(props);
+            fail.putAll(LogEventContext.drain());
             fail.put("error_code", ex.getClass().getSimpleName());
             fail.put("error_msg", ex.getMessage());
 
