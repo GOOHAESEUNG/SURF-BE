@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Schema(description = "게시글 수정 요청 DTO")
 public record PostUpdateReqDTO(
@@ -17,6 +18,8 @@ public record PostUpdateReqDTO(
 
         @Schema(description = "게시글 본문 내용", example = "전반기 만남의 장 언제 어디에 진행합니다!")
         @NotBlank String content,
+
+        Boolean isContentChanged,
 
         @Schema(description = "세부 카테고리 ID", example = "2")
         Long categoryId,
@@ -49,7 +52,10 @@ public record PostUpdateReqDTO(
                 if (pinned != null) changedFields.add("pinned");
                 if (isImageChanged != null) changedFields.add("has_image_changed");
 
-                return Map.of("changed_fields", changedFields);
+                return Map.of(
+                        "changed_fields", changedFields,
+                        "edit_length", isContentChanged ? String.valueOf(Objects.requireNonNull(content).length()) : "notChanged"
+                );
         }
 
         public Boolean isImageChanged() {
