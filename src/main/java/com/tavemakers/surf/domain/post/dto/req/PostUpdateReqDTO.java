@@ -47,6 +47,7 @@ public record PostUpdateReqDTO(
                 if (title != null && !title.isBlank()) changedFields.add("title");
                 if (content != null && !content.isBlank()) changedFields.add("content");
                 if (pinned != null) changedFields.add("pinned");
+                if (isImageChanged != null) changedFields.add("has_image_changed");
 
                 return Map.of("changed_fields", changedFields);
         }
