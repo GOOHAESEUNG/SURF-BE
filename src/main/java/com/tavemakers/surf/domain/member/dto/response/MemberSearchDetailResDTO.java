@@ -13,6 +13,7 @@ public record MemberSearchDetailResDTO(
         String username,
         String university,
         String profileImageUrl,
+        String role,
         List<TrackResDTO> trackList
 ) {
     public static MemberSearchDetailResDTO from(Member member) {
@@ -27,6 +28,7 @@ public record MemberSearchDetailResDTO(
                 .username(member.getName())
                 .university(member.getUniversity())
                 .profileImageUrl(member.getProfileImageUrl())
+                .role(member.getRole().name())
                 .trackList(trackDtoList)
                 .build();
     }
