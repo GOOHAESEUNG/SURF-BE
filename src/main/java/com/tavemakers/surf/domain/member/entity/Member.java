@@ -202,6 +202,9 @@ public class Member extends BaseEntity {
         updateIfNotNull(dto.phoneNumberPublic(), phoneNumberPublic -> this.phoneNumberPublic = phoneNumberPublic);
         updateIfNotNull(dto.selfIntroduction(), selfIntroduction -> this.selfIntroduction = selfIntroduction);
         updateIfNotNull(dto.link(), link -> this.link = link);
+        if(dto.isProfileImageChanged() != null && dto.isProfileImageChanged()) {
+            this.profileImageUrl = dto.profileImageUrl();
+        }
     }
 
     //유저 권한 변경
