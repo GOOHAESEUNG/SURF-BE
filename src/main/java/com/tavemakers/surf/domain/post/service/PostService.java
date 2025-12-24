@@ -31,6 +31,7 @@ import com.tavemakers.surf.domain.reservation.usecase.ReservationUsecase;
 import com.tavemakers.surf.domain.scrap.repository.ScrapRepository;
 import com.tavemakers.surf.domain.scrap.service.ScrapService;
 import com.tavemakers.surf.global.logging.LogEvent;
+import com.tavemakers.surf.global.logging.LogEventContext;
 import com.tavemakers.surf.global.logging.LogParam;
 import com.tavemakers.surf.global.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -120,10 +121,13 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Slice<PostResDTO> getPostsByMember(Long authorId, Long viewerId, Pageable pageable) {
+    @LogEvent(value = "post.by.author.list", message = "특정 작성자 게시글 목록 조회")
+    public Slice<PostResDTO> getPostsByMember(
+            @LogParam(value = "author_id") Long authorId, Long viewerId, Pageable pageable) {
         if (!memberRepository.existsById(authorId))
             throw new MemberNotFoundException();
         Slice<Post> slice = postRepository.findByMemberId(authorId, pageable);
+        LogEventContext.put("count", slice.getNumberOfElements());
         FlagsMapper.Flags flags = flagsMapper.resolveFlags(viewerId, slice.getContent());
         return slice.map(p -> flagsMapper.toRes(p, flags));
     }
