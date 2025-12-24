@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 public record MemberSearchDetailResDTO(
         Long memberId,
-        String name,
+        String username,
         String university,
         String profileImageUrl,
         List<TrackResDTO> trackList
@@ -24,7 +24,7 @@ public record MemberSearchDetailResDTO(
 
         return MemberSearchDetailResDTO.builder()
                 .memberId(member.getId())
-                .name(member.getName())
+                .username(member.getName())
                 .university(member.getUniversity())
                 .profileImageUrl(member.getProfileImageUrl())
                 .trackList(trackDtoList)
