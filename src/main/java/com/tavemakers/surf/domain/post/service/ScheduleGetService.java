@@ -83,7 +83,8 @@ public class ScheduleGetService {
 
     //특정 일정 개별 조회 - 캘린터에서 수정하기/삭제로 넘어갈시
     @Transactional(readOnly = true)
-    public ScheduleResDTO getScheduleSingleAtCalendar(Long scheduleId) {
+    @LogEvent("calendar_summary_open")
+    public ScheduleResDTO getScheduleSingleAtCalendar(@LogParam("schedule_id") Long scheduleId) {
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(ScheduleNotFoundException::new);
         return ScheduleResDTO.fromEntity(schedule);
