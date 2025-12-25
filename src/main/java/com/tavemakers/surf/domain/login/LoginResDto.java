@@ -9,12 +9,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * - refreshToken, expiresIn 은 제외 (보안 및 불필요 데이터 제거)
  */
 
-@Schema(description = "인가 코드(code)를 받아 JWT AccessToken과 사용자 정보를 반환합니다.")
+@Schema(description = "로그인 성공 시 사용자 기본 정보 응답 DTO")
 @Builder
 public record LoginResDto(
-
-        @Schema(description = "JWT Access Token", example = "abcdefg...jwt")
-        String accessToken,
 
         @Schema(description = "사용자 닉네임", example = "홍길동")
         String nickname,
@@ -29,9 +26,8 @@ public record LoginResDto(
      * 정적 팩토리 메서드
      * - accessToken + nickname → LoginResDto 변환
      */
-    public static LoginResDto of(String accessToken, String nickname, String email, String profileImageUrl) {
+    public static LoginResDto of(String nickname, String email, String profileImageUrl) {
         return LoginResDto.builder()
-                .accessToken(accessToken)
                 .nickname(nickname)
                 .email(email)
                 .profileImageUrl(profileImageUrl)
