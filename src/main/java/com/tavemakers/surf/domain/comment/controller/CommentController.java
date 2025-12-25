@@ -40,7 +40,7 @@ public class CommentController {
 
     @Operation(summary = "댓글 목록 조회 (페이징)", description = "루트 댓글과 대댓글 모두 포함. 페이징 처리")
     @GetMapping("/v1/user/posts/{postId}/comments")
-    @LogEvent("comment.list.expend")
+    @LogEvent("comment.list.expand")
     public ApiResponse<CommentListResDTO> getComments(
             @LogParam("post_id") @PathVariable Long postId,
             @ParameterObject
