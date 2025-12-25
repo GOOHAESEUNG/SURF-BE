@@ -49,11 +49,12 @@ public record CommentResDTO(
 
 ) {
     public static CommentResDTO from(Comment comment,
+                                     Long postId,
                                      List<MentionResDTO> mentions,
                                      Boolean liked) {
         return new CommentResDTO(
                 comment.getId(),
-                comment.getPost().getId(),
+                postId,
                 comment.getRootId(),
                 comment.getParent() != null ? comment.getParent().getId() : null,
                 comment.getDepth(),
