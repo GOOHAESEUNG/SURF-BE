@@ -2,6 +2,7 @@ package com.tavemakers.surf.domain.post.service;
 
 import com.tavemakers.surf.domain.board.entity.Board;
 import com.tavemakers.surf.domain.board.entity.BoardCategory;
+import com.tavemakers.surf.domain.board.entity.BoardType;
 import com.tavemakers.surf.domain.board.exception.BoardNotFoundException;
 import com.tavemakers.surf.domain.board.exception.CategoryNotFoundException;
 import com.tavemakers.surf.domain.board.exception.CategoryRequiredException;
@@ -133,16 +134,23 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
+    @LogEvent(value = "post_list_view", message = "게시판 리스트 화면 진입")
     public Slice<PostResDTO> getPostsByBoardAndCategory(
-            Long boardId, String categorySlug, Long viewerId, Pageable pageable) {
-
+            Long boardId,
+            String categorySlug,
+            Long viewerId,
+            Pageable pageable
+    ) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(BoardNotFoundException::new);
 
         Member viewer = memberGetService.getMember(viewerId);
         boolean isManager = viewer.hasDeleteRole();
 
-        final boolean all = (categorySlug == null || categorySlug.isBlank() || "all".equalsIgnoreCase(categorySlug));
+        boolean all = (categorySlug == null || categorySlug.isBlank() || "all".equalsIgnoreCase(categorySlug));
+        String categoryForLog = all ? "all" : categorySlug;
+
+        boolean isNotice = board.getType() == BoardType.NOTICE;
 
         Slice<Post> slice;
         if (all) {
@@ -150,14 +158,25 @@ public class PostService {
                     ? postRepository.findByBoardId(boardId, pageable)
                     : postRepository.findByBoardIdAndIsReservedFalse(boardId, pageable);
         } else {
-            // 보드-카테고리 소속 검증 (slug 기준)
             BoardCategory category = boardCategoryRepository.findByBoardIdAndSlug(boardId, categorySlug)
                     .orElseThrow(CategoryNotFoundException::new);
 
-            resolveCategory(board, category.getId());
             slice = isManager
                     ? postRepository.findByBoardIdAndCategoryId(boardId, category.getId(), pageable)
                     : postRepository.findByBoardIdAndCategoryIdAndIsReservedFalse(boardId, category.getId(), pageable);
+        }
+
+        if (isNotice) {
+            LogEventContext.overrideEvent("notice_list_view");
+            LogEventContext.overrideMessage("공지 리스트 화면 진입");
+            LogEventContext.put("category", "notice");
+        } else {
+            LogEventContext.overrideEvent("post_list_view");
+            LogEventContext.overrideMessage("게시판 리스트 화면 진입");
+
+            LogEventContext.put("board_id", boardId);
+            LogEventContext.put("category", categoryForLog);
+            LogEventContext.put("loaded_count", slice.getNumberOfElements());
         }
 
         FlagsMapper.Flags flags = flagsMapper.resolveFlags(viewerId, slice.getContent());

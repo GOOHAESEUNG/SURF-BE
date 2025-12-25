@@ -33,55 +33,72 @@ public class LogEventAspect {
         }
 
         LogEvent ann = m.getAnnotation(LogEvent.class);
-        String event = ann != null ? ann.value() : null;
+        String event = (ann != null) ? ann.value() : null;
         String msg = (ann != null && !ann.message().isBlank()) ? ann.message() : null;
 
-        // ✅ 1. 파라미터 + DTO 양쪽에서 props 수집
         Map<String, Object> props = collectPropsFromArgs(pjp.getArgs(), m);
 
         try {
             Object ret = pjp.proceed();
 
-            // ✅ 2. 리턴값에서 ID 자동 보강
             enrichWithReturn(props, ret);
 
-            props.putAll(LogEventContext.drain());
+            // pendingProps drain + override 추출
+            Map<String, Object> drained = LogEventContext.drain();
+            String overrideEvent = LogEventContext.extractOverrideEvent(drained);
+            String overrideMsg = LogEventContext.extractOverrideMessage(drained);
 
-            // ✅ 3. 성공 로그 emit
-            if (msg == null || msg.isBlank()) {
-                emitter.emit(event, props);
+            props.putAll(drained);
+
+            String finalEvent = (overrideEvent != null) ? overrideEvent : event;
+            String finalMsg = (overrideMsg != null) ? overrideMsg : msg;
+
+            if (finalMsg == null || finalMsg.isBlank()) {
+                emitter.emit(finalEvent, props);
             } else {
-                emitter.emit(event, props, msg);
+                emitter.emit(finalEvent, props, finalMsg);
             }
             return ret;
-        }catch (Exception ex) {
+
+        } catch (Exception ex) {
             Map<String, Object> fail = new HashMap<>(props);
-            fail.putAll(LogEventContext.drain());
+
+            // 실패에서도 drain + override 반영
+            Map<String, Object> drained = LogEventContext.drain();
+            String overrideEvent = LogEventContext.extractOverrideEvent(drained);
+            String overrideMsg = LogEventContext.extractOverrideMessage(drained);
+
+            fail.putAll(drained);
             fail.put("error_code", ex.getClass().getSimpleName());
             fail.put("error_msg", ex.getMessage());
 
-            String failedEvent = (event != null && event.endsWith(".failed"))
-                    ? event
-                    : (event != null ? event + ".failed" : "unknown.failed");
-            emitter.emitError(failedEvent, fail, msg != null ? msg : "AOP captured exception");
+            String baseEvent = (overrideEvent != null) ? overrideEvent : event;
+            String failedEvent = (baseEvent != null && baseEvent.endsWith(".failed"))
+                    ? baseEvent
+                    : (baseEvent != null ? baseEvent + ".failed" : "unknown.failed");
+
+            String finalMsg = (overrideMsg != null) ? overrideMsg : msg;
+
+            emitter.emitError(
+                    failedEvent,
+                    fail,
+                    (finalMsg != null && !finalMsg.isBlank()) ? finalMsg : "AOP captured exception"
+            );
 
             throw ex;
         }
     }
 
-    /** ✅ LogParam, LogPropsProvider 둘 다 인식 */
     private Map<String, Object> collectPropsFromArgs(Object[] args, Method method) {
         Map<String, Object> props = new HashMap<>();
         Parameter[] params = method.getParameters();
 
         for (int i = 0; i < params.length; i++) {
-            // 1) @LogParam
             var annotation = params[i].getAnnotation(LogParam.class);
             if (annotation != null) {
                 props.put(annotation.value(), args[i]);
             }
 
-            // 2) LogPropsProvider DTO
             if (args[i] instanceof LogPropsProvider provider) {
                 try {
                     props.putAll(provider.buildProps());
@@ -91,14 +108,11 @@ public class LogEventAspect {
         return props;
     }
 
-    /** ✅ 리턴 DTO에서 id 필드 자동 보강 */
     private void enrichWithReturn(Map<String, Object> props, Object ret) {
         if (ret == null) return;
-
         try {
             Long id = tryExtractId(ret);
             if (id != null) {
-                // ex) PostResDTO → post_id, CommentResDTO → comment_id
                 String name = ret.getClass().getSimpleName().toLowerCase();
                 String key = name.replace("resdto", "") + "_id";
                 props.putIfAbsent(key, id);
@@ -106,7 +120,7 @@ public class LogEventAspect {
         } catch (Exception ignored) {}
     }
 
-    private Long  tryExtractId(Object dto) {
+    private Long tryExtractId(Object dto) {
         if (dto == null) return null;
 
         try {
@@ -124,32 +138,28 @@ public class LogEventAspect {
             m1.setAccessible(true);
             Object v1 = m1.invoke(dto);
             if (v1 instanceof Number n) return n.longValue();
-        } catch (Exception ignore) {
-        }
+        } catch (Exception ignore) {}
 
         try {
             var m2 = dto.getClass().getMethod("getId");
             m2.setAccessible(true);
             Object v2 = m2.invoke(dto);
             if (v2 instanceof Number n) return n.longValue();
-        } catch (Exception ignore) {
-        }
+        } catch (Exception ignore) {}
 
         try {
             var f = dto.getClass().getDeclaredField("id");
             f.setAccessible(true);
             Object v3 = f.get(dto);
             if (v3 instanceof Number n) return n.longValue();
-        } catch (Exception ignore) {
-        }
+        } catch (Exception ignore) {}
 
         try {
             var f = dto.getClass().getDeclaredField("data");
             f.setAccessible(true);
             Object inner = f.get(dto);
             if (inner != null) return tryExtractId(inner);
-        } catch (Exception ignore) {
-        }
+        } catch (Exception ignore) {}
 
         return null;
     }
