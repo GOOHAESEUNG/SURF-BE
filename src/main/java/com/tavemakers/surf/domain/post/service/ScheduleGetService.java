@@ -6,6 +6,8 @@ import com.tavemakers.surf.domain.post.dto.res.ScheduleResDTO;
 import com.tavemakers.surf.domain.post.entity.Schedule;
 import com.tavemakers.surf.domain.post.exception.ScheduleNotFoundException;
 import com.tavemakers.surf.domain.post.repository.ScheduleRepository;
+import com.tavemakers.surf.global.logging.LogEvent;
+import com.tavemakers.surf.global.logging.LogParam;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -22,15 +24,23 @@ import org.springframework.transaction.annotation.Transactional;
 public class ScheduleGetService {
     private final ScheduleRepository scheduleRepository;
 
-    public ScheduleMonthlyResDTO getScheduleMonthly(String memberRole, int year, int month) {
-        List<Schedule> schedules = getSchedulesByMonth(memberRole, year, month);
+    @Transactional(readOnly = true)
+    @LogEvent("calendar.view")
+    public ScheduleMonthlyResDTO getScheduleMonthly(
+            String memberRole,
+            int year,
+            @LogParam("month_view") int month
+    ) {
+        List<Schedule> schedules =
+                getSchedulesByMonth(memberRole, year, month);
+
         List<ScheduleResDTO> scheduleResDTOS = getScheduleResDTOs(schedules);
         return getScheduleMonthlyResDTOs(year, month, scheduleResDTOS);
     }
 
     //특정 월의 일정 조회
     @Transactional(readOnly = true)
-    protected List<Schedule> getSchedulesByMonth(String memberRole, int year, int month) {
+    public List<Schedule> getSchedulesByMonth(String memberRole,  int year, int month) {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
         LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59);
