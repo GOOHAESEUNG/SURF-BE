@@ -12,6 +12,7 @@ public record MemberSearchDetailResDTO(
         Long memberId,
         String username,
         String university,
+        String selfIntroduction,
         String profileImageUrl,
         String role,
         List<TrackResDTO> trackList
@@ -27,6 +28,7 @@ public record MemberSearchDetailResDTO(
                 .memberId(member.getId())
                 .username(member.getName())
                 .university(member.getUniversity())
+                .selfIntroduction(member.getSelfIntroduction())
                 .profileImageUrl(member.getProfileImageUrl())
                 .role(member.getRole().name())
                 .trackList(trackDtoList)
