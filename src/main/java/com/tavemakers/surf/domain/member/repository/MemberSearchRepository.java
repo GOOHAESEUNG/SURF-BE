@@ -31,23 +31,7 @@ public class MemberSearchRepository {
     * "기수 > 이름 > 대학 > 가입일" 순으로 정렬
     * */
     public Slice<Member> searchMembers(Integer generation, Part part, String keyword, Pageable pageable) {
-        BooleanBuilder builder = new BooleanBuilder();
-
-        if (generation != null) {
-            builder.and(member.tracks.any().generation.eq(generation));
-        }
-
-        if (part != null) {
-            builder.and(member.tracks.any().part.eq(part));
-        }
-
-        if (keyword != null && !keyword.isBlank()) {
-            BooleanExpression nameMatch = member.name.containsIgnoreCase(keyword);
-            BooleanExpression universityMatch = member.university.containsIgnoreCase(keyword);
-            BooleanExpression graduateSchoolMatch = member.graduateSchool.containsIgnoreCase(keyword);
-
-            builder.and(nameMatch.or(universityMatch).or(graduateSchoolMatch));
-        }
+        BooleanBuilder builder = createSearchBuilder(generation, part, keyword);
 
         NumberExpression<Integer> maxGeneration = getMaxGenerationExpression();
         List<Member> results = queryFactory
@@ -72,6 +56,37 @@ public class MemberSearchRepository {
         }
 
         return new SliceImpl<>(results, pageable, hasNext);
+    }
+
+    public Long countMembers(Integer generation, Part part, String keyword) {
+        BooleanBuilder builder = createSearchBuilder(generation, part, keyword);
+
+        return queryFactory
+                .select(member.countDistinct())
+                .from(member)
+                .leftJoin(member.tracks, track)
+                .where(builder)
+                .fetchOne();
+    }
+
+    private BooleanBuilder createSearchBuilder(Integer generation, Part part, String keyword) {
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if (generation != null) {
+            builder.and(member.tracks.any().generation.eq(generation));
+        }
+
+        if (part != null) {
+            builder.and(member.tracks.any().part.eq(part));
+        }
+
+        if (keyword != null && !keyword.isBlank()) {
+            builder.and(member.name.containsIgnoreCase(keyword)
+                    .or(member.university.containsIgnoreCase(keyword))
+                    .or(member.graduateSchool.containsIgnoreCase(keyword)));
+        }
+
+        return builder;
     }
 
     private NumberExpression<Integer> getMaxGenerationExpression() {

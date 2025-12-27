@@ -28,6 +28,9 @@ public record ProfileUpdateReqDTO(
         String phoneNumber,
         Boolean phoneNumberPublic,
 
+        String profileImageUrl,
+        Boolean isProfileImageChanged,
+
         @Valid
         List<CareerCreateReqDTO> careersToCreate,
 

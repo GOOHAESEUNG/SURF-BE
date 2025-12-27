@@ -47,7 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String refreshToken = jwtService.extractRefreshToken(request)
                 .filter(jwtService::isTokenValid).orElse(null);
 
-        String accessToken = jwtService.extractAccessToken(request)
+        String accessToken = jwtService.extractAccessTokenFromCookie(request)
                 .filter(jwtService::isTokenValid).orElse(null);
 
         log.debug("URI: {}, accessToken? {}, refreshToken? {}", uri, accessToken != null, refreshToken != null);
@@ -66,10 +66,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 액세스 없음 + 리프레시만 있는 경우: 재발급 후 401로 재시도 유도
         if (accessToken == null && refreshToken != null) {
             String newAccess = reIssueAccessToken(refreshToken);
-            jwtService.sendAccessToken(response, newAccess);
+            jwtService.sendAccessAndRefreshToken(response, newAccess, refreshToken);
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Access token re-issued. Please retry with the new token.");
             return;
         }
 

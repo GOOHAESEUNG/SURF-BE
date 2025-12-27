@@ -49,4 +49,8 @@ public class MemberGetService {
         return memberSearchRepository.searchMembers(generation, part, keyword, pageable);
     }
 
+    public Long countSearchingMembers(Integer generation, Part memberPart, String keyword) {
+        return memberSearchRepository.countMembers(generation, memberPart, keyword);
+    }
+
 }

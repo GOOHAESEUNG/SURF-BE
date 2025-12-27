@@ -102,7 +102,6 @@ public class AuthController {
 
             var account = userInfo.kakaoAccount();
             LoginResDto loginRes = LoginResDto.of(
-                    accessToken,
                     account.profile().nickname(),
                     account.email(),
                     account.profile().profileImageUrl()

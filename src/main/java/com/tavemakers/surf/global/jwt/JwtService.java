@@ -10,7 +10,8 @@ public interface JwtService {
     String createAccessToken(Long memberId, String role);
     String createRefreshToken(Long memberId);
 
-    Optional<String> extractAccessToken(HttpServletRequest request);
+    Optional<String> extractAccessTokenFromCookie(HttpServletRequest request);
+
     Optional<String> extractRefreshToken(HttpServletRequest request);
 
     Optional<Long> extractMemberId(String token);
@@ -18,5 +19,4 @@ public interface JwtService {
     long getExpiration(String token);
 
     void sendAccessAndRefreshToken(HttpServletResponse res, String accessToken, String refreshToken);
-    void sendAccessToken(HttpServletResponse res, String accessToken);
 }

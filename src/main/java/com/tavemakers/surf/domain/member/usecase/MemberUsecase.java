@@ -226,7 +226,13 @@ public class MemberUsecase {
         Part memberPart = part == null ? null : Part.valueOf(part);
 
         Slice<MemberSearchDetailResDTO> slice = search(generation, memberPart, keyword, pageable);
-        return MemberSearchSliceResDTO.from(slice);
+
+        Long totalCount = null;
+        if (pageNum == 0) { // FRONTEND 협의 - 0번째 페이지에서만 검색조건에 따른 전체 회원수 조회.
+            totalCount = memberGetService.countSearchingMembers(generation, memberPart, keyword);
+        }
+
+        return MemberSearchSliceResDTO.of(slice, totalCount);
     }
 
     private Slice<MemberSearchDetailResDTO> search(Integer generation, Part part, String keyword, Pageable pageable) {

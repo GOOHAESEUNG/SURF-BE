@@ -26,6 +26,7 @@ public class JwtServiceImpl implements JwtService {
     private static final String BEARER_PREFIX = "Bearer ";
     private static final String REFRESH_COOKIE_NAME = "refreshToken";
     private static final String ROLE_PREFIX = "ROLE_";
+    private static final String ACCESS_COOKIE_NAME = "accessToken";
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -70,20 +71,24 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public Optional<String> extractAccessToken(HttpServletRequest request) {
-        String header = request.getHeader(AUTH_HEADER);
-        if (header != null && header.startsWith(BEARER_PREFIX)) {
-            return Optional.of(header.substring(BEARER_PREFIX.length()));
-        }
-        return Optional.empty();
-    }
-
-    @Override
     public Optional<String> extractRefreshToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return Optional.empty();
         for (Cookie c : cookies) {
             if (REFRESH_COOKIE_NAME.equals(c.getName())) {
+                return Optional.ofNullable(c.getValue());
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<String> extractAccessTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) return Optional.empty();
+
+        for (Cookie c : cookies) {
+            if ("accessToken".equals(c.getName())) {
                 return Optional.ofNullable(c.getValue());
             }
         }
@@ -129,26 +134,36 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public void sendAccessAndRefreshToken(HttpServletResponse res, String accessToken, String refreshToken) {
+    public void sendAccessAndRefreshToken(
+            HttpServletResponse res,
+            String accessToken,
+            String refreshToken
+    ) {
         boolean isProd = "prod".equalsIgnoreCase(activeProfile);
         // SameSite=None이면 Secure=true가 필수
         String sameSite = isProd ? "None" : "Lax";
 
-        ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE_NAME, refreshToken)
+        ResponseCookie accessCookie = ResponseCookie.from(ACCESS_COOKIE_NAME, accessToken)
                 .httpOnly(true)
                 .secure(isProd)
+                .domain(isProd ? ".tavesurf.site" : "localhost")
+                .path("/")
+                .maxAge(Duration.ofMillis(accessTokenExpireMs))
+                .sameSite(sameSite)
+                .build();
+
+        ResponseCookie refreshCookie = ResponseCookie.from(REFRESH_COOKIE_NAME, refreshToken)
+                .httpOnly(true)
+                .secure(isProd)
+                .domain(isProd ? ".tavesurf.site" : "localhost")
                 .path("/")
                 .maxAge(Duration.ofMillis(refreshTokenExpireMs))
                 .sameSite(sameSite)
                 .build();
 
-        res.setHeader(AUTH_HEADER, BEARER_PREFIX + accessToken);
-        res.addHeader("Set-Cookie", cookie.toString());
-    }
-
-    @Override
-    public void sendAccessToken(HttpServletResponse res, String newAccessToken) {
-        res.setHeader(AUTH_HEADER, BEARER_PREFIX + newAccessToken);
+        // res.setHeader(AUTH_HEADER, BEARER_PREFIX + accessToken);
+        res.addHeader("Set-Cookie", accessCookie.toString());
+        res.addHeader("Set-Cookie", refreshCookie.toString());
     }
 
     private Claims parseClaims(String token) {
