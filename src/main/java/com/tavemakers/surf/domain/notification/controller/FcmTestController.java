@@ -36,7 +36,7 @@ public class FcmTestController {
             )
             @RequestBody FcmTestReqDTO req
     ) {
-        fcmService.sendToMember(req.memberId(), req.title(), req.body());
+        fcmService.sendToMember(req.memberId(), req.title(), req.body(), 1L);
         return ApiResponse.response(
                 HttpStatus.OK,
                 FCM_TEST_SUCCESS.getMessage()
