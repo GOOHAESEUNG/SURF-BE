@@ -61,7 +61,10 @@ public record PostDetailResDTO(
         int viewCount,
 
         @Schema(description = "일정 매핑 유무", example = "true")
-        Boolean hasSchedule
+        Boolean hasSchedule,
+
+        @Schema(description = "일정 Id", example = "2")
+        Long scheduleId
 ) {
     public static PostDetailResDTO of(
             Post post,
@@ -90,6 +93,7 @@ public record PostDetailResDTO(
                 .imageUrlList(imageUrlList)
                 .viewCount(viewCount)
                 .hasSchedule(post.getHasSchedule())
+                .scheduleId(post.getScheduleId())
                 .build();
     }
 }
