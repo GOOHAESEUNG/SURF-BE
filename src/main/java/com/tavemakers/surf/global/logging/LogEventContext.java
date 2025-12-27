@@ -28,7 +28,9 @@ public class LogEventContext {
     static Map<String, Object> drain() {
         RequestLogContext ctx = RequestLogContext.get();
 
-        if (ctx.pendingProps.isEmpty()) return Map.of();
+        if (ctx.pendingProps.isEmpty()) {
+            return new HashMap<>();
+        }
 
         Map<String, Object> copy = new HashMap<>(ctx.pendingProps);
         ctx.pendingProps.clear();
