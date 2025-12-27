@@ -75,6 +75,9 @@ public class Post extends BaseEntity {
 
     private Boolean hasSchedule;
 
+    @Column(nullable = true)
+    private Long scheduleId;
+
     public static Post of(PostCreateReqDTO req, Board board, BoardCategory category, Member member) {
         return Post.builder()
                 .title(req.title())
@@ -99,11 +102,18 @@ public class Post extends BaseEntity {
         this.title = req.title();
         this.content = req.content();
         this.pinned = req.pinned() != null ? req.pinned() : this.pinned;
+
         this.board = board;
         this.boardName = board.getName();
+
         this.category = category;
         this.categoryName = category.getName();
+
         this.hasSchedule = req.hasSchedule();
+
+        if (Boolean.FALSE.equals(req.hasSchedule())) {
+            this.scheduleId = null;
+        }
     }
 
     @PrePersist
