@@ -24,7 +24,8 @@ public class ScheduleUseCase {
     @Transactional
     public void createScheduleAtPost(ScheduleCreateReqDTO dto, Long postId) {
         Post post = postService.findPostById(postId);
-        scheduleCreateService.createScheduleAtPost(dto, post);
+        Long scheduleId = scheduleCreateService.createScheduleAtPost(dto, post);
+        post.addScheduleId(scheduleId);
     }
 
     //개별 일정 생성(캘린더에서)

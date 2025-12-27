@@ -157,4 +157,8 @@ public class Post extends BaseEntity {
     public void increaseViewCount() {
         this.viewCount++;
     }
+
+    public void addScheduleId(Long scheduleId) {
+        this.scheduleId = scheduleId;
+    }
 }
