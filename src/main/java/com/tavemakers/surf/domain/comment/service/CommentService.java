@@ -139,14 +139,14 @@ public class CommentService {
         // 응답 DTO (멘션, 좋아요 포함)
         List<MentionResDTO> mentions = commentMentionService.getMentions(saved.getId());
         boolean liked = false; // 새 댓글은 기본적으로 좋아요 없음
-        return CommentResDTO.from(saved, mentions, liked);
+        return CommentResDTO.from(saved, postId, mentions, liked);
     }
 
     /** 댓글 삭제 */
     @Transactional
-    @LogEvent(value = "comment.delete", message = "댓글 삭제 성공")
+    @LogEvent("comment.delete")
     public void deleteComment(
-            @LogParam("post_id") Long postId,
+            Long postId,
             @LogParam("comment_id") Long commentId,
             Long memberId
     ) {
@@ -227,7 +227,7 @@ public class CommentService {
                 .map(comment -> {
                     List<MentionResDTO> mentions = commentMentionService.getMentions(comment.getId());
                     boolean liked = memberId != null && commentLikeService.isLikedByMe(comment.getId(), memberId);
-                    return CommentResDTO.from(comment, mentions, liked);
+                    return CommentResDTO.from(comment, postId, mentions, liked);
                 })
                 .toList();
 

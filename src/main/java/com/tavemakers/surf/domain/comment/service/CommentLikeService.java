@@ -15,6 +15,9 @@ import com.tavemakers.surf.domain.notification.service.NotificationCreateService
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
 import java.util.Map;
+
+import com.tavemakers.surf.global.logging.LogEvent;
+import com.tavemakers.surf.global.logging.LogParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +38,8 @@ public class CommentLikeService {
 
     /** 좋아요 및 좋아요 취소 */
     @Transactional
-    public boolean toggleLike(Long commentId, Long memberId) {
+    @LogEvent("comment.like.toggle")
+    public boolean toggleLike(@LogParam("comment_id") Long commentId, Long memberId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(CommentNotFoundException::new);
         Member member = memberRepository.findById(memberId)
@@ -46,8 +50,9 @@ public class CommentLikeService {
             throw new CannotLikeDeletedCommentException();
         }
 
-        Post post = comment.getPost();
-        if (post == null) throw new CommentNotFoundException();
+        Post post = postRepository.findById(
+                comment.getPost().getId()
+        ).orElseThrow(CommentNotFoundException::new);
 
         // 좋아요 이미 존재하면 취소
         int removed = commentLikeRepository.deleteByCommentAndMember(comment, member);
