@@ -10,9 +10,11 @@ import java.util.List;
 @Builder
 public record MemberSearchDetailResDTO(
         Long memberId,
-        String name,
+        String username,
         String university,
+        String selfIntroduction,
         String profileImageUrl,
+        String role,
         List<TrackResDTO> trackList
 ) {
     public static MemberSearchDetailResDTO from(Member member) {
@@ -24,9 +26,11 @@ public record MemberSearchDetailResDTO(
 
         return MemberSearchDetailResDTO.builder()
                 .memberId(member.getId())
-                .name(member.getName())
+                .username(member.getName())
                 .university(member.getUniversity())
+                .selfIntroduction(member.getSelfIntroduction())
                 .profileImageUrl(member.getProfileImageUrl())
+                .role(member.getRole().name())
                 .trackList(trackDtoList)
                 .build();
     }
