@@ -19,4 +19,6 @@ public class PostUpdateService {
         postJdbcRepository.viewCountBulkUpdate(updateDtoList);
     }
 
+    //게시글과 매핑된 스케쥴 아이디 추가
+
 }
