@@ -27,9 +27,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final MemberRepository memberRepository;
     private final RedisTemplate<String, String> redisTemplate; // 없으면 null 주입 가능
 
-    // 필요에 맞게 경로 조정
-    private static final String LOGIN_URL = "/login/**";
     private static final String LOGOUT_URL = "/auth/logout";
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return uri.startsWith("/login/")
+                || uri.equals(LOGOUT_URL);
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -37,12 +42,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain chain) throws ServletException, IOException {
 
         final String uri = request.getRequestURI();
-
-        // 로그인/로그아웃 등은 패스
-        if (uri.startsWith(LOGIN_URL) || uri.equals(LOGOUT_URL)) {
-            chain.doFilter(request, response);
-            return;
-        }
 
         String refreshToken = jwtService.extractRefreshToken(request)
                 .filter(jwtService::isTokenValid).orElse(null);
