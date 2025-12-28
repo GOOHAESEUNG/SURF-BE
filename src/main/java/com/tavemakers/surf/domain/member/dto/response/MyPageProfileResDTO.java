@@ -9,6 +9,7 @@ import java.util.List;
 @Builder
 public record MyPageProfileResDTO(
         String username,
+        String profileImageUrl,
         Boolean phoneNumberPublic,
         String phoneNumber,
         String selfIntroduction,
@@ -26,6 +27,7 @@ public record MyPageProfileResDTO(
         boolean isPhoneNumberVisible = !member.isNotOwner() || member.getPhoneNumberPublic();
         return MyPageProfileResDTO.builder()
                 .username(member.getName())
+                .profileImageUrl(member.getProfileImageUrl())
                 .phoneNumberPublic(member.getPhoneNumberPublic())
                 .phoneNumber(isPhoneNumberVisible ? member.getPhoneNumber() : null) // 파라미터로 받은 전화번호 사용
                 .selfIntroduction(member.getSelfIntroduction())
