@@ -139,14 +139,17 @@ public class JwtServiceImpl implements JwtService {
             String accessToken,
             String refreshToken
     ) {
-        boolean isProd = "prod".equalsIgnoreCase(activeProfile);
+        // TODO 2025.12.28 개발환경이므로 dev
+        // TODO 운영 환경에서 prod로 변경
+//        boolean isProd = "prod".equalsIgnoreCase(activeProfile);
+        boolean isDev = "dev".equalsIgnoreCase(activeProfile);
         // SameSite=None이면 Secure=true가 필수
-        String sameSite = isProd ? "None" : "Lax";
+        String sameSite = isDev ? "None" : "Lax";
 
         ResponseCookie accessCookie = ResponseCookie.from(ACCESS_COOKIE_NAME, accessToken)
                 .httpOnly(true)
-                .secure(isProd)
-                .domain(isProd ? ".tavesurf.site" : "localhost")
+                .secure(isDev)
+                .domain(isDev ? ".tavesurf.site" : "localhost")
                 .path("/")
                 .maxAge(Duration.ofMillis(accessTokenExpireMs))
                 .sameSite(sameSite)
@@ -154,8 +157,8 @@ public class JwtServiceImpl implements JwtService {
 
         ResponseCookie refreshCookie = ResponseCookie.from(REFRESH_COOKIE_NAME, refreshToken)
                 .httpOnly(true)
-                .secure(isProd)
-                .domain(isProd ? ".tavesurf.site" : "localhost")
+                .secure(isDev)
+                .domain(isDev ? ".tavesurf.site" : "localhost")
                 .path("/")
                 .maxAge(Duration.ofMillis(refreshTokenExpireMs))
                 .sameSite(sameSite)
