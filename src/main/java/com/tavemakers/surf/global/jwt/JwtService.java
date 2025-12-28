@@ -12,6 +12,8 @@ public interface JwtService {
 
     Optional<String> extractAccessTokenFromCookie(HttpServletRequest request);
 
+    Optional<String> extractAccessTokenFromHeader(HttpServletRequest request);
+
     Optional<String> extractRefreshToken(HttpServletRequest request);
 
     Optional<Long> extractMemberId(String token);
