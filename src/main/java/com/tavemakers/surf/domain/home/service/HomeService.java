@@ -77,7 +77,11 @@ public class HomeService {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd");
 
-        Optional<Schedule> next = scheduleRepository.findFirstByStartAtAfterOrderByStartAtAsc(LocalDateTime.now());
+        Optional<Schedule> next = scheduleRepository.findFirstByCategoryAndStartAtAfterOrderByStartAtAsc(
+                "정규행사",
+                LocalDateTime.now()
+        );
+
         if (next.isPresent()) {
             Schedule s = next.get();
             nextTitle = s.getTitle();
