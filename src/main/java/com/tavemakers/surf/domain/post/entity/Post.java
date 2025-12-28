@@ -161,4 +161,8 @@ public class Post extends BaseEntity {
     public void addScheduleId(Long scheduleId) {
         this.scheduleId = scheduleId;
     }
+
+    public void updateScheduleIdNull(){
+        this.scheduleId = null;
+    }
 }
