@@ -177,4 +177,13 @@ public class JwtServiceImpl implements JwtService {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
+    public Optional<String> extractAccessTokenFromHeader(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header == null || header.isBlank()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(header);
+    }
 }
