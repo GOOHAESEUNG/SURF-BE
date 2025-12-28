@@ -144,7 +144,8 @@ public class JwtServiceImpl implements JwtService {
 //        boolean isProd = "prod".equalsIgnoreCase(activeProfile);
         boolean isDev = "dev".equalsIgnoreCase(activeProfile);
         // SameSite=None이면 Secure=true가 필수
-        String sameSite = isDev ? "None" : "Lax";
+//        String sameSite = isDev ? "None" : "Lax";
+        String sameSite = "Lax";
 
         ResponseCookie accessCookie = ResponseCookie.from(ACCESS_COOKIE_NAME, accessToken)
                 .httpOnly(true)

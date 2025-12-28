@@ -53,6 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 둘 다 있는 경우: 액세스 토큰 블랙리스트만 체크하고 통과
         if (accessToken != null && refreshToken != null) {
+            log.info("토큰 둘다 있는 경우");
             if (isBlacklisted(accessToken)) {
                 unauthorized(response);
                 return;
@@ -64,6 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 액세스 없음 + 리프레시만 있는 경우: 재발급 후 401로 재시도 유도
         if (accessToken == null && refreshToken != null) {
+            log.info("Access 없고 Refresh만 있는 경우");
             String newAccess = reIssueAccessToken(refreshToken);
             jwtService.sendAccessAndRefreshToken(response, newAccess, refreshToken);
 
@@ -73,12 +75,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 액세스만 있는 경우: 블랙리스트 체크 후 인증 주입
         if (accessToken != null) {
+            log.info("Access만 있는 경우");
             if (isBlacklisted(accessToken)) {
                 unauthorized(response);
                 return;
             }
             authenticateUser(accessToken, request);
         }
+        log.info("토큰 값이 없는 경우");
 
         chain.doFilter(request, response);
     }
