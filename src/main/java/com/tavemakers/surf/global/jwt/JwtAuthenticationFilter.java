@@ -47,7 +47,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 .filter(jwtService::isTokenValid).orElse(null);
 
         String accessToken = jwtService.extractAccessTokenFromCookie(request)
-                .filter(jwtService::isTokenValid).orElse(null);
+                .or(() -> jwtService.extractAccessTokenFromHeader(request))
+                .filter(jwtService::isTokenValid)
+                .orElse(null);
+
 
         log.debug("URI: {}, accessToken? {}, refreshToken? {}", uri, accessToken != null, refreshToken != null);
 
