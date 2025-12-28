@@ -184,6 +184,13 @@ public class JwtServiceImpl implements JwtService {
             return Optional.empty();
         }
 
+        // 표준: Bearer 토큰
+        if (header.startsWith("Bearer ")) {
+            return Optional.of(header.substring(7));
+        }
+
+        // Swagger 테스트 편의: 토큰만 들어온 경우도 허용
         return Optional.of(header);
     }
+
 }
