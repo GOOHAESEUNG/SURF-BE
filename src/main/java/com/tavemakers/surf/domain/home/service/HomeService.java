@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -88,10 +87,9 @@ public class HomeService {
             nextTitle = s.getTitle();
             nextScheduleDate = s.getStartAt().toLocalDate().format(formatter);
 
-            if (s.getPost() != null) {
+            if (s.getPost() != null && s.getPost().getBoard() != null) {
                 Long postId = s.getPost().getId();
                 Long boardId = s.getPost().getBoard().getId();
-
                 nextScheduleDeepLink = "/board/" + boardId + "/post/" + postId;
             }
         }
