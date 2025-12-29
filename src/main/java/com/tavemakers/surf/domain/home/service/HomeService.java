@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -74,14 +73,25 @@ public class HomeService {
         // 4) next schedule
         String nextTitle = null;
         String nextScheduleDate = null;
+        String nextScheduleDeepLink = null;
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd");
 
-        Optional<Schedule> next = scheduleRepository.findFirstByStartAtAfterOrderByStartAtAsc(LocalDateTime.now());
+        Optional<Schedule> next = scheduleRepository.findFirstByCategoryAndStartAtAfterOrderByStartAtAsc(
+                "정규행사",
+                LocalDateTime.now()
+        );
+
         if (next.isPresent()) {
             Schedule s = next.get();
             nextTitle = s.getTitle();
             nextScheduleDate = s.getStartAt().toLocalDate().format(formatter);
+
+            if (s.getPost() != null && s.getPost().getBoard() != null) {
+                Long postId = s.getPost().getId();
+                Long boardId = s.getPost().getBoard().getId();
+                nextScheduleDeepLink = "/board/" + boardId + "/post/" + postId;
+            }
         }
 
         return new HomeResDTO(
@@ -91,7 +101,8 @@ public class HomeService {
                 memberGeneration,
                 memberPart,
                 nextTitle,
-                nextScheduleDate
+                nextScheduleDate,
+                nextScheduleDeepLink
         );
     }
 }
