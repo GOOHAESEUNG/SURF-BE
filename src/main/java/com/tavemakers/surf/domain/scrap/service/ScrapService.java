@@ -11,6 +11,7 @@ import com.tavemakers.surf.domain.post.repository.PostRepository;
 import com.tavemakers.surf.domain.scrap.entity.Scrap;
 import com.tavemakers.surf.domain.scrap.repository.ScrapRepository;
 import com.tavemakers.surf.global.logging.LogEvent;
+import com.tavemakers.surf.global.logging.LogEventContext;
 import com.tavemakers.surf.global.logging.LogParam;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
@@ -73,6 +74,7 @@ public class ScrapService {
         }
     }
 
+    @LogEvent(value = "scrap.list.view", message = "스크랩 목록 조회")
     public Slice<PostResDTO> getMyScraps(Long memberId, Pageable pageable) {
         Slice<Post> slice = scrapRepository.findPostsByMemberId(memberId, pageable);
 
@@ -82,9 +84,13 @@ public class ScrapService {
 
         Set<Long> likedIds = new HashSet<>(postLikeRepository.findLikedPostIdsByMemberAndPostIds(memberId, postIds));
 
-        return slice.map(post ->
+        Slice<PostResDTO> result = slice.map(post ->
                 PostResDTO.from(post, true, likedIds.contains(post.getId()))
         );
+
+        LogEventContext.put("count", slice.getNumberOfElements());
+
+        return result;
     }
 
     public boolean isScrappedByMe(Long memberId, Long postId) {
