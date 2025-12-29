@@ -34,6 +34,7 @@ import com.tavemakers.surf.global.logging.LogEvent;
 import com.tavemakers.surf.global.logging.LogParam;
 import com.tavemakers.surf.global.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -70,6 +71,8 @@ public class PostService {
     private final MemberGetService memberGetService;
     private final ViewCountService viewCountService;
     private final FlagsMapper flagsMapper;
+    private final ApplicationEventPublisher eventPublisher;
+
 
     @Transactional
     @LogEvent(value = "post.create", message = "게시글 생성 성공")
@@ -86,6 +89,10 @@ public class PostService {
 
         if (req.isReserved()) {
             reservationUsecase.reservePost(saved.getId(), req.reservedAt());
+        }else{
+            eventPublisher.publishEvent(
+                    new PostPublishedEvent(saved.getId())
+            );
         }
 
         if (req.hasImage()) {
@@ -258,6 +265,23 @@ public class PostService {
                 .orElseThrow((PostNotFoundException::new));
     }
 
+    @Transactional
+    public void publish(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(PostNotFoundException::new);
+
+        // 이미 발행된 글이면 스킵
+        if (!post.isReserved()) {
+            return;
+        }
+
+        post.publish();
+
+        eventPublisher.publishEvent(
+                new PostPublishedEvent(post.getId())
+        );
+    }
+
     private List<PostImageResDTO> getImageUrlList(Post post) {
         return imageGetService.getPostImageUrls(post.getId()).stream()
                 .map(PostImageResDTO::from)
@@ -281,5 +305,4 @@ public class PostService {
             throw new PostDeleteAccessDeniedException();
         }
     }
-
 }
