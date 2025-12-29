@@ -74,6 +74,7 @@ public class HomeService {
         // 4) next schedule
         String nextTitle = null;
         String nextScheduleDate = null;
+        String nextScheduleDeepLink = null;
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd");
 
@@ -86,6 +87,13 @@ public class HomeService {
             Schedule s = next.get();
             nextTitle = s.getTitle();
             nextScheduleDate = s.getStartAt().toLocalDate().format(formatter);
+
+            if (s.getPost() != null) {
+                Long postId = s.getPost().getId();
+                Long boardId = s.getPost().getBoard().getId();
+
+                nextScheduleDeepLink = "/board/" + boardId + "/post/" + postId;
+            }
         }
 
         return new HomeResDTO(
@@ -95,7 +103,8 @@ public class HomeService {
                 memberGeneration,
                 memberPart,
                 nextTitle,
-                nextScheduleDate
+                nextScheduleDate,
+                nextScheduleDeepLink
         );
     }
 }

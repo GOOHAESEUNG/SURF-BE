@@ -26,6 +26,9 @@ public record HomeResDTO(
         String nextScheduleTitle,
 
         @Schema(description = "다음 일정 날짜", example = "01.01")
-        String nextScheduleDate
+        String nextScheduleDate,
+
+        @Schema(description = "다음 일정 deeplink", example = "board/{boardId}/post/{postId}")
+        String nextScheduleDeepLink
 ) {
 }
