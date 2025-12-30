@@ -32,7 +32,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     Long findCommentOwnerId(@Param("commentId") Long commentId);
 
     /** 부모 댓글 삭제 시 자식 댓글의 parent 참조 해제 */
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
         @Query("""
         update Comment c
         set c.parent = null
