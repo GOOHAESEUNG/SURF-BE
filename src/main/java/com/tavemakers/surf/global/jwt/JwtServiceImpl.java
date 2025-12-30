@@ -25,6 +25,8 @@ public class JwtServiceImpl implements JwtService {
     private static final String AUTH_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
     private static final String REFRESH_COOKIE_NAME = "refreshToken";
+    private static final String ROLE_PREFIX = "ROLE_";
+    private static final String ACCESS_COOKIE_NAME = "accessToken";
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -50,7 +52,7 @@ public class JwtServiceImpl implements JwtService {
         Date now = new Date();
         return Jwts.builder()
                 .setSubject(String.valueOf(memberId))
-                .claim("role", role)
+                .claim("role", ROLE_PREFIX+role)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + accessTokenExpireMs))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
@@ -69,20 +71,24 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public Optional<String> extractAccessToken(HttpServletRequest request) {
-        String header = request.getHeader(AUTH_HEADER);
-        if (header != null && header.startsWith(BEARER_PREFIX)) {
-            return Optional.of(header.substring(BEARER_PREFIX.length()));
-        }
-        return Optional.empty();
-    }
-
-    @Override
     public Optional<String> extractRefreshToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return Optional.empty();
         for (Cookie c : cookies) {
             if (REFRESH_COOKIE_NAME.equals(c.getName())) {
+                return Optional.ofNullable(c.getValue());
+            }
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<String> extractAccessTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) return Optional.empty();
+
+        for (Cookie c : cookies) {
+            if ("accessToken".equals(c.getName())) {
                 return Optional.ofNullable(c.getValue());
             }
         }
@@ -128,26 +134,40 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public void sendAccessAndRefreshToken(HttpServletResponse res, String accessToken, String refreshToken) {
-        boolean isProd = "prod".equalsIgnoreCase(activeProfile);
+    public void sendAccessAndRefreshToken(
+            HttpServletResponse res,
+            String accessToken,
+            String refreshToken
+    ) {
+        // TODO 2025.12.28 개발환경이므로 dev
+        // TODO 운영 환경에서 prod로 변경
+//        boolean isProd = "prod".equalsIgnoreCase(activeProfile);
+        boolean isDev = "dev".equalsIgnoreCase(activeProfile);
         // SameSite=None이면 Secure=true가 필수
-        String sameSite = isProd ? "None" : "Lax";
+//        String sameSite = isDev ? "None" : "Lax";
+        String sameSite = "Lax";
 
-        ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE_NAME, refreshToken)
+        ResponseCookie accessCookie = ResponseCookie.from(ACCESS_COOKIE_NAME, accessToken)
                 .httpOnly(true)
-                .secure(isProd)
+                .secure(isDev)
+                .domain(isDev ? ".tavesurf.site" : "localhost")
+                .path("/")
+                .maxAge(Duration.ofMillis(accessTokenExpireMs))
+                .sameSite(sameSite)
+                .build();
+
+        ResponseCookie refreshCookie = ResponseCookie.from(REFRESH_COOKIE_NAME, refreshToken)
+                .httpOnly(true)
+                .secure(isDev)
+                .domain(isDev ? ".tavesurf.site" : "localhost")
                 .path("/")
                 .maxAge(Duration.ofMillis(refreshTokenExpireMs))
                 .sameSite(sameSite)
                 .build();
 
-        res.setHeader(AUTH_HEADER, BEARER_PREFIX + accessToken);
-        res.addHeader("Set-Cookie", cookie.toString());
-    }
-
-    @Override
-    public void sendAccessToken(HttpServletResponse res, String newAccessToken) {
-        res.setHeader(AUTH_HEADER, BEARER_PREFIX + newAccessToken);
+        // res.setHeader(AUTH_HEADER, BEARER_PREFIX + accessToken);
+        res.addHeader("Set-Cookie", accessCookie.toString());
+        res.addHeader("Set-Cookie", refreshCookie.toString());
     }
 
     private Claims parseClaims(String token) {
@@ -157,4 +177,20 @@ public class JwtServiceImpl implements JwtService {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
+    public Optional<String> extractAccessTokenFromHeader(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header == null || header.isBlank()) {
+            return Optional.empty();
+        }
+
+        // 표준: Bearer 토큰
+        if (header.startsWith("Bearer ")) {
+            return Optional.of(header.substring(7));
+        }
+
+        // Swagger 테스트 편의: 토큰만 들어온 경우도 허용
+        return Optional.of(header);
+    }
+
 }

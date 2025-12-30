@@ -1,6 +1,6 @@
 package com.tavemakers.surf.domain.board.entity;
 
-import com.tavemakers.surf.domain.board.dto.req.BoardCreateReqDTO;
+import com.tavemakers.surf.domain.board.dto.request.BoardCreateReqDTO;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -39,7 +39,8 @@ public class Board extends BaseEntity {
                 .build();
     }
 
-    public void changeType(BoardType type) {
+    public void update(String name, BoardType type) {
+        this.name = name;
         this.type = type;
     }
 }

@@ -44,8 +44,7 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/kakao/login",
             "/login/oauth2/code/kakao",
-            "/login/**",
-            "/api/members/signup"
+            "/login/**"
     };
 
     @Bean
@@ -59,10 +58,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login/**").permitAll() // 로그인
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN") // 관리자 페이지 접근 제한 예시
-                        .requestMatchers(permitUrlConfig.getPublicUrl()).permitAll() // 로그인, 회원가입은 모두 허용
-                        .requestMatchers(permitUrlConfig.getMemberUrl()).hasRole("MEMBER")
-                        .requestMatchers(permitUrlConfig.getAdminUrl()).hasRole("ADMIN") // 관리자 페이지 접근 제한 예시
+                        .requestMatchers(permitUrlConfig.getPublicUrl()).permitAll()
+                        .requestMatchers(permitUrlConfig.getMemberUrl()).hasAnyRole("MEMBER", "ADMIN", "PRESIDENT", "MANAGER")
+                        .requestMatchers(permitUrlConfig.getAdminUrl()).hasAnyRole("ADMIN", "PRESIDENT", "MANAGER")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable()) // 우리는 소셜 로그인 + JWT 사용 → formLogin 비활성화
@@ -76,8 +74,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173", "http://139.150.81.126.nip.io","https://139.150.81.126.nip.io", "https://tavesurf.site"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList("Authorization", "RefreshToken", "Content-Type", "Set-Cookie"));
         configuration.setAllowCredentials(true);

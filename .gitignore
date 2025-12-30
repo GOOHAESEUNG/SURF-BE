@@ -14,7 +14,7 @@ application.properties
 .idea/libraries/
 .idea/*
 .idea
-
+logs/*
 *.iws
 *.iml
 *.ipr
@@ -56,3 +56,5 @@ src/main/resources/application-local.yml
 
 .idea/
 .idea
+/src/main/resources/firebase/taveDevFCMKey.json
+/src/main/resources/firebase/tave-surf-dev-firebase-adminsdk.json

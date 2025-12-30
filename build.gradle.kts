@@ -17,7 +17,7 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")      // MVC (Controller)
-    implementation("org.springframework.boot:spring-boot-starter-webflux")  // WebClient
+    // implementation("org.springframework.boot:spring-boot-starter-webflux")  // WebClient
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-security")
 
@@ -36,6 +36,9 @@ dependencies {
     // .env 자동 로딩
     implementation("me.paulschwarz:spring-dotenv:3.0.0")
 
+    // Spring AOP
+    implementation("org.springframework.boot:spring-boot-starter-aop")
+
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 
@@ -52,8 +55,33 @@ dependencies {
 
     // Redis
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+    // Aop
+    implementation ("org.springframework.boot:spring-boot-starter-aop")
+    implementation ("com.fasterxml.jackson.core:jackson-databind")
+
+    // AWS S3
+    implementation ("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
+
+    implementation ("io.github.cdimascio:dotenv-java:2.2.4")
+
+    //FCM
+    implementation ("com.google.firebase:firebase-admin:9.7.0")
+
+    // QueryDSL
+    implementation ("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+    annotationProcessor ("com.querydsl:querydsl-apt:5.0.0:jakarta")
+    annotationProcessor ("jakarta.annotation:jakarta.annotation-api")
+    annotationProcessor ("jakarta.persistence:jakarta.persistence-api")
+
+    // 쪽지의 email 전송 기능
+    implementation ("org.springframework.boot:spring-boot-starter-mail")
 }
 
+// log4j2 사용을 위해 추가
+//configurations.all {
+//    exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
+//}
 
 tasks.test {
     useJUnitPlatform()

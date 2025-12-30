@@ -27,9 +27,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final MemberRepository memberRepository;
     private final RedisTemplate<String, String> redisTemplate; // 없으면 null 주입 가능
 
-    // 필요에 맞게 경로 조정
-    private static final String LOGIN_URL = "/login/**";
     private static final String LOGOUT_URL = "/auth/logout";
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return uri.startsWith("/login/")
+                || uri.equals(LOGOUT_URL);
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -38,22 +43,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String uri = request.getRequestURI();
 
-        // 로그인/로그아웃 등은 패스
-        if (uri.startsWith(LOGIN_URL) || uri.equals(LOGOUT_URL)) {
-            chain.doFilter(request, response);
-            return;
-        }
-
         String refreshToken = jwtService.extractRefreshToken(request)
                 .filter(jwtService::isTokenValid).orElse(null);
 
-        String accessToken = jwtService.extractAccessToken(request)
-                .filter(jwtService::isTokenValid).orElse(null);
+        String accessToken = jwtService.extractAccessTokenFromCookie(request)
+                .or(() -> jwtService.extractAccessTokenFromHeader(request))
+                .filter(jwtService::isTokenValid)
+                .orElse(null);
+
 
         log.debug("URI: {}, accessToken? {}, refreshToken? {}", uri, accessToken != null, refreshToken != null);
 
         // 둘 다 있는 경우: 액세스 토큰 블랙리스트만 체크하고 통과
         if (accessToken != null && refreshToken != null) {
+            log.info("토큰 둘다 있는 경우");
             if (isBlacklisted(accessToken)) {
                 unauthorized(response);
                 return;
@@ -65,22 +68,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 액세스 없음 + 리프레시만 있는 경우: 재발급 후 401로 재시도 유도
         if (accessToken == null && refreshToken != null) {
+            log.info("Access 없고 Refresh만 있는 경우");
             String newAccess = reIssueAccessToken(refreshToken);
-            jwtService.sendAccessToken(response, newAccess);
+            jwtService.sendAccessAndRefreshToken(response, newAccess, refreshToken);
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Access token re-issued. Please retry with the new token.");
             return;
         }
 
         // 액세스만 있는 경우: 블랙리스트 체크 후 인증 주입
         if (accessToken != null) {
+            log.info("Access만 있는 경우");
             if (isBlacklisted(accessToken)) {
                 unauthorized(response);
                 return;
             }
             authenticateUser(accessToken, request);
         }
+        log.info("토큰 값이 없는 경우");
 
         chain.doFilter(request, response);
     }

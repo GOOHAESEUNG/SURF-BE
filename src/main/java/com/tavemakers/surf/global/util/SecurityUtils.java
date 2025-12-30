@@ -35,4 +35,6 @@ public final class SecurityUtils {
     }
 
     public static Long getCurrentKakaoId(){return getCurrentMember().getKakaoId();}
+
+    public static String getCurrentMemberRole(){return getCurrentMember().getRole().toString();}
 }

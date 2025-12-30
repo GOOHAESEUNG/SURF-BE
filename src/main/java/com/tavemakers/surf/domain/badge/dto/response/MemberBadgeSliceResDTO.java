@@ -1,6 +1,5 @@
 package com.tavemakers.surf.domain.badge.dto.response;
 
-import com.tavemakers.surf.domain.badge.entity.MemberBadge;
 import lombok.Builder;
 import org.springframework.data.domain.Slice;
 

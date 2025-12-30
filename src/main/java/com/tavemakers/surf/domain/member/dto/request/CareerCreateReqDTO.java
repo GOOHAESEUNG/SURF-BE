@@ -1,31 +1,39 @@
 package com.tavemakers.surf.domain.member.dto.request;
 
+import com.tavemakers.surf.global.logging.LogPropsProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
 
 import java.time.LocalDate;
-import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-@Getter
-@Valid
-@Schema(description = "신규 경력 추가 요청 DTO")
-public class CareerCreateReqDTO {
+@Schema(description = "경력 생성 요청 DTO")
+public record CareerCreateReqDTO(
+        @NotBlank
+        String companyName,
 
-    @Schema(description = "회사명", example = "서프 컴퍼니")
-    @NotBlank(message = "회사명은 필수입니다.")
-    private String companyName;
+        @NotBlank
+        String position,
 
-    @Schema(description = "직무", example = "주니어 개발자")
-    @NotBlank(message = "직무는 필수입니다.")
-    private String position;
+        @NotNull
+        LocalDate startDate,
+        LocalDate endDate,
 
-    @Schema(description = "근무 시작일", example = "2023-01")
-    @NotNull(message = "근무 시작일은 필수입니다.")
-    private YearMonth startDate;
+        @NotNull
+        Boolean isWorking
+) implements LogPropsProvider {
+    public Map<String, Object> buildProps() {
+        List<String> changedFields = new ArrayList<>();
 
-    @Schema(description = "근무 종료일 (재직 중일 경우 null 또는 미포함)", example = "2024-01")
-    private YearMonth endDate;
+        if (companyName != null && !companyName.isBlank()) changedFields.add("companyName");
+        if (position != null && !position.isBlank()) changedFields.add("position");
+        if (startDate != null) changedFields.add("startDate");
+        if (endDate != null) changedFields.add("endDate");
+        if(isWorking !=null) changedFields.add("isWorking");
+
+        return Map.of("changed_fields", changedFields);
+    }
 }

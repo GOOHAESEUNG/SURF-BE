@@ -7,6 +7,7 @@ import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.entity.enums.MemberType;
 import com.tavemakers.surf.domain.member.entity.enums.MemberRole;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
+import com.tavemakers.surf.global.util.SecurityUtils;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -17,7 +18,12 @@ import com.tavemakers.surf.domain.member.entity.enums.Part;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
+
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Where;
 
 
@@ -50,14 +56,20 @@ public class Member extends BaseEntity {
 
     private String phoneNumber;
 
-    private Integer activityScore;
+    @Column(length = 256)
+    private String selfIntroduction;
+
+    @Column(length = 1024)
+    private String link;
+
+    private Boolean phoneNumberPublic=false;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BatchSize(size = 20)
     private List<Track> tracks = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-
     private MemberStatus status = MemberStatus.WAITING; // 회원 상태; // 회원 상태 (가입중, 대기중, 승인)
 
     @Enumerated(EnumType.STRING)
@@ -89,6 +101,7 @@ public class Member extends BaseEntity {
                   String graduateSchool,
                   String email,
                   String phoneNumber,
+                  Boolean phoneNumberPublic,
                   MemberStatus status,
                   MemberRole role,
                   MemberType memberType,
@@ -100,41 +113,12 @@ public class Member extends BaseEntity {
         this.graduateSchool = graduateSchool;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        this.phoneNumberPublic = phoneNumberPublic;
         this.status = status != null ? status : MemberStatus.WAITING;
         this.role = role != null ? role : MemberRole.MEMBER;
         this.memberType = memberType != null ? memberType : MemberType.YB;
         this.activityStatus = activityStatus;
-        this.activityScore = 0;
         this.tracks = new ArrayList<>();
-    }
-
-    /**
-     * ===== [정적 팩토리 메서드] =====
-     */
-    public static Member create(MemberSignupReqDTO request,
-                                String normalizedEmail,
-                                String normalizedPhone) {
-        Member member = Member.builder()
-                .name(request.getName())
-                .university(request.getUniversity())
-                .graduateSchool(request.getGraduateSchool())
-                .email(normalizedEmail)
-                .phoneNumber(normalizedPhone)
-                .profileImageUrl(request.getProfileImageUrl())
-                .status(MemberStatus.WAITING)
-                .role(MemberRole.MEMBER)
-                .memberType(MemberType.YB)
-                .activityStatus(true)
-                .build();
-
-        // DTO의 TrackInfo → Track 엔티티 변환
-        if (request.getTracks() != null) {
-            request.getTracks().forEach(t ->
-                    member.addTrack(t.getGeneration(), t.getPart())
-            );
-        }
-
-        return member;
     }
 
     public static Member createRegisteringFromKakao(KakaoUserInfoDto info) {
@@ -148,6 +132,7 @@ public class Member extends BaseEntity {
                 .kakaoId(info.id())
                 .name(acc.profile().nickname())
                 .email(acc.email())
+                .phoneNumberPublic(false)
                 .profileImageUrl(acc.profile().profileImageUrl())
                 .status(MemberStatus.REGISTERING)
                 .role(MemberRole.MEMBER)
@@ -171,6 +156,13 @@ public class Member extends BaseEntity {
         // 상태 전이: REGISTERING -> WAITING (또는 정책상 APPROVED)
         if (this.status == MemberStatus.REGISTERING) {
             this.status = MemberStatus.WAITING;
+        }
+
+        //트랙 저장
+        if (req.getTracks() != null) {
+            req.getTracks().forEach(t ->
+                    this.addTrack(t.getGeneration(), t.getPart())
+            );
         }
     }
 
@@ -199,22 +191,69 @@ public class Member extends BaseEntity {
         track.setMember(this); // 여기서만 add 수행
     }
 
+    /** 댓글의 멘션 기능에서 회원들의 기수별로 정렬하기 위한 메서드 */
+    public Integer getFirstGeneration() {
+        if (tracks == null || tracks.isEmpty()) return null;
+
+        // 가장 먼저 활동한 기수
+        return tracks.stream()
+                .map(Track::getGeneration)
+                .min(Integer::compareTo)
+                .orElse(null);
+    }
+
     //프로필 수정하기
-    public void updateProfile(ProfileUpdateReqDTO request) {
-        if (request.getPhoneNumber() != null) {
-            this.phoneNumber = request.getPhoneNumber();
-        }
-        if (request.getEmail() != null) {
-            // 이메일은 중복 체크 등 추가 로직이 필요할 수 있음
-            this.email = request.getEmail();
-        }
-        if (request.getUniversity() != null) {
-            this.university = request.getUniversity();
-        }
-        if (request.getGraduateSchool() != null) {
-            this.graduateSchool = request.getGraduateSchool();
+    public void updateProfile(ProfileUpdateReqDTO dto) {
+        updateIfNotNull(dto.phoneNumber(), phoneNumber -> this.phoneNumber = phoneNumber);
+        updateIfNotNull(dto.email(), email -> this.email = email);
+        updateIfNotNull(dto.university(),university -> this.university = university);
+        updateIfNotNull(dto.graduateSchool(), graduateSchool -> this.graduateSchool = graduateSchool);
+        updateIfNotNull(dto.phoneNumberPublic(), phoneNumberPublic -> this.phoneNumberPublic = phoneNumberPublic);
+        updateIfNotNull(dto.selfIntroduction(), selfIntroduction -> this.selfIntroduction = selfIntroduction);
+        updateIfNotNull(dto.link(), link -> this.link = link);
+        if(dto.isProfileImageChanged() != null && dto.isProfileImageChanged()) {
+            this.profileImageUrl = dto.profileImageUrl();
         }
     }
+
+    //유저 권한 변경
+    public void exchangeRole(MemberRole newRole) {
+        if (newRole == null) {
+            return;
+        }
+        this.role = newRole;
+    }
+
+    public boolean isNotOwner() {
+        return !Objects.equals(this.id, SecurityUtils.getCurrentMemberId());
+    }
+
+    public boolean hasDeleteRole() {
+        return isManager() || isPresident() || isAdmin();
+    }
+
+    public boolean isMember() {
+        return this.role == MemberRole.MEMBER;
+    }
+
+    public boolean isManager() {
+        return this.role == MemberRole.MANAGER;
+    }
+
+    public boolean isPresident() {
+        return this.role == MemberRole.PRESIDENT;
+    }
+
+    public boolean isAdmin() {
+        return this.role == MemberRole.ADMIN;
+    }
+
+    private <T> void updateIfNotNull(T value, Consumer<T> updater) {
+        if (value != null) {
+            updater.accept(value);
+        }
+    }
+
 
     // 회원 탈퇴 처리
     public void withdraw() {

@@ -14,4 +14,11 @@ public record ActivityTypeCountResDTO(
                 .count(count)
                 .build();
     }
+
+    public static ActivityTypeCountResDTO of(ActivityType type, int count) {
+        return ActivityTypeCountResDTO.builder()
+                .activityType(type.name())
+                .count(Long.valueOf(count))
+                .build();
+    }
 }

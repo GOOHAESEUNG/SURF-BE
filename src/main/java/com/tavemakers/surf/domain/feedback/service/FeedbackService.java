@@ -5,9 +5,10 @@ import com.tavemakers.surf.domain.feedback.dto.res.FeedbackResDTO;
 import com.tavemakers.surf.domain.feedback.entity.Feedback;
 import com.tavemakers.surf.domain.feedback.exception.TooManyFeedbackException;
 import com.tavemakers.surf.domain.feedback.repository.FeedbackRepository;
+import com.tavemakers.surf.global.logging.LogEvent;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,23 +25,16 @@ public class FeedbackService {
     private static final int DAILY_LIMIT = 3; // 하루 최대 3회
 
     @Transactional
+    @LogEvent(value = "feedback.create", message = "피드백 생성 성공")
     public FeedbackResDTO createFeedback(FeedbackCreateReqDTO req, Long memberId) {
-        // 1) 일 단위 writerHash 생성 (로그인 유저만 가능)
         String writerHash = writerHashService.hashDaily(memberId, LocalDate.now());
-
-        // 2) 하루 횟수 제한 검사
         long todayCount = feedbackRepository.countByWriterHash(writerHash);
-        if (todayCount >= DAILY_LIMIT) {
-            throw new TooManyFeedbackException();
-        }
-
-        // 3) 저장
+        if (todayCount >= DAILY_LIMIT) throw new TooManyFeedbackException();
         Feedback saved = feedbackRepository.save(Feedback.of(req.content(), writerHash));
-
         return FeedbackResDTO.from(saved);
     }
 
-    public Page<FeedbackResDTO> getFeedbacks(Pageable pageable) {
+    public Slice<FeedbackResDTO> getFeedbacks(Pageable pageable) {
         return feedbackRepository.findAllByOrderByCreatedAtDesc(pageable)
                 .map(FeedbackResDTO::from);
     }

@@ -6,16 +6,24 @@ import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
+import com.tavemakers.surf.domain.post.repository.PostLikeRepository;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
 import com.tavemakers.surf.domain.scrap.entity.Scrap;
 import com.tavemakers.surf.domain.scrap.repository.ScrapRepository;
+import com.tavemakers.surf.global.logging.LogEvent;
+import com.tavemakers.surf.global.logging.LogEventContext;
+import com.tavemakers.surf.global.logging.LogParam;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -25,9 +33,13 @@ public class ScrapService {
     private final ScrapRepository scrapRepository;
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final PostLikeRepository postLikeRepository;
 
     @Transactional
-    public void addScrap(Long memberId, Long postId) {
+    @LogEvent(value = "scrap.add", message = "스크랩 추가 성공")
+    public void addScrap(
+            @LogParam("user_id") Long memberId,
+            @LogParam("post_id") Long postId) {
         Member member = memberRepository.findById(memberId).
                 orElseThrow(MemberNotFoundException::new);
         Post post = postRepository.findById(postId).
@@ -47,7 +59,10 @@ public class ScrapService {
     }
 
     @Transactional
-    public void removeScrap(Long memberId, Long postId) {
+    @LogEvent(value = "scrap.remove", message = "스크랩 삭제 성공")
+    public void removeScrap(
+            @LogParam("user_id") Long memberId,
+            @LogParam("post_id") Long postId) {
         int deleted = scrapRepository.deleteByMemberIdAndPostId(memberId, postId);
         if (deleted > 0) {
             for (int i = 0; i < 3; i++) {
@@ -59,9 +74,23 @@ public class ScrapService {
         }
     }
 
-    public Page<PostResDTO> getMyScraps(Long memberId, Pageable pageable) {
-        Page<Post> page = scrapRepository.findPostsByMemberId(memberId, pageable);
-        return page.map(post -> PostResDTO.from(post, true));
+    @LogEvent(value = "scrap.list.view", message = "스크랩 목록 조회")
+    public Slice<PostResDTO> getMyScraps(Long memberId, Pageable pageable) {
+        Slice<Post> slice = scrapRepository.findPostsByMemberId(memberId, pageable);
+
+        List<Long> postIds = slice.getContent().stream()
+                .map(Post::getId)
+                .toList();
+
+        Set<Long> likedIds = new HashSet<>(postLikeRepository.findLikedPostIdsByMemberAndPostIds(memberId, postIds));
+
+        Slice<PostResDTO> result = slice.map(post ->
+                PostResDTO.from(post, true, likedIds.contains(post.getId()))
+        );
+
+        LogEventContext.put("count", slice.getNumberOfElements());
+
+        return result;
     }
 
     public boolean isScrappedByMe(Long memberId, Long postId) {

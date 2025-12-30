@@ -1,5 +1,7 @@
 package com.tavemakers.surf.domain.member.usecase;
 
+import com.tavemakers.surf.domain.member.dto.request.CareerCreateReqDTO;
+import com.tavemakers.surf.domain.member.dto.request.CareerUpdateReqDTO;
 import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.dto.response.*;
 import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateReqDTO;
@@ -7,11 +9,21 @@ import com.tavemakers.surf.domain.member.dto.response.MyPageProfileResDTO;
 import com.tavemakers.surf.domain.member.dto.response.TrackResDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.Track;
+import com.tavemakers.surf.domain.member.entity.enums.MemberRole;
+import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
+import com.tavemakers.surf.domain.member.entity.enums.Part;
 import com.tavemakers.surf.domain.member.exception.TrackNotFoundException;
 import com.tavemakers.surf.domain.member.service.*;
 import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
+import com.tavemakers.surf.global.logging.LogEvent;
+import com.tavemakers.surf.global.logging.LogParam;
+import com.tavemakers.surf.global.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 
 @Service
 @RequiredArgsConstructor
@@ -33,26 +44,31 @@ public class MemberUsecase {
     private final CareerPostService careerPostService;
     private final CareerPatchService careerPatchService;
     private final CareerDeleteService careerDeleteService;
+    private final CareerGetService careerGetService;
     private final MemberPatchService memberPatchService;
-    private final MemberUpsertService memberUpsertService;
-    private final MemberServiceImpl memberServiceImpl;
     private final MemberService memberService;
+    private final ApplicationContext context;
 
+    /** 마이페이지 + 프로필 조회 */
+    public MyPageProfileResDTO getMyPageAndProfile(Long targetId) {
+        Member member = memberGetService.getMemberByStatus(targetId,MemberStatus.APPROVED);
+        List<TrackResDTO> myTracks = getMyTracks(targetId);
+        List<CareerResDTO> myCareers = getMyCareers(targetId);
 
-    public MyPageProfileResDTO getMyPageAndProfile(Long memberId) {
-        Member member = memberGetService.getMemberByApprovedStatus(memberId);
-        List<TrackResDTO> trackList = trackGetService.getTrack(memberId)
-                .stream().map(TrackResDTO::from).toList();
-
-        BigDecimal score = null;
-        if (member.isActive()) {
-            score = personalScoreGetService.getPersonalScore(memberId).getScore();
+        if (member.isNotOwner()) { // SURF Rule - 타인의 활동점수는 조회 불가
+            return MyPageProfileResDTO.of(member, myTracks, null, myCareers);
         }
 
-        return MyPageProfileResDTO.of(member, trackList, score);
+        BigDecimal score = null;
+        if (member.isActive()) { // SURF Rule - 활동 중인 회원만 활동점수를 보여준다.
+            score = personalScoreGetService.getPersonalScore(targetId).getScore();
+        }
+
+        return MyPageProfileResDTO.of(member, myTracks, score, myCareers);
     }
 
-    // 여러 명의 회원을 조회하고, 각 회원의 트랙 정보를 DTO로 반환하는 메소드
+
+    /** 이름으로 회원 검색 후 각 회원의 트랙 정보를 DTO로 반환하는 메소드 **/
     public List<MemberSearchResDTO> findMemberByNameAndTrack(String name) {
         List<Member> members = memberGetService.getMemberByName(name);
         if (members.isEmpty()) {
@@ -61,7 +77,7 @@ public class MemberUsecase {
 
         List<Long> memberIds = members.stream().map(Member::getId).collect(Collectors.toList());
 
-       List<Track> latestTracks = trackGetService.getTrack(memberIds);
+        List<Track> latestTracks = trackGetService.getTrack(memberIds);
 
         // 조회된 최신 트랙들을 Member ID를 Key로 하는 Map으로 변환
         Map<Long, Track> trackMap = latestTracks.stream()
@@ -82,7 +98,7 @@ public class MemberUsecase {
         return result;
     }
 
-    //트랙+기수별 회원을 묶어 반환
+    /** 트랙+기수별 회원 묶기 */
     public Map<String, List<MemberSimpleResDTO>> getMembersGroupedByTrack() {
         return trackGetService.getAllTracksWithMember().stream()
                 .collect(Collectors.groupingBy(
@@ -95,36 +111,133 @@ public class MemberUsecase {
     }
 
     //프로필 수정
+    @LogEvent(value = "member.profile_update", message = "회원 정보 수정")
     @Transactional
-    public void updateProfile(Long memberId, ProfileUpdateReqDTO dto) {
-        Member member = memberGetService.getMember(memberId);
-        log.info(memberId.toString());
+    public void updateProfile(@LogParam("member_id") Long memberId,
+                              ProfileUpdateReqDTO dto) {
 
+        Member member = memberGetService.getMember(memberId);
+
+        // 프로필 정보 수정
         memberPatchService.updateProfile(member, dto);
 
-        if (dto.getCareersToUpdate() != null) {
-            careerPatchService.updateCareer(member, dto.getCareersToUpdate());
+        // 경력 수정
+        if (dto.careersToUpdate() != null) {
+            careerPatchService.updateCareer(member, dto.careersToUpdate());
         }
 
-        if (dto.getCareerIdsToDelete() != null) {
-            careerDeleteService.deleteCareer(member, dto.getCareerIdsToDelete());
+        // 경력 삭제
+        if (dto.careerIdsToDelete() != null) {
+            careerDeleteService.deleteCareer(member, dto.careerIdsToDelete());
         }
 
-        if (dto.getCareersToCreate() != null) {
-            careerPostService.createCareer(member, dto.getCareersToCreate());
+        // 경력 생성
+        if (dto.careersToCreate() != null) {
+            careerPostService.createCareer(member, dto.careersToCreate());
         }
     }
 
-    //온보딩 필요 여부 확인
+    /** 온보딩 필요 여부 확인 */
+    @Transactional(readOnly = true)
+    public OnboardingCheckResDTO needsOnboarding(
+            Long memberId
+    ) {
+        Member member = memberGetService.getMember(memberId);
+
+        Boolean needOnboarding = memberService.needsOnboarding(member);
+        MemberStatus memberStatus = memberService.memberStatusCheck(member);
+
+        MemberRole memberRole = SecurityUtils.getCurrentMember().getRole();
+
+        OnboardingCheckResDTO dto = OnboardingCheckResDTO.of(memberId, needOnboarding, memberStatus, memberRole);
+        return dto;
+    }
+
+    /** 회원가입 요청 및 MemberStatus에 따른 로그 분기 */
     @Transactional
-    public Boolean needsOnboarding(Long memberId) {
+    public MemberSignupResDTO signup(
+            Long memberId,
+            MemberSignupReqDTO request
+    ) {
         Member member = memberGetService.getMember(memberId);
-        return memberServiceImpl.needsOnboarding(member);
+        MemberStatus status = member.getStatus();
+
+        MemberUsecase proxy = context.getBean(MemberUsecase.class);
+
+        if (status == MemberStatus.APPROVED) {
+            MemberSignupResDTO dto = MemberSignupResDTO.from(member);
+            return proxy.signupSucceeded(memberId, dto);
+        }
+
+        if (status == MemberStatus.REJECTED) {
+            int statusCode = 403;
+            String errorReason = "ADMIN_REJECTED";
+
+            try {
+                proxy.signupFailed(memberId, statusCode, errorReason);
+            } catch (RuntimeException ignored) {}
+            return MemberSignupResDTO.from(member);
+        }
+
+        return proxy.signupCreate(member, request);
+
     }
 
-    //회원가입
-    public MemberSignupResDTO signup(Long memberId, MemberSignupReqDTO request) {
-        Member member = memberGetService.getMember(memberId);
+    /** 회원가입 create 로그 (온보딩) */
+    @Transactional
+    @LogEvent(value = "signup.create", message = "회원가입 요청 처리")
+    public MemberSignupResDTO signupCreate(Member member, MemberSignupReqDTO request) {
         return memberService.signup(member, request);
     }
+
+    /** 회원가입 성공 */
+    @Transactional
+    @LogEvent(value = "signup.succeeded", message = "회원가입 성공")
+    public MemberSignupResDTO signupSucceeded(
+            @LogParam("member_id") Long memberId,
+            MemberSignupResDTO response
+    ) {
+        return response;
+    }
+
+    /** 회원가입 실패 */
+    @Transactional
+    @LogEvent(value = "signup.failed", message = "회원가입 실패")
+    public MemberSignupResDTO signupFailed(
+            Long memberId,
+            int statusCode,
+            String errorReason
+    ) {
+        throw new RuntimeException(errorReason);
+    }
+
+    private List<CareerResDTO> getMyCareers(Long memberId) {
+        return careerGetService.getMyCareers(memberId)
+                .stream().map(CareerResDTO::from).toList();
+    }
+
+    private List<TrackResDTO> getMyTracks(Long memberId) {
+        return trackGetService.getTrack(memberId)
+                .stream().map(TrackResDTO::from).toList();
+    }
+
+    public MemberSearchSliceResDTO searchMembers( int pageNum, int pageSize, Integer generation, String part, String keyword) {
+        Pageable pageable = PageRequest.of(pageNum, pageSize);
+        Part memberPart = part == null ? null : Part.valueOf(part);
+
+        Slice<MemberSearchDetailResDTO> slice = search(generation, memberPart, keyword, pageable);
+
+        Long totalCount = null;
+        if (pageNum == 0) { // FRONTEND 협의 - 0번째 페이지에서만 검색조건에 따른 전체 회원수 조회.
+            totalCount = memberGetService.countSearchingMembers(generation, memberPart, keyword);
+        }
+
+        return MemberSearchSliceResDTO.of(slice, totalCount);
+    }
+
+    private Slice<MemberSearchDetailResDTO> search(Integer generation, Part part, String keyword, Pageable pageable) {
+        return memberGetService.searchMembers(generation, part, keyword, pageable)
+                .map(MemberSearchDetailResDTO::from);
+    }
+
 }

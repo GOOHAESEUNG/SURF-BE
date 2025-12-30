@@ -4,15 +4,17 @@ import com.tavemakers.surf.domain.member.dto.request.CareerCreateReqDTO;
 import com.tavemakers.surf.domain.member.dto.request.CareerUpdateReqDTO;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
-import java.time.YearMonth;
+import java.time.LocalDate;
 
 @Entity
 @Getter
+@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Career extends BaseEntity {
 
@@ -28,48 +30,48 @@ public class Career extends BaseEntity {
     private String position; // 직무
 
     @Column(nullable = false)
-    private YearMonth startDate; // 근무 시작일
+    private LocalDate startDate; // 근무 시작일
 
-    private YearMonth endDate; // 근무 종료일 (진행 중일 경우 null)
+    private LocalDate endDate; // 근무 종료일 (진행 중일 경우 null)
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    // Builder 패턴을 사용하기 위해 생성자 추가
-    @Builder
-    private Career(String companyName, String position, YearMonth startDate, YearMonth endDate, Member member) {
-        this.companyName = companyName;
-        this.position = position;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.member = member;
-    }
+    @NotNull
+    private boolean isWorking;
 
     //경력 수정
-    public void update(CareerUpdateReqDTO dto){
-        if(dto.getCompanyName() != null){
-            this.companyName = dto.getCompanyName();
+    public void update(CareerUpdateReqDTO dto) {
+        if (dto.companyName() != null) {
+            this.companyName = dto.companyName();
         }
-        if(dto.getPosition() != null){
-            this.position = dto.getPosition();
+        if (dto.position() != null) {
+            this.position = dto.position();
         }
-        if(dto.getStartDate() != null){
-            this.startDate = dto.getStartDate();
+        if (dto.startDate() != null) {
+            this.startDate = dto.startDate();
         }
-        if(dto.getEndDate() != null){
-            this.endDate = dto.getEndDate();
+        if (dto.endDate() != null) {
+            this.endDate = dto.endDate();
+        }
+        if (dto.isWorking() != null) {
+            this.isWorking = dto.isWorking();
+            if (this.isWorking) {
+                this.endDate = null;
+            }
         }
     }
 
     //정적 팩토리 메소드 - 생성
     public static Career of(CareerCreateReqDTO dto, Member member) {
         return Career.builder()
-                .companyName(dto.getCompanyName())
-                .position(dto.getPosition())
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
+                .companyName(dto.companyName())
+                .position(dto.position())
+                .startDate(dto.startDate())
+                .endDate(dto.endDate() != null ? dto.endDate() : null)
                 .member(member)
+                .isWorking(dto.isWorking())
                 .build();
     }
 
