@@ -69,12 +69,12 @@ public class CommentMentionService {
     @Transactional(readOnly = true)
     public List<MentionSearchResDTO> searchMentionableMembers(String keyword) {
 
-        // 입력 검증 (비었거나, @ 뒤가 두 글자 미만일 경우 예외)
+        // 입력 검증 (비었거나, 두 글자 미만일 경우 예외)
         if (keyword == null || keyword.trim().length() < 2) {
             throw new InvalidMentionSearchKeywordException();
         }
 
-        // 문자열 추출
+        // 검색어 정제
         String namePart = keyword.trim();
 
         // DB 조회 (정렬 없이)
