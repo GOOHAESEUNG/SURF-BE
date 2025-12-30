@@ -87,9 +87,13 @@ public class CommentService {
 
             // 대댓글은 부모 작성자 자동 멘션 필수
             Long parentWriterId = parent.getMember().getId();
-            if (req.mentionMemberIds() == null ||
-                    !req.mentionMemberIds().contains(parentWriterId)) {
-                throw new InvalidReplyException(); // 대댓글은 부모 멘션 필수
+
+            // 본인 댓글에 대댓글을 다는 경우는 자기 멘션 검증 스킵
+            if (!parentWriterId.equals(memberId)) {
+                if (req.mentionMemberIds() == null ||
+                        !req.mentionMemberIds().contains(parentWriterId)) {
+                    throw new InvalidReplyException(); // 대댓글은 부모 멘션 필수
+                }
             }
 
             Comment child = Comment.child(post, member, req.content(), parent);
