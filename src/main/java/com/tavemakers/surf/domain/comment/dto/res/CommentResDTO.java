@@ -26,7 +26,7 @@ public record CommentResDTO(
         @Schema(description = "댓글 내용", example = "좋은 공지 감사합니다!")
         String content,
 
-        @Schema(description = "작성자 ID", example = "7")
+        @Schema(description = "댓글 작성자 회원 ID (본인 댓글 여부 판단용)", example = "7")
         Long memberId,      // 프론트에서 내가 쓴 댓글인지 구분할 때 사용
 
         @Schema(description = "작성자 닉네임", example = "민수")
@@ -38,7 +38,7 @@ public record CommentResDTO(
         @Schema(description = "좋아요 수", example = "0")
         Long likeCount,
 
-        @Schema(description = "로그인한 사용자가 이 댓글에 좋아요를 눌렀는지 여부", example = "true")
+        @Schema(description = "로그인한 사용자가 해당 댓글에 좋아요를 눌렀는지 여부", example = "true")
         Boolean liked,
 
         @Schema(description = "작성일시")
