@@ -52,6 +52,7 @@ public record PostResDTO(
         @Schema(description = "게시글 작성자 닉네임", example = "홍길동")
         String nickname,
 
+        @Schema(description = "예약된 게시글 여부", example = "true")
         boolean isReserved,
 
         @Schema(description = "게시글 조회수", example = "100")

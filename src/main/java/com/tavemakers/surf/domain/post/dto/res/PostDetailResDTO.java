@@ -57,6 +57,9 @@ public record PostDetailResDTO(
         @Schema(description = "게시글 이미지 링크")
         List<PostImageResDTO> imageUrlList,
 
+        @Schema(description = "예약된 게시글 여부", example = "true")
+        boolean isReserved,
+
         @Schema(description = "게시글 조회수", example = "100")
         int viewCount,
 
@@ -91,6 +94,7 @@ public record PostDetailResDTO(
                 .profileImageUrl(post.getMember().getProfileImageUrl())
                 .isMine(isMine)
                 .imageUrlList(imageUrlList)
+                .isReserved(post.isReserved())
                 .viewCount(viewCount)
                 .hasSchedule(post.getHasSchedule())
                 .scheduleId(post.getScheduleId())
