@@ -60,6 +60,9 @@ public record PostDetailResDTO(
         @Schema(description = "예약된 게시글 여부", example = "true")
         boolean isReserved,
 
+        @Schema(description = "게시글 예약 시간", example = "2023-12-01T10:00:00")
+        LocalDateTime reservedAt,
+
         @Schema(description = "게시글 조회수", example = "100")
         int viewCount,
 
@@ -75,6 +78,7 @@ public record PostDetailResDTO(
             boolean likedByMe,
             boolean isMine,
             List<PostImageResDTO> imageUrlList,
+            LocalDateTime reservedAt,
             int viewCount
             ) {
         return PostDetailResDTO.builder()
@@ -95,6 +99,7 @@ public record PostDetailResDTO(
                 .isMine(isMine)
                 .imageUrlList(imageUrlList)
                 .isReserved(post.isReserved())
+                .reservedAt(reservedAt)
                 .viewCount(viewCount)
                 .hasSchedule(post.getHasSchedule())
                 .scheduleId(post.getScheduleId())
