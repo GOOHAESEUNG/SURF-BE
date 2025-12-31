@@ -133,6 +133,7 @@ public class Post extends BaseEntity {
 
     public void publish() {
         this.isReserved = false;
+        this.postedAt = LocalDateTime.now();
     }
 
     public void addThumbnailUrl(String originalUrl) {
