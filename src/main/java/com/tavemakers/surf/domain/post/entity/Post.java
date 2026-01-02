@@ -78,6 +78,7 @@ public class Post extends BaseEntity {
     @Column(nullable = true)
     private Long scheduleId;
 
+
     public static Post of(PostCreateReqDTO req, Board board, BoardCategory category, Member member) {
         return Post.builder()
                 .title(req.title())
@@ -162,4 +163,9 @@ public class Post extends BaseEntity {
     public void addScheduleId(Long scheduleId) {
         this.scheduleId = scheduleId;
     }
+
+    public void updateScheduleIdNull(){
+        this.scheduleId = null;
+    }
+
 }

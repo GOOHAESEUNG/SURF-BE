@@ -36,6 +36,7 @@ import com.tavemakers.surf.global.logging.LogEventContext;
 import com.tavemakers.surf.global.logging.LogParam;
 import com.tavemakers.surf.global.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -73,6 +74,8 @@ public class PostService {
     private final MemberGetService memberGetService;
     private final ViewCountService viewCountService;
     private final FlagsMapper flagsMapper;
+    private final ApplicationEventPublisher eventPublisher;
+
 
     @Transactional
     @LogEvent(value = "post.create", message = "게시글 생성 성공")
@@ -91,6 +94,10 @@ public class PostService {
         if (req.isReserved()) {
             reservationUsecase.reservePost(saved.getId(), req.reservedAt());
             reservedAt = req.reservedAt();
+        } else{
+            eventPublisher.publishEvent(
+                    new PostPublishedEvent(saved.getId())
+            );
         }
 
         List<PostImageResDTO> imageUrlResponseList = null;
@@ -314,5 +321,4 @@ public class PostService {
             throw new PostDeleteAccessDeniedException();
         }
     }
-
 }
