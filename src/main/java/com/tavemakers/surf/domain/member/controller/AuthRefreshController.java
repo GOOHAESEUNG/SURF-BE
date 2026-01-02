@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -56,7 +54,7 @@ public class AuthRefreshController {
             Long memberId = refreshTokenService.rotate(response, refreshToken);
 
             Member member = memberRepository.findById(memberId)
-                    .orElseThrow();
+                    .orElseThrow(() -> new IllegalArgumentException("Member not found: " + memberId));
 
             // 3) 새 access 발급
             String newAccessToken = jwtService.createAccessToken(
