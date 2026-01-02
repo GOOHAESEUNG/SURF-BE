@@ -127,51 +127,31 @@ public class JwtServiceImpl implements JwtService {
             HttpServletResponse res,
             String refreshToken
     ) {
-        // TODO 2025.12.28 개발환경이므로 dev, 12.31 prod로 변경
+        // TODO 2025.12.28 개발환경이므로 dev
         // TODO 운영 환경에서 prod로 변경
-        boolean isProd = "prod".equalsIgnoreCase(activeProfile);
-//        boolean isDev = "dev".equalsIgnoreCase(activeProfile);
+//        boolean isProd = "prod".equalsIgnoreCase(activeProfile);
+        boolean isDev = "dev".equalsIgnoreCase(activeProfile);
         // SameSite=None이면 Secure=true가 필수
 //        String sameSite = isDev ? "None" : "Lax";
         String sameSite = "Lax";
 
-//        ResponseCookie accessCookie = ResponseCookie.from(ACCESS_COOKIE_NAME, accessToken)
-//                .httpOnly(true)
-//                .secure(isProd)                       // prod만 Secure
-//                .domain(isProd ? ".tavesurf.site" : "localhost")
-//                .path("/")
-//                .maxAge(Duration.ofMillis(accessTokenExpireMs))
-//                .sameSite(sameSite)
-//                .build();
-
-//        ResponseCookie refreshCookie = ResponseCookie.from(REFRESH_COOKIE_NAME, refreshToken)
-//                .httpOnly(true)
-//                .secure(isProd)                       // prod만 Secure
-//                .domain(isProd ? ".tavesurf.site" : "localhost")
-//                .path("/auth/refresh")
-//                .maxAge(Duration.ofMillis(refreshTokenExpireMs))
-//                .sameSite(sameSite)
-//                .build();
-
-        // res.setHeader(AUTH_HEADER, BEARER_PREFIX + accessToken);
-//        res.addHeader("Set-Cookie", accessCookie.toString());
         ResponseCookie.ResponseCookieBuilder builder =
                 ResponseCookie.from(REFRESH_COOKIE_NAME, refreshToken)
                         .httpOnly(true)
                         .path("/auth/refresh")
                         .maxAge(Duration.ofMillis(refreshTokenExpireMs));
 
-        if (isProd) {
-            // 개발배포 / 운영 서버 (tavesurf.site)
+        if (isDev) {
+            // 배포 서버
             builder
                     .secure(true)
                     .domain(".tavesurf.site")
-                    .sameSite("None");   // cross-site 쿠키
+                    .sameSite("None");
         } else {
-            // local (localhost)
+            // 로컬
             builder
                     .secure(false)
-                    .sameSite("Lax");    // 기본값
+                    .sameSite("Lax");
             // ⚠️ domain 설정하지 않음
         }
 

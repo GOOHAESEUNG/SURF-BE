@@ -1,7 +1,6 @@
 package com.tavemakers.surf.global.jwt;
 
 import com.tavemakers.surf.domain.member.entity.CustomUserDetails;
-import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,7 +13,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -84,6 +82,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 4) 액세스 없음 + 리프레시만 있는 경우: 재발급 후 401로 재시도 유도
         log.info("refresh만 있는 경우");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"message\":\"Access token이 필요합니다. /auth/refresh로 재발급하세요.\"}");
     }
 
     /** AccessToken → memberId → Member 로드 → SecurityContext 주입 */
@@ -100,27 +100,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.setContext(context);
         });
     }
-
-    /** RefreshToken 검증 → 저장값(옵션)과 일치 시 새 AccessToken 생성 */
-//    private String reIssueAccessToken(String refreshToken) {
-//        Long memberId = jwtService.extractMemberId(refreshToken)
-//                .orElseThrow(() -> new IllegalArgumentException("Cannot extract memberId from refresh token"));
-//
-//        // (옵션) Redis에 저장된 리프레시와 일치하는지 확인
-//        if (redisTemplate != null) {
-//            String key = "refresh:" + memberId;
-//            String stored = redisTemplate.opsForValue().get(key);
-//            if (!StringUtils.hasText(stored) || !refreshToken.equals(stored)) {
-//                throw new IllegalArgumentException("Invalid refresh token (not stored or mismatched).");
-//            }
-//        }
-//
-//        Member member = memberRepository.findById(memberId)
-//                .orElseThrow(() -> new IllegalArgumentException("Member not found for refresh token"));
-//
-//        // role은 DB에서 가져와 넣어줌
-//        return jwtService.createAccessToken(member.getId(), member.getRole().name());
-//    }
 
     private boolean isBlacklisted(String accessToken) {
         if (redisTemplate == null) return false;
