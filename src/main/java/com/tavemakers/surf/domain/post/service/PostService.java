@@ -232,7 +232,10 @@ public class PostService {
             reservationUsecase.updateReservationPost(post.getId(), req.reservedAt());
         }
 
-        LocalDateTime reservedAt = reservationUsecase.getReservedAt(postId);
+        LocalDateTime reservedAt = null;
+        if (post.isReserved()) {
+            reservedAt = reservationUsecase.getReservedAt(postId);
+        }
 
         // 이미지 변경
         if (req.isImageChanged()) {
