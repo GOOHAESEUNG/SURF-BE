@@ -139,16 +139,18 @@ public class AuthController {
 
     }
 
+    /** 요청이 어디서 왔는지 확인하고 카카오 로그인 후에 리다이렉트할 프론트 주소를 결정 */
     private String determineRedirectUri(HttpServletRequest request) {
         String origin = request.getHeader("Origin");
+        String host = request.getHeader("Host");
 
-        if (origin == null) {
-            origin = request.getHeader("Host");
-        }
+        log.info("[AuthRedirect] origin={}, host={}", origin, host);
 
-        if (origin != null &&
-                (origin.contains("localhost") || origin.contains("127.0.0.1"))) {
-            return "http://localhost:8080/login/oauth2/code/kakao";
+        String base = origin != null ? origin : host;
+
+        if (base != null &&
+                (base.contains("localhost") || base.contains("127.0.0.1"))) {
+            return "http://localhost:3000/login/callback";
         }
 
         return "https://tavesurf.site/login/callback"; // 운영 프론트 주소
