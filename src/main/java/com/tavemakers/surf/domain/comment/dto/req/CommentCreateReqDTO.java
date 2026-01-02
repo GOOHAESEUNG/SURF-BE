@@ -25,18 +25,5 @@ public record CommentCreateReqDTO(
         String content,
 
         @Schema(description = "멘션할 회원 ID 목록", example = "[5]")
-        List<Long> mentionMemberIds,
-
-        @Schema(
-                description = """
-                자동 멘션 여부.
-                true: 원 댓글을 클릭하여 자동으로 멘션된 경우 (대댓글)
-                false: 사용자가 직접 @입력으로 멘션한 경우 (루트 댓글로 취급)
-                """,
-                example = "false"
-        )
-        Boolean isAutoMention
+        List<Long> mentionMemberIds
 ) {}
-
-
-

@@ -49,9 +49,6 @@ public class Comment extends BaseEntity {
     private String content;
 
     @Column(nullable = false)
-    private boolean deleted = false;
-
-    @Column(nullable = false)
     private Long likeCount = 0L;
 
     @Builder
@@ -103,12 +100,6 @@ public class Comment extends BaseEntity {
     /** 좋아요 감소 */
     public void decreaseLikeCount() {
         if (this.likeCount > 0) this.likeCount--;
-    }
-
-    /** 소프트 삭제 */
-    public void softDelete() {
-        this.deleted = true;
-        this.content = "(삭제된 댓글입니다.)";
     }
 }
 
