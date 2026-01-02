@@ -2,6 +2,7 @@ package com.tavemakers.surf.domain.member.controller;
 
 import com.tavemakers.surf.domain.login.AuthService;
 import com.tavemakers.surf.domain.login.LoginResDto;
+import com.tavemakers.surf.domain.login.auth.service.RefreshTokenService;
 import com.tavemakers.surf.domain.login.kakao.dto.KakaoTokenResponseDto;
 import com.tavemakers.surf.domain.login.kakao.dto.KakaoUserInfoDto;
 import com.tavemakers.surf.domain.member.entity.Member;
@@ -11,6 +12,7 @@ import com.tavemakers.surf.global.jwt.JwtService;
 import com.tavemakers.surf.global.logging.LogParam;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +28,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -36,6 +39,7 @@ public class AuthController {
     private final AuthService<KakaoTokenResponseDto, KakaoUserInfoDto> kakaoAuthService;
     private final JwtService jwtService;
     private final MemberUpsertService memberUpsertService;
+    private final RefreshTokenService refreshTokenService;
 
     /**
      * 1) 카카오 인가 화면으로 리다이렉트
@@ -43,18 +47,20 @@ public class AuthController {
      */
     @Operation(summary = "카카오 인가 화면으로 리다이렉트")
     @GetMapping("/login/kakao")
-    public void redirectToKakao(HttpServletResponse response) throws IOException {
-        String authorizeUrl = kakaoAuthService.buildAuthorizeUrl();
+    public void redirectToKakao(HttpServletResponse response, HttpServletRequest request) throws IOException {
 
-        String redirectUri = UriComponentsBuilder.fromUriString(authorizeUrl)
-                .build()
-                .getQueryParams()
-                .getFirst("redirect_uri");
+        // 1) 지금 요청이 로컬인지 / 운영인지 판단
+        String redirectUri = determineRedirectUri(request);
+
+        log.info("[KAKAO][AUTHORIZE] redirectUri={}", redirectUri);
+
+        // 2) 그 redirectUri를 써서 카카오 인가 URL 생성
+        String authorizeUrl = kakaoAuthService.buildAuthorizeUrl(redirectUri);
 
         kakaoAuthService.logAuthorize("kakao", redirectUri);
 
-        response.setStatus(HttpServletResponse.SC_FOUND);
-        response.setHeader("Location", authorizeUrl);
+        // 3) 카카오로 보내기
+        response.sendRedirect(authorizeUrl);
     }
 
     /**
@@ -87,10 +93,17 @@ public class AuthController {
             // 회원 upsert
             Member member = memberUpsertService.upsertRegisteringFromKakao(userInfo);
 
+            // deviceId 생성 (기기 식별자)
+            String deviceId = UUID.randomUUID().toString();
+
             // JWT 발급
-            String accessToken = jwtService.createAccessToken(member.getId(), member.getRole().name());
-            String refreshToken = jwtService.createRefreshToken(member.getId());
-            jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
+            String accessToken =
+                    jwtService.createAccessToken(
+                            member.getId(),
+                            member.getRole().name()
+                    );
+
+            refreshTokenService.issue(response, member.getId(), deviceId);
 
             Authentication authentication = new UsernamePasswordAuthenticationToken(
                     member.getEmail(),
@@ -104,12 +117,14 @@ public class AuthController {
             LoginResDto loginRes = LoginResDto.of(
                     account.profile().nickname(),
                     account.email(),
+                    accessToken,
                     account.profile().profileImageUrl()
             );
 
             return ApiResponse.response(HttpStatus.OK, "로그인 성공", loginRes);
 
         } catch (Exception e) {
+            log.error("카카오 로그인 실패", e);
             try {
                 kakaoAuthService.logLoginFailed(
                         401,
@@ -123,4 +138,22 @@ public class AuthController {
         }
 
     }
+
+    /** 요청이 어디서 왔는지 확인하고 카카오 로그인 후에 리다이렉트할 프론트 주소를 결정 */
+    private String determineRedirectUri(HttpServletRequest request) {
+        String origin = request.getHeader("Origin");
+        String host = request.getHeader("Host");
+
+        log.info("[AuthRedirect] origin={}, host={}", origin, host);
+
+        String base = origin != null ? origin : host;
+
+        if (base != null &&
+                (base.contains("localhost") || base.contains("127.0.0.1"))) {
+            return "http://localhost:3000/login/callback";
+        }
+
+        return "https://tavesurf.site/login/callback"; // 운영 프론트 주소
+    }
+
 }

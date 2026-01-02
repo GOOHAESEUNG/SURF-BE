@@ -17,6 +17,7 @@ import java.security.Key;
 import java.time.Duration;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -26,7 +27,6 @@ public class JwtServiceImpl implements JwtService {
     private static final String BEARER_PREFIX = "Bearer ";
     private static final String REFRESH_COOKIE_NAME = "refreshToken";
     private static final String ROLE_PREFIX = "ROLE_";
-    private static final String ACCESS_COOKIE_NAME = "accessToken";
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -60,10 +60,12 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String createRefreshToken(Long memberId) {
+    public String createRefreshToken(Long memberId, String deviceId) {
         Date now = new Date();
         return Jwts.builder()
                 .setSubject(String.valueOf(memberId))   // ← memberId만 사용
+                .claim("deviceId", deviceId)
+                .claim("jti", UUID.randomUUID().toString())
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + refreshTokenExpireMs))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
@@ -76,19 +78,6 @@ public class JwtServiceImpl implements JwtService {
         if (cookies == null) return Optional.empty();
         for (Cookie c : cookies) {
             if (REFRESH_COOKIE_NAME.equals(c.getName())) {
-                return Optional.ofNullable(c.getValue());
-            }
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<String> extractAccessTokenFromCookie(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null) return Optional.empty();
-
-        for (Cookie c : cookies) {
-            if ("accessToken".equals(c.getName())) {
                 return Optional.ofNullable(c.getValue());
             }
         }
@@ -134,9 +123,8 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public void sendAccessAndRefreshToken(
+    public void sendRefreshToken(
             HttpServletResponse res,
-            String accessToken,
             String refreshToken
     ) {
         // TODO 2025.12.28 개발환경이므로 dev
@@ -147,26 +135,27 @@ public class JwtServiceImpl implements JwtService {
 //        String sameSite = isDev ? "None" : "Lax";
         String sameSite = "Lax";
 
-        ResponseCookie accessCookie = ResponseCookie.from(ACCESS_COOKIE_NAME, accessToken)
-                .httpOnly(true)
-                .secure(isDev)
-                .domain(isDev ? ".tavesurf.site" : "localhost")
-                .path("/")
-                .maxAge(Duration.ofMillis(accessTokenExpireMs))
-                .sameSite(sameSite)
-                .build();
+        ResponseCookie.ResponseCookieBuilder builder =
+                ResponseCookie.from(REFRESH_COOKIE_NAME, refreshToken)
+                        .httpOnly(true)
+                        .path("/auth/refresh")
+                        .maxAge(Duration.ofMillis(refreshTokenExpireMs));
 
-        ResponseCookie refreshCookie = ResponseCookie.from(REFRESH_COOKIE_NAME, refreshToken)
-                .httpOnly(true)
-                .secure(isDev)
-                .domain(isDev ? ".tavesurf.site" : "localhost")
-                .path("/")
-                .maxAge(Duration.ofMillis(refreshTokenExpireMs))
-                .sameSite(sameSite)
-                .build();
+        if (isDev) {
+            // 배포 서버
+            builder
+                    .secure(true)
+                    .domain(".tavesurf.site")
+                    .sameSite("None");
+        } else {
+            // 로컬
+            builder
+                    .secure(false)
+                    .sameSite("Lax");
+            // ⚠️ domain 설정하지 않음
+        }
 
-        // res.setHeader(AUTH_HEADER, BEARER_PREFIX + accessToken);
-        res.addHeader("Set-Cookie", accessCookie.toString());
+        ResponseCookie refreshCookie = builder.build();
         res.addHeader("Set-Cookie", refreshCookie.toString());
     }
 
@@ -193,4 +182,12 @@ public class JwtServiceImpl implements JwtService {
         return Optional.of(header);
     }
 
+    public Optional<String> extractDeviceId(String token) {
+        try {
+            Claims claims = parseClaims(token);
+            return Optional.ofNullable(claims.get("deviceId", String.class));
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
 }

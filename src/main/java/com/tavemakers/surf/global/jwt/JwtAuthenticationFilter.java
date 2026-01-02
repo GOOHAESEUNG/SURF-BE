@@ -1,7 +1,6 @@
 package com.tavemakers.surf.global.jwt;
 
 import com.tavemakers.surf.domain.member.entity.CustomUserDetails;
-import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,7 +13,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -39,22 +37,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain chain) throws ServletException, IOException {
+                                    FilterChain chain
+    ) throws ServletException, IOException {
 
         final String uri = request.getRequestURI();
 
-        String refreshToken = jwtService.extractRefreshToken(request)
-                .filter(jwtService::isTokenValid).orElse(null);
-
-        String accessToken = jwtService.extractAccessTokenFromCookie(request)
-                .or(() -> jwtService.extractAccessTokenFromHeader(request))
+        String refreshToken = jwtService.extractRefreshToken(request).orElse(null);
+        String accessToken = jwtService.extractAccessTokenFromHeader(request)
                 .filter(jwtService::isTokenValid)
                 .orElse(null);
 
-
         log.debug("URI: {}, accessToken? {}, refreshToken? {}", uri, accessToken != null, refreshToken != null);
 
-        // 둘 다 있는 경우: 액세스 토큰 블랙리스트만 체크하고 통과
+        // 1) 토큰이 아예 없는 경우 → 그냥 통과 (카카오 콜백 포함)
+        if (accessToken == null && refreshToken == null) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+        // 2) 둘 다 있는 경우: 액세스 토큰 블랙리스트만 체크하고 통과
         if (accessToken != null && refreshToken != null) {
             log.info("토큰 둘다 있는 경우");
             if (isBlacklisted(accessToken)) {
@@ -66,17 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 액세스 없음 + 리프레시만 있는 경우: 재발급 후 401로 재시도 유도
-        if (accessToken == null && refreshToken != null) {
-            log.info("Access 없고 Refresh만 있는 경우");
-            String newAccess = reIssueAccessToken(refreshToken);
-            jwtService.sendAccessAndRefreshToken(response, newAccess, refreshToken);
-
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-
-        // 액세스만 있는 경우: 블랙리스트 체크 후 인증 주입
+        // 3) 액세스만 있는 경우: 블랙리스트 체크 후 인증 주입
         if (accessToken != null) {
             log.info("Access만 있는 경우");
             if (isBlacklisted(accessToken)) {
@@ -84,10 +75,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
             authenticateUser(accessToken, request);
+            chain.doFilter(request, response);
+            return;
         }
-        log.info("토큰 값이 없는 경우");
 
-        chain.doFilter(request, response);
+        // 4) 액세스 없음 + 리프레시만 있는 경우: 재발급 후 401로 재시도 유도
+        log.info("refresh만 있는 경우");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"message\":\"Access token이 필요합니다. /auth/refresh로 재발급하세요.\"}");
     }
 
     /** AccessToken → memberId → Member 로드 → SecurityContext 주입 */
@@ -103,27 +99,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             context.setAuthentication(auth);
             SecurityContextHolder.setContext(context);
         });
-    }
-
-    /** RefreshToken 검증 → 저장값(옵션)과 일치 시 새 AccessToken 생성 */
-    private String reIssueAccessToken(String refreshToken) {
-        Long memberId = jwtService.extractMemberId(refreshToken)
-                .orElseThrow(() -> new IllegalArgumentException("Cannot extract memberId from refresh token"));
-
-        // (옵션) Redis에 저장된 리프레시와 일치하는지 확인
-        if (redisTemplate != null) {
-            String key = "refresh:" + memberId;
-            String stored = redisTemplate.opsForValue().get(key);
-            if (!StringUtils.hasText(stored) || !refreshToken.equals(stored)) {
-                throw new IllegalArgumentException("Invalid refresh token (not stored or mismatched).");
-            }
-        }
-
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Member not found for refresh token"));
-
-        // role은 DB에서 가져와 넣어줌
-        return jwtService.createAccessToken(member.getId(), member.getRole().name());
     }
 
     private boolean isBlacklisted(String accessToken) {

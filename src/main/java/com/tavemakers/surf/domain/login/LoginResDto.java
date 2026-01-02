@@ -19,19 +19,24 @@ public record LoginResDto(
         @Schema(description = "사용자 이메일", example = "hong@example.com")
         String email,
 
+        @Schema(description = "JWT Access Token")
+        String accessToken,
+
         @Schema(description = "프로필 이미지 URL", example = "https://k.kakaocdn.net/.../img_640x640.jpg")
         String profileImageUrl
-) {
-    /**
-     * 정적 팩토리 메서드
-     * - accessToken + nickname → LoginResDto 변환
-     */
-    public static LoginResDto of(String nickname, String email, String profileImageUrl) {
+)  {
+
+    public static LoginResDto of(
+            String nickname,
+            String email,
+            String accessToken,
+            String profileImageUrl
+    ) {
         return LoginResDto.builder()
                 .nickname(nickname)
                 .email(email)
+                .accessToken(accessToken)
                 .profileImageUrl(profileImageUrl)
                 .build();
-
     }
 }
