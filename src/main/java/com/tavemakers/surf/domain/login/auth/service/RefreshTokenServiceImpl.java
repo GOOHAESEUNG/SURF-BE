@@ -83,9 +83,12 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         String deviceId = jwtService.extractDeviceId(refreshToken).orElseThrow();
 
         long ttlMs = jwtService.getExpiration(refreshToken) - System.currentTimeMillis();
+        if (ttlMs <= 0) {
+            throw new IllegalStateException("Refresh token already expired");
+        }
         String redisKey = key(memberId, deviceId);
         redisTemplate.opsForValue()
-                .set(key(memberId, deviceId), refreshToken, ttlMs, TimeUnit.MILLISECONDS);
+                .set(redisKey, refreshToken, ttlMs, TimeUnit.MILLISECONDS);
         log.info("[RTR] refresh token saved. key={}, ttlMs={}", redisKey, ttlMs);
     }
 
