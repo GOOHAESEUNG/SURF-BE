@@ -2,9 +2,7 @@ package com.tavemakers.surf.domain.notification.service;
 
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
-import com.tavemakers.surf.domain.notification.entity.Notification;
 import com.tavemakers.surf.domain.notification.entity.NotificationType;
-import com.tavemakers.surf.domain.notification.repository.NotificationRepository;
 import com.tavemakers.surf.domain.post.entity.Post;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +32,7 @@ public class NotificationUseCase {
             return;
         }
 
-        // 1️⃣ 알림 대상 조회
+        // 1 알림 대상 조회
         List<Member> targets = memberRepository.findByActivityStatusTrue();
 
         if (targets.isEmpty()) {
@@ -42,7 +40,7 @@ public class NotificationUseCase {
             return;
         }
 
-        // 2️⃣ Notification 엔티티 생성
+        // 2 Notification 엔티티 생성
         for (Member member : targets) {
             notificationCreateService.createAndSend(
                     member.getId(),                    // 알림 받는 사람

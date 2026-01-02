@@ -265,23 +265,6 @@ public class PostService {
                 .orElseThrow((PostNotFoundException::new));
     }
 
-    @Transactional
-    public void publish(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(PostNotFoundException::new);
-
-        // 이미 발행된 글이면 스킵
-        if (!post.isReserved()) {
-            return;
-        }
-
-        post.publish();
-
-        eventPublisher.publishEvent(
-                new PostPublishedEvent(post.getId())
-        );
-    }
-
     private List<PostImageResDTO> getImageUrlList(Post post) {
         return imageGetService.getPostImageUrls(post.getId()).stream()
                 .map(PostImageResDTO::from)
