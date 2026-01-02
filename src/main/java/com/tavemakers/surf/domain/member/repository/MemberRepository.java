@@ -36,4 +36,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
         ORDER BY MAX(t.generation) DESC
     """)
     List<Member> findMentionCandidates(@Param("keyword") String keyword);
+
+    List<Member> findByActivityStatusTrue();
 }
