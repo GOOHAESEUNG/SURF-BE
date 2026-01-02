@@ -29,6 +29,19 @@ public class ReservationUsecase {
         scheduleService.schedule(savedReservation.getId(), publishAt);
     }
 
+    @Transactional(readOnly = true)
+    public LocalDateTime getReservedAt(Long postId) {
+        Reservation existed = reservationGetService.findByPostIdAndStatus(postId);
+        if (existed == null) {
+            return null;
+        }
+
+        return LocalDateTime.ofInstant(
+                existed.getReservedAt(),
+                ZoneId.of("Asia/Seoul")
+        );
+    }
+
     @Transactional
     public void updateReservationPost(Long postId, LocalDateTime changedAt) {
         Reservation existed = reservationGetService.findByPostIdAndStatus(postId);
