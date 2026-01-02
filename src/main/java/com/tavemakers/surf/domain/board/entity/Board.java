@@ -43,4 +43,8 @@ public class Board extends BaseEntity {
         this.name = name;
         this.type = type;
     }
+
+    public boolean isNotice() {
+        return type == BoardType.NOTICE;
+    }
 }

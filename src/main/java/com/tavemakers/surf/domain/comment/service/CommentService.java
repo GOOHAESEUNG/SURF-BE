@@ -104,20 +104,6 @@ public class CommentService {
                 saved.markAsRoot();
             }
 
-            if(!post.getMember().getId().equals(memberId)) {
-
-                // 댓글 생성 알림 - 게시글 작성자에게
-                notificationCreateService.createAndSend(
-                        post.getMember().getId(),
-                        NotificationType.POST_COMMENT,
-                        Map.of(
-                                "actorName", member.getName(),
-                                "boardId", post.getBoard().getId(),
-                                "postId", postId
-                        )
-                );
-            }
-
             // 댓글 생성 알림 - 루트 댓글 작성자에게
             Long parentOwnerId = parent.getMember().getId();
             notificationCreateService.createAndSend(
