@@ -99,16 +99,17 @@ public class CommentService {
             Comment child = Comment.child(post, member, req.content(), parent);
             saved = commentRepository.save(child);
 
-            // 댓글 생성 알림 - 루트 댓글 작성자에게
-            notificationCreateService.createAndSend(
-                    parentWriterId,
-                    NotificationType.COMMENT_REPLY,
-                    Map.of(
-                            "actorName", member.getName(),
-                            "boardId", post.getBoard().getId(),
-                            "postId", postId
-                    )
-            );
+            if (!parentWriterId.equals(memberId)) {
+                notificationCreateService.createAndSend(
+                        parentWriterId,
+                        NotificationType.COMMENT_REPLY,
+                        Map.of(
+                                "actorName", member.getName(),
+                                "boardId", post.getBoard().getId(),
+                                "postId", postId
+                        )
+                );
+            }
         }
         // 멘션 등록
         commentMentionService.createMentions(saved, req.mentionMemberIds());
