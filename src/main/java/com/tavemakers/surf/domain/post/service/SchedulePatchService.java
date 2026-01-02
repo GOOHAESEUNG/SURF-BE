@@ -19,7 +19,12 @@ public class SchedulePatchService {
 
     //일정 존재 여부 변경
     @Transactional
-    public void updateHasScheduleTrue(Post post, boolean hasSchedule) {
+    public void updateHasSchedule(Post post, boolean hasSchedule) {
         post.changeHasSchedule(hasSchedule);
+    }
+
+    @Transactional
+    public void updateScheduleIdNull(Post post) {
+        post.updateScheduleIdNull();
     }
 }

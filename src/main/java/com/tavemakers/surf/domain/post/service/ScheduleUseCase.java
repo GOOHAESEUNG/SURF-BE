@@ -48,13 +48,15 @@ public class ScheduleUseCase {
         scheduleDeleteService.deleteSchedule(schedule);
     }
 
+    //일정 삭제 - 게시글과 매핑
     @Transactional
     public void deleteScheduleAtPost(Long postId, Long scheduleId) {
         Schedule schedule = scheduleGetService.getScheduleById(scheduleId);
         scheduleDeleteService.deleteSchedule(schedule);
 
         Post post = postGetService.getPost(postId);
-        schedulePatchService.updateHasScheduleTrue(post,false);
+        schedulePatchService.updateHasSchedule(post,false);
+        schedulePatchService.updateScheduleIdNull(post);
     }
 
     //게시글별 일정 조회

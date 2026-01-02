@@ -36,11 +36,13 @@ import com.tavemakers.surf.global.logging.LogEventContext;
 import com.tavemakers.surf.global.logging.LogParam;
 import com.tavemakers.surf.global.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import java.util.Comparator;
@@ -72,6 +74,8 @@ public class PostService {
     private final MemberGetService memberGetService;
     private final ViewCountService viewCountService;
     private final FlagsMapper flagsMapper;
+    private final ApplicationEventPublisher eventPublisher;
+
 
     @Transactional
     @LogEvent(value = "post.create", message = "게시글 생성 성공")
@@ -86,18 +90,24 @@ public class PostService {
         Post post = Post.of(req, board, category, member);
         Post saved = postRepository.save(post);
 
+        LocalDateTime reservedAt = null;
         if (req.isReserved()) {
             reservationUsecase.reservePost(saved.getId(), req.reservedAt());
+            reservedAt = req.reservedAt();
+        } else{
+            eventPublisher.publishEvent(
+                    new PostPublishedEvent(saved.getId())
+            );
         }
 
+        List<PostImageResDTO> imageUrlResponseList = null;
         if (req.hasImage()) {
             List<PostImageCreateReqDTO> imageUrlList = req.imageUrlList();
             saved.addThumbnailUrl(findFirstImage(imageUrlList));
-            List<PostImageResDTO> imageUrlResponseList = imageSaveService.saveAll(saved, imageUrlList);
-            return PostDetailResDTO.of(saved, false, false, true, imageUrlResponseList, 0);
+            imageUrlResponseList = imageSaveService.saveAll(saved, imageUrlList);
         }
 
-        return PostDetailResDTO.of(saved, false, false,true,null, 0);
+        return PostDetailResDTO.of(saved, false, false,true,imageUrlResponseList, reservedAt,0);
     }
 
     @Transactional
@@ -109,7 +119,12 @@ public class PostService {
         boolean isMine = post.isOwner(memberId);
         List<PostImageResDTO> imageUrlList = getImageUrlList(post);
         int viewCount = viewCountService.increaseViewCount(post, memberId);
-        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, isMine, imageUrlList, viewCount);
+        LocalDateTime reservedAt = null;
+        if (post.isReserved()) {
+            reservedAt = reservationUsecase.getReservedAt(postId);
+        }
+
+        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, isMine, imageUrlList, reservedAt, viewCount);
     }
 
     @Transactional(readOnly = true)
@@ -217,6 +232,11 @@ public class PostService {
             reservationUsecase.updateReservationPost(post.getId(), req.reservedAt());
         }
 
+        LocalDateTime reservedAt = null;
+        if (post.isReserved()) {
+            reservedAt = reservationUsecase.getReservedAt(postId);
+        }
+
         // 이미지 변경
         if (req.isImageChanged()) {
             deleteExistingImage(post);
@@ -224,16 +244,16 @@ public class PostService {
             if(changeImage.isEmpty()){
                 post.addThumbnailUrl(null);
                 // TODO Spring Event로 PostImageUrl 삭제 로직 분리.
-                return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, null, viewCount);
+                return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, null, reservedAt, viewCount);
             }
 
             post.addThumbnailUrl(findFirstImage(changeImage));
             List<PostImageResDTO> savedChangedImage = imageSaveService.saveAll(post, changeImage);
-            return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, savedChangedImage, viewCount);
+            return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, savedChangedImage, reservedAt, viewCount);
         }
 
         List<PostImageResDTO> imageDtoList = getImageUrlList(post);
-        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, imageDtoList, viewCount);
+        return PostDetailResDTO.of(post, scrappedByMe, likedByMe, true, imageDtoList, reservedAt, viewCount);
     }
 
     private void deleteExistingImage(Post post) {
@@ -304,5 +324,4 @@ public class PostService {
             throw new PostDeleteAccessDeniedException();
         }
     }
-
 }
