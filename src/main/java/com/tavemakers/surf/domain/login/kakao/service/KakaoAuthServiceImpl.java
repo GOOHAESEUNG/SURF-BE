@@ -6,7 +6,6 @@ import com.tavemakers.surf.domain.login.kakao.dto.KakaoTokenResponseDto;
 import com.tavemakers.surf.domain.login.kakao.dto.KakaoUserInfoDto;
 import com.tavemakers.surf.global.logging.LogEvent;
 import com.tavemakers.surf.global.logging.LogParam;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -61,7 +60,7 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
             params.add("redirect_uri", props.getRedirectUri());
             params.add("code", code);
 
-            log.info("[KAKAO][TOKEN] params={}", params);
+            log.debug("[KAKAO][TOKEN] params={}", params);
 
             if (props.getClientSecret() != null && !props.getClientSecret().isBlank()) {
                 params.add("client_secret", props.getClientSecret());
