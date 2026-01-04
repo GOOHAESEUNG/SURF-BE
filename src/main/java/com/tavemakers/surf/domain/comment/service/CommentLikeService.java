@@ -3,7 +3,6 @@ package com.tavemakers.surf.domain.comment.service;
 import com.tavemakers.surf.domain.comment.dto.res.CommentLikeMemberResDTO;
 import com.tavemakers.surf.domain.comment.entity.Comment;
 import com.tavemakers.surf.domain.comment.entity.CommentLike;
-import com.tavemakers.surf.domain.comment.exception.CannotLikeDeletedCommentException;
 import com.tavemakers.surf.domain.comment.exception.CommentNotFoundException;
 import com.tavemakers.surf.domain.comment.repository.CommentLikeRepository;
 import com.tavemakers.surf.domain.comment.repository.CommentRepository;
@@ -44,11 +43,6 @@ public class CommentLikeService {
                 .orElseThrow(CommentNotFoundException::new);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
-
-        // soft delete 댓글에는 좋아요 불가
-        if (comment.isDeleted()) {
-            throw new CannotLikeDeletedCommentException();
-        }
 
         Post post = postRepository.findById(
                 comment.getPost().getId()

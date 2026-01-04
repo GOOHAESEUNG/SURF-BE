@@ -9,11 +9,14 @@ package com.tavemakers.surf.domain.login;
 import com.tavemakers.surf.global.logging.LogEvent;
 import com.tavemakers.surf.global.logging.LogParam;
 import com.tavemakers.surf.global.logging.LogPropsProvider;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Map;
 
 public interface AuthService<T, U> {
-    String buildAuthorizeUrl();               // 인가 URL 생성
+
+    /** 인가 URL 생성 (요청 환경 기반) */
+    String buildAuthorizeUrl(String redirectUri);
     T exchangeCodeForToken(String code);      // 인가 코드로 토큰 교환
     Map<String, Object> getAccessTokenInfo(String accessToken); // AccessToken 검증
     U getUserInfo(String accessToken);        // 사용자 정보 요청

@@ -2,11 +2,11 @@ package com.tavemakers.surf.domain.comment.service;
 
 import com.tavemakers.surf.domain.comment.entity.Comment;
 import com.tavemakers.surf.domain.comment.entity.CommentMention;
+import com.tavemakers.surf.domain.comment.exception.CommentMentionSelfException;
 import com.tavemakers.surf.domain.comment.repository.CommentMentionRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import com.tavemakers.surf.domain.comment.dto.res.MentionResDTO;
-import com.tavemakers.surf.domain.comment.exception.CommentMentionSelfException;
 import com.tavemakers.surf.domain.comment.dto.res.MentionSearchResDTO;
 import com.tavemakers.surf.domain.comment.exception.InvalidMentionSearchKeywordException;
 
@@ -69,13 +69,13 @@ public class CommentMentionService {
     @Transactional(readOnly = true)
     public List<MentionSearchResDTO> searchMentionableMembers(String keyword) {
 
-        // 입력 검증 (비었거나, @으로 시작하지 않거나, @ 뒤가 두 글자 미만일 경우 예외)
-        if (keyword == null || keyword.isBlank() || !keyword.startsWith("@") || keyword.substring(1).trim().length() < 2) {
+        // 입력 검증 (비었거나, 두 글자 미만일 경우 예외)
+        if (keyword == null || keyword.trim().length() < 2) {
             throw new InvalidMentionSearchKeywordException();
         }
 
-        // @ 제거 후 나머지 문자열 추출
-        String namePart = keyword.substring(1).trim(); // '@홍길' → '홍길'
+        // 검색어 정제
+        String namePart = keyword.trim();
 
         // DB 조회 (정렬 없이)
         List<Member> candidates = memberRepository.findMentionCandidates(namePart);
