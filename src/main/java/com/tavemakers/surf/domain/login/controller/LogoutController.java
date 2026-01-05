@@ -22,7 +22,7 @@ public class LogoutController {
     private final RefreshTokenService refreshTokenService;
 
     @Operation(summary = "로그아웃", description = "현재 디바이스의 refreshToken을 무효화하고 쿠키를 삭제합니다.")
-    @PostMapping("/auth/logout")
+    @PostMapping("/auth/refresh/logout")
     public ApiResponse<Void> logout(HttpServletRequest request, HttpServletResponse response) {
 
         jwtService.extractRefreshToken(request).ifPresent(refreshToken -> {
