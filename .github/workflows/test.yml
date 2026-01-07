@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build Surf Dev
+    name: Build Surf Test
     runs-on: ubuntu-latest
 
     steps:
