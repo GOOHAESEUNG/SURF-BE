@@ -1,5 +1,6 @@
 package com.tavemakers.surf.global.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tavemakers.surf.domain.member.entity.CustomUserDetails;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import jakarta.servlet.FilterChain;
@@ -15,6 +16,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -22,6 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final MemberRepository memberRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -78,6 +81,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void unauthorized(HttpServletResponse res, String message) throws IOException {
         res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         res.setContentType("application/json;charset=UTF-8");
-        res.getWriter().write("{\"message\":\"" + message + "\"}");
+        res.getWriter().write(objectMapper.writeValueAsString(Map.of("message", message)));
     }
 }
