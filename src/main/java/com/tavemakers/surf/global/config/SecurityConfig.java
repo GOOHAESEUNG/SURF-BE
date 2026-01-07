@@ -58,7 +58,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login/**").permitAll() // 로그인
                         .requestMatchers("/auth/refresh").permitAll()   //
-                        .requestMatchers("/auth/refresh/logout").permitAll()
+                        .requestMatchers("/auth/logout").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
                         .requestMatchers(permitUrlConfig.getPublicUrl()).permitAll()
                         .requestMatchers(permitUrlConfig.getMemberUrl()).hasAnyRole("MEMBER", "ADMIN", "PRESIDENT", "MANAGER")

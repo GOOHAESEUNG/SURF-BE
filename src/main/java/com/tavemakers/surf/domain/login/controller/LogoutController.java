@@ -22,25 +22,23 @@ public class LogoutController {
     private final RefreshTokenService refreshTokenService;
 
     @Operation(summary = "로그아웃", description = "현재 디바이스의 refreshToken을 무효화하고 쿠키를 삭제합니다.")
-    @PostMapping("/auth/refresh/logout")
+    @PostMapping("/auth/logout")
     public ApiResponse<Void> logout(HttpServletRequest request, HttpServletResponse response) {
 
         jwtService.extractRefreshToken(request).ifPresent(refreshToken -> {
-            // invalidate는 '유효 + memberId/deviceId 추출 가능'할 때만 수행
             if (jwtService.isTokenValid(refreshToken)) {
                 Long memberId = jwtService.extractMemberId(refreshToken).orElse(null);
                 String deviceId = jwtService.extractDeviceId(refreshToken).orElse(null);
-
                 if (memberId != null && deviceId != null) {
                     refreshTokenService.invalidate(memberId, deviceId);
                 }
             }
         });
 
-        // 쿠키 삭제(항상 수행)
+        // 쿠키 삭제는 항상 수행
         jwtService.clearRefreshTokenCookie(response);
 
-        // 서버 컨텍스트 정리
+        // 컨텍스트 정리
         SecurityContextHolder.clearContext();
 
         return ApiResponse.response(HttpStatus.NO_CONTENT, "로그아웃 완료", null);

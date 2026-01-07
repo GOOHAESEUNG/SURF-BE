@@ -138,7 +138,7 @@ public class JwtServiceImpl implements JwtService {
         ResponseCookie.ResponseCookieBuilder builder =
                 ResponseCookie.from(REFRESH_COOKIE_NAME, refreshToken)
                         .httpOnly(true)
-                        .path("/auth/refresh")
+                        .path("/")
                         .maxAge(Duration.ofMillis(refreshTokenExpireMs));
 
         if (isDev) {
@@ -198,7 +198,7 @@ public class JwtServiceImpl implements JwtService {
         ResponseCookie.ResponseCookieBuilder builder =
                 ResponseCookie.from(REFRESH_COOKIE_NAME, "")
                         .httpOnly(true)
-                        .path("/auth/refresh")          // 발급할 때랑 반드시 동일
+                        .path("/")          // 발급할 때랑 반드시 동일
                         .maxAge(Duration.ZERO);         // 즉시 만료
 
         if (isDev) {
@@ -212,6 +212,7 @@ public class JwtServiceImpl implements JwtService {
                     .sameSite("Lax");
         }
 
-        res.addHeader("Set-Cookie", builder.build().toString());
+        ResponseCookie refreshCookie = builder.build();
+        res.addHeader("Set-Cookie", refreshCookie.toString());
     }
 }
