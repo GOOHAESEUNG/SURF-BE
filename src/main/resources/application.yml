@@ -69,3 +69,6 @@ cloud:
 springdoc:
   swagger-ui:
     with-credentials: true
+
+server:
+  forward-headers-strategy: framework
