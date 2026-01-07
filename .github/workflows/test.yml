@@ -1,0 +1,73 @@
+name: Surf Dev
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+jobs:
+  build:
+    name: Build Surf Dev
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Gradle 캐시 설정
+      - name: Gradle Caching
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # Gradle Build를 위한 권한 부여
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build Surf Service
+        run: |
+          ./gradlew clean build -x test
+
+      # DockerHub 로그인
+      - name: Docker Hub Login
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USER_NAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Docker build & push
+        run: |
+          docker buildx create --use
+          docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile-test -t ${{ secrets.DOCKER_USER_NAME }}/${{ secrets.DOCKER_IMAGE }}:${{ secrets.DOCKER_TAG }} --push .
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push'
+
+    steps:
+      # SSH를 사용하여 원격 서버에 배포
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.TEST_SERVER_HOST }}
+          username: ${{ secrets.TEST_SERVER_USER }}
+          port: ${{ secrets.TEST_SERVER_PORT }}
+          key: ${{ secrets.TEST_PRIVATE_KEY }}
+          script: |
+            echo "디렉토리 이동"
+            cd ./tave-surf
+            
+            echo "Deploy 쉘 스크립트 실행"
+            sudo ./deploy.sh
