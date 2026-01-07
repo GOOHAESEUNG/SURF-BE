@@ -3,6 +3,7 @@ package com.tavemakers.surf.domain.member.controller;
 import com.tavemakers.surf.domain.login.AuthService;
 import com.tavemakers.surf.domain.login.LoginResDto;
 import com.tavemakers.surf.domain.login.auth.service.RefreshTokenService;
+import com.tavemakers.surf.domain.login.kakao.config.KakaoOAuthProps;
 import com.tavemakers.surf.domain.login.kakao.dto.KakaoTokenResponseDto;
 import com.tavemakers.surf.domain.login.kakao.dto.KakaoUserInfoDto;
 import com.tavemakers.surf.domain.member.entity.Member;
@@ -40,6 +41,7 @@ public class AuthController {
     private final JwtService jwtService;
     private final MemberUpsertService memberUpsertService;
     private final RefreshTokenService refreshTokenService;
+    private final KakaoOAuthProps props;
 
     /**
      * 1) 카카오 인가 화면으로 리다이렉트
@@ -50,7 +52,8 @@ public class AuthController {
     public void redirectToKakao(HttpServletResponse response, HttpServletRequest request) throws IOException {
 
         // 1) 지금 요청이 로컬인지 / 운영인지 판단
-        String redirectUri = determineRedirectUri(request);
+        // FIXME 계층 위치 고쳐주세요
+        String redirectUri = props.getRedirectUri();
 
         log.info("[KAKAO][AUTHORIZE] redirectUri={}", redirectUri);
 
@@ -155,10 +158,5 @@ public class AuthController {
 //
 //        return "https://www.tavesurf.site/login/callback"; // 운영 프론트 주소
 //    }
-
-    /** 현재는 로컬 환경에서만 사용 */
-    private String determineRedirectUri(HttpServletRequest request) {
-        return "http://localhost:3000/login/callback";
-    }
 
 }
