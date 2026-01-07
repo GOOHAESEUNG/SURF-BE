@@ -1,7 +1,6 @@
 package com.tavemakers.surf.global.config;
 
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
-import com.tavemakers.surf.domain.member.service.CustomUserDetailsService;
 import com.tavemakers.surf.global.jwt.JwtAuthenticationFilter;
 import com.tavemakers.surf.global.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -99,7 +98,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtService, memberRepository, redisTemplate);
+        return new JwtAuthenticationFilter(jwtService, memberRepository);
     }
 
 }
