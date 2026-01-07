@@ -49,7 +49,7 @@ jobs:
       - name: Docker build & push
         run: |
           docker buildx create --use
-          docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile-test -t ${{ secrets.DOCKER_USER_NAME }}/${{ secrets.DOCKER_IMAGE }}:${{ secrets.DOCKER_TAG }} --push .
+          docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile-dev -t ${{ secrets.DOCKER_USER_NAME }}/${{ secrets.DOCKER_IMAGE }}:${{ secrets.DOCKER_TAG }} --push .
 
   deploy:
     runs-on: ubuntu-latest
