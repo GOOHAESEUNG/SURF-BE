@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,8 +40,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain chain
     ) throws ServletException, IOException {
 
-        final String uri = request.getRequestURI();
-
         String accessToken = jwtService.extractAccessTokenFromHeader(request).orElse(null);
 
         // 1) AT가 아예 없으면 → 익명 통과 (인가 여부는 SecurityConfig가 판단)
@@ -64,16 +61,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     /** AccessToken → memberId → Member 로드 → SecurityContext 주입 */
     private void authenticateUser(String accessToken, HttpServletRequest req) {
-        jwtService.extractMemberId(accessToken).flatMap(memberRepository::findById).ifPresent(member -> {
-            CustomUserDetails principal = new CustomUserDetails(member);
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                    principal, null, principal.getAuthorities());
-            auth
-                    .setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
+        jwtService.extractMemberId(accessToken)
+                .flatMap(memberRepository::findById)
+                .ifPresent(member -> {
+                    CustomUserDetails principal = new CustomUserDetails(member);
+                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                            principal, null, principal.getAuthorities());
+                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
 
-            SecurityContext context = SecurityContextHolder.createEmptyContext();
-            context.setAuthentication(auth);
-            SecurityContextHolder.setContext(context);
+                    SecurityContext context = SecurityContextHolder.createEmptyContext();
+                    context.setAuthentication(auth);
+                    SecurityContextHolder.setContext(context);
         });
     }
 
