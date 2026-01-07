@@ -31,8 +31,9 @@ public class CommentController {
 
     @Operation(summary = "댓글 생성 (루트/대댓글)", description = "rootId가 null이면 루트 댓글")
     @PostMapping("/v1/user/posts/{postId}/comments")
-    public ApiResponse<CommentResDTO> createComment(@PathVariable Long postId,
-                                                    @Valid @RequestBody CommentCreateReqDTO req) {
+    public ApiResponse<CommentResDTO> createComment(
+            @PathVariable Long postId,
+            @Valid @RequestBody CommentCreateReqDTO req) {
         Long memberId = SecurityUtils.getCurrentMemberId();
         CommentResDTO response = commentService.createComment(postId, memberId, req);
         return ApiResponse.response(HttpStatus.CREATED, COMMENT_CREATED.getMessage(), response);
@@ -52,7 +53,7 @@ public class CommentController {
         return ApiResponse.response(HttpStatus.OK, COMMENT_READ.getMessage(), data);
     }
 
-    @Operation(summary = "댓글 삭제 (내 댓글만)", description = "본인이 작성한 댓글만 삭제 가능, 대댓글 존재 시 내용만 삭제(삭제된 댓글입니다 처리)")
+    @Operation(summary = "댓글 삭제 (내 댓글만)", description = "본인이 작성한 댓글만 삭제 가능, 댓글 및 대댓글 구분없이 hard 삭제 처리")
     @DeleteMapping("/v1/user/posts/{postId}/comments/{commentId}")
     public ApiResponse<Void> deleteComment(@PathVariable Long postId,
                                            @PathVariable Long commentId) {

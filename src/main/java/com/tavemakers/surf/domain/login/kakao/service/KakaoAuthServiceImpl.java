@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
 
@@ -30,11 +31,18 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
     private final KakaoOAuthProps props;
 
     @Override
-    public String buildAuthorizeUrl() {
-        return "https://kauth.kakao.com/oauth/authorize?response_type=code"
-                + "&client_id=" + props.getClientId()
-                + "&redirect_uri=" + props.getRedirectUri()
-                + "&scope=account_email profile_nickname profile_image";
+    public String buildAuthorizeUrl(String redirectUri) {
+
+        logAuthorize("kakao", redirectUri);
+
+        return UriComponentsBuilder
+                .fromHttpUrl("https://kauth.kakao.com/oauth/authorize")
+                .queryParam("response_type", "code")
+                .queryParam("client_id", props.getClientId())
+                .queryParam("redirect_uri", redirectUri)
+                .queryParam("scope", "account_email profile_nickname profile_image")
+                .build()
+                .toUriString();
     }
 
     /** 인가 코드 → 토큰 교환 */
@@ -51,6 +59,9 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
             params.add("client_id", props.getClientId());
             params.add("redirect_uri", props.getRedirectUri());
             params.add("code", code);
+
+            log.debug("[KAKAO][TOKEN] params={}", params);
+
             if (props.getClientSecret() != null && !props.getClientSecret().isBlank()) {
                 params.add("client_secret", props.getClientSecret());
             }

@@ -8,9 +8,9 @@ import java.util.Optional;
 public interface JwtService {
 
     String createAccessToken(Long memberId, String role);
-    String createRefreshToken(Long memberId);
+    String createRefreshToken(Long memberId, String deviceId);
 
-    Optional<String> extractAccessTokenFromCookie(HttpServletRequest request);
+    Optional<String> extractAccessTokenFromHeader(HttpServletRequest request);
 
     Optional<String> extractRefreshToken(HttpServletRequest request);
 
@@ -18,5 +18,6 @@ public interface JwtService {
     boolean isTokenValid(String token);
     long getExpiration(String token);
 
-    void sendAccessAndRefreshToken(HttpServletResponse res, String accessToken, String refreshToken);
+    void sendRefreshToken(HttpServletResponse res, String refreshToken);
+    Optional<String> extractDeviceId(String refreshToken);
 }

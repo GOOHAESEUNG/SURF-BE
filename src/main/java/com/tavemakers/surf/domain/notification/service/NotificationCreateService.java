@@ -3,10 +3,12 @@ package com.tavemakers.surf.domain.notification.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tavemakers.surf.domain.notification.entity.Notification;
 import com.tavemakers.surf.domain.notification.entity.NotificationType;
+import com.tavemakers.surf.domain.notification.event.NotificationCreatedEvent;
 import com.tavemakers.surf.domain.notification.repository.NotificationRepository;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,8 +19,7 @@ public class NotificationCreateService {
 
     private final NotificationRepository notificationRepository;
     private final ObjectMapper objectMapper;
-    private final FcmService fcmService;
-    private final NotificationRenderService renderer;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 1 알림 저장만 담당
@@ -49,20 +50,9 @@ public class NotificationCreateService {
     ) {
         Notification notification = create(receiverId, type, payload);
 
-        // FCM은 실패해도 절대 롤백
-        try {
-            String body = renderer.renderBody(notification);
-            String deeplink = renderer.renderDeeplink(notification);
-
-            fcmService.sendToMember(
-                    receiverId,
-                    body,
-                    deeplink
-            );
-        } catch (Exception e) {
-            // 여기서 swallow
-            log.warn("FCM send failed. notificationId={}", notification.getId(), e);
-        }
+        eventPublisher.publishEvent(
+                new NotificationCreatedEvent(notification.getId(), receiverId)
+        );
     }
 }
 

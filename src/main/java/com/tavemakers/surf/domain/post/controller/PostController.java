@@ -6,6 +6,7 @@ import com.tavemakers.surf.domain.post.dto.res.PostDetailResDTO;
 import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.service.PostService;
 import com.tavemakers.surf.global.common.response.ApiResponse;
+import com.tavemakers.surf.global.logging.LogEvent;
 import com.tavemakers.surf.global.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -66,7 +67,7 @@ public class PostController {
     @Operation(summary = "특정 작성자의 게시글 목록", description = "특정 작성자가 작성한 게시글 목록을 조회합니다.")
     @GetMapping("/v1/user/posts/author/{authorId}")
     public ApiResponse<Slice<PostResDTO>> getPostsByMember(
-            @PathVariable (name = "authorId") Long authorId,
+            @PathVariable Long authorId,
             @PageableDefault(size = 12, sort = "postedAt", direction = Sort.Direction.DESC)
             Pageable pageable
     ) {

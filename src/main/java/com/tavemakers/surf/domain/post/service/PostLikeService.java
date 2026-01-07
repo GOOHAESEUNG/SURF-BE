@@ -1,5 +1,6 @@
 package com.tavemakers.surf.domain.post.service;
 
+import com.tavemakers.surf.domain.board.entity.BoardType;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
@@ -11,6 +12,7 @@ import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostLikeRepository;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
 import com.tavemakers.surf.global.logging.LogEvent;
+import com.tavemakers.surf.global.logging.LogEventContext;
 import com.tavemakers.surf.global.logging.LogParam;
 import jakarta.persistence.OptimisticLockException;
 import java.util.Map;
@@ -34,20 +36,26 @@ public class PostLikeService {
     public void like(
             @LogParam("post_id") Long postId,
             @LogParam("user_id") Long memberId) {
+        LogEventContext.put("liked", true);
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(PostNotFoundException::new);
+
+        if (post.getBoard().getType() == BoardType.NOTICE) {
+            LogEventContext.overrideEvent("notice_like_toggle");
+            LogEventContext.overrideMessage("좋아요 버튼 클릭");
+        }
 
         if (postLikeRepository.existsByPostIdAndMemberId(postId, memberId)) {
             return;
         }
 
-        Post post = postRepository.findById(postId)
-                .orElseThrow(PostNotFoundException::new);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
 
         try {
             postLikeRepository.save(PostLike.of(post, member));
             createNotificationAtPostLike(member, post.getBoard().getId(), postId);
-            // 버전 기반 단일 UPDATE (+재시도)
             for (int i = 0; i < 3; i++) {
                 Long v = postRepository.findVersionById(postId);
                 if (v == null) throw new PostNotFoundException();
@@ -66,11 +74,18 @@ public class PostLikeService {
             Long postId,
             @LogParam("user_id")
             Long memberId) {
+        LogEventContext.put("liked", false);
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(PostNotFoundException::new);
+
+        if (post.getBoard().getType() == BoardType.NOTICE) {
+            LogEventContext.overrideEvent("notice_like_toggle");
+            LogEventContext.overrideMessage("좋아요 버튼 클릭");
+        }
+
         long deleted = postLikeRepository.deleteByPostIdAndMemberId(postId, memberId);
         if (deleted > 0) {
-            Post post = postRepository.findById(postId)
-                    .orElseThrow(PostNotFoundException::new);
-            // 버전 기반 단일 UPDATE (+재시도)
             for (int i = 0; i < 3; i++) {
                 Long v = postRepository.findVersionById(postId);
                 if (v == null) throw new PostNotFoundException();
