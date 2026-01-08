@@ -31,7 +31,6 @@ import org.hibernate.annotations.Where;
 @Getter
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 기본 생성자 protected 설정
-@Where(clause = "is_deleted = false")
 public class Member extends BaseEntity {
 
     @Id
