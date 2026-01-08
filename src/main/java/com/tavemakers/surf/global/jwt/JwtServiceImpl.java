@@ -206,20 +206,18 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public void clearRefreshTokenCookie(HttpServletResponse res) {
-        boolean isDev = "dev".equalsIgnoreCase(activeProfile);
-
         ResponseCookie.ResponseCookieBuilder builder =
                 ResponseCookie.from(REFRESH_COOKIE_NAME, "")
                         .httpOnly(true)
                         .path("/")          // 발급할 때랑 반드시 동일
                         .maxAge(Duration.ZERO);         // 즉시 만료
 
-        if (isDev) {
+        if (isDev()) {
             builder
                     .secure(true)
                     .domain(".tavesurf.site")
                     .sameSite("None");
-        } else {
+        } else if (isTest()) {
             builder
                     .secure(false)
                     .sameSite("Lax");
