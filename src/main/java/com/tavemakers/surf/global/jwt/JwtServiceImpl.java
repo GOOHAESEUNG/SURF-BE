@@ -6,7 +6,9 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -15,10 +17,12 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class JwtServiceImpl implements JwtService {
@@ -27,6 +31,7 @@ public class JwtServiceImpl implements JwtService {
     private static final String BEARER_PREFIX = "Bearer ";
     private static final String REFRESH_COOKIE_NAME = "refreshToken";
     private static final String ROLE_PREFIX = "ROLE_";
+    private final Environment environment;
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -37,8 +42,8 @@ public class JwtServiceImpl implements JwtService {
     @Value("${jwt.refresh.expiration}")
     private long refreshTokenExpireMs;
 
-    @Value("${spring.profiles.active:dev}")
-    private String activeProfile; // prod일 때만 Secure+SameSite=None
+//    @Value("${spring.profiles.active:dev}")
+//    private String activeProfile; // prod일 때만 Secure+SameSite=None
 
     private Key secretKey;
 
@@ -122,6 +127,14 @@ public class JwtServiceImpl implements JwtService {
         }
     }
 
+    private boolean isDev() {
+        return Arrays.asList(environment.getActiveProfiles()).contains("dev");
+    }
+
+    private boolean isTest() {
+        return Arrays.asList(environment.getActiveProfiles()).contains("test");
+    }
+
     @Override
     public void sendRefreshToken(
             HttpServletResponse res,
@@ -130,7 +143,7 @@ public class JwtServiceImpl implements JwtService {
         // TODO 2025.12.28 개발환경이므로 dev
         // TODO 운영 환경에서 prod로 변경
 //        boolean isProd = "prod".equalsIgnoreCase(activeProfile);
-        boolean isDev = "dev".equalsIgnoreCase(activeProfile);
+//        boolean isDev = "dev".equalsIgnoreCase(activeProfile);
         // SameSite=None이면 Secure=true가 필수
 //        String sameSite = isDev ? "None" : "Lax";
         String sameSite = "Lax";
@@ -141,18 +154,18 @@ public class JwtServiceImpl implements JwtService {
                         .path("/")
                         .maxAge(Duration.ofMillis(refreshTokenExpireMs));
 
-        if (isDev) {
-            // 배포 서버
+        if (isDev()) {
+            // 운영
             builder
                     .secure(true)
-                    .domain(".tavesurf.site")
-                    .sameSite("None");
-        } else {
-            // 로컬
+                    .sameSite("None")
+                    .domain(".tavesurf.site");
+
+        } else if (isTest()) {
+            // 테스트
             builder
-                    .secure(false)
-                    .sameSite("Lax");
-            // ⚠️ domain 설정하지 않음
+                    .secure(false)      // HTTP라서 false
+                    .sameSite("Lax");   // domain 설정 ❌
         }
 
         ResponseCookie refreshCookie = builder.build();
