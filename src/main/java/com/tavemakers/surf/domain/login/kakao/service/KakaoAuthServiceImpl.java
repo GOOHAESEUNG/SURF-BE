@@ -35,6 +35,8 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
 
         logAuthorize("kakao", redirectUri);
 
+        log.info("[KAKAO][AUTHORIZE] start redirectUri={}", redirectUri);
+
         return UriComponentsBuilder
                 .fromHttpUrl("https://kauth.kakao.com/oauth/authorize")
                 .queryParam("response_type", "code")
@@ -48,6 +50,10 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
     /** 인가 코드 → 토큰 교환 */
     @Override
     public KakaoTokenResponseDto exchangeCodeForToken(String code) {
+
+        // [1] 메서드 진입 확인
+        log.info("[KAKAO][TOKEN] exchange start codeLength={}", code.length());
+
         try {
             String url = "https://kauth.kakao.com/oauth/token";
 
@@ -60,6 +66,9 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
             params.add("redirect_uri", props.getRedirectUri());
             params.add("code", code);
 
+            // [2] redirect_uri 실제 값 확인
+            log.info("[KAKAO][TOKEN] request redirectUri={}", props.getRedirectUri());
+
             log.debug("[KAKAO][TOKEN] params={}", params);
 
             if (props.getClientSecret() != null && !props.getClientSecret().isBlank()) {
@@ -71,13 +80,33 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
             ResponseEntity<KakaoTokenResponseDto> response =
                     kakaoAuthRestTemplate.postForEntity(url, request, KakaoTokenResponseDto.class);
 
+            // [3] HTTP 응답 상태 확인
+            log.info("[KAKAO][TOKEN] response status={}", response.getStatusCode());
+
             KakaoTokenResponseDto body = java.util.Optional.ofNullable(response.getBody())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Empty token response from Kakao"));
+                    .orElseThrow(() -> {
+                        log.error("[KAKAO][TOKEN] response body is null");
+                        return new ResponseStatusException(
+                                HttpStatus.BAD_GATEWAY,
+                                "Empty token response from Kakao"
+                        );
+                    });
+
+            // [4] 정상 성공 로그
+            log.info("[KAKAO][TOKEN] exchange success");
             return body;
 
         } catch (HttpClientErrorException | HttpServerErrorException e) {
+
+            // [5] 카카오 에러 응답 로그
+            log.error(
+                    "[KAKAO][TOKEN] kakao error status={} body={}",
+                    e.getStatusCode(),
+                    e.getResponseBodyAsString()
+            );
             throw handleError(e, HttpStatus.BAD_REQUEST, "카카오 인증 요청 오류");
         } catch (Exception e) {
+            log.error("[KAKAO][TOKEN] unexpected error", e);
             throw handleError(e, HttpStatus.INTERNAL_SERVER_ERROR, "카카오 인증 요청 실패");
         }
     }
@@ -85,6 +114,7 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
     /** AccessToken으로 사용자 정보 요청 */
     @Override
     public KakaoUserInfoDto getUserInfo(String accessToken) {
+        log.info("[KAKAO][USER] get user info start");
         try {
             String url = "https://kapi.kakao.com/v2/user/me";
 
@@ -100,11 +130,19 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
                     KakaoUserInfoDto.class
             );
 
+            log.info("[KAKAO][USER] response status={}", response.getStatusCode());
+
             return response.getBody();
 
         } catch (HttpClientErrorException | HttpServerErrorException e) {
+            log.error(
+                    "[KAKAO][USER] kakao error status={} body={}",
+                    e.getStatusCode(),
+                    e.getResponseBodyAsString()
+            );
             throw handleError(e, HttpStatus.BAD_REQUEST, "카카오 사용자 정보 요청 오류");
         } catch (Exception e) {
+            log.error("[KAKAO][USER] unexpected error", e);
             throw handleError(e, HttpStatus.INTERNAL_SERVER_ERROR, "카카오 사용자 정보 요청 실패");
         }
     }
@@ -112,6 +150,8 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
     /** AccessToken 유효성 검증 */
     @Override
     public Map<String, Object> getAccessTokenInfo(String accessToken) {
+        log.info("[KAKAO][TOKEN-INFO] validate start");
+
         try {
             String url = "https://kapi.kakao.com/v1/user/access_token_info";
 
@@ -126,12 +166,21 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
                     request,
                     Map.class
             );
+            log.info("[KAKAO][TOKEN-INFO] response status={}", response.getStatusCode());
 
             return response.getBody();
 
         } catch (HttpClientErrorException | HttpServerErrorException e) {
+
+            log.error(
+                    "[KAKAO][TOKEN-INFO] kakao error status={} body={}",
+                    e.getStatusCode(),
+                    e.getResponseBodyAsString()
+            );
             throw handleError(e, HttpStatus.BAD_REQUEST, "AccessToken 검증 실패");
         } catch (Exception e) {
+            log.error("[KAKAO][TOKEN-INFO] unexpected error", e);
+
             throw handleError(e, HttpStatus.INTERNAL_SERVER_ERROR, "AccessToken 검증 중 서버 오류");
         }
     }

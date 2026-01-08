@@ -23,24 +23,43 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public void issue(HttpServletResponse response, Long memberId, String deviceId) {
+        log.info("[RTR][ISSUE] start memberId={} deviceId={}", memberId, deviceId);
+
         String refreshToken = jwtService.createRefreshToken(memberId, deviceId);
+
+        log.info("[RTR][ISSUE] refreshToken={}", refreshToken);
+
         save(refreshToken);
         jwtService.sendRefreshToken(response, refreshToken);
+
+        log.info("[RTR][ISSUE] refresh token sent to response");
     }
 
     /** ================= RTR 핵심 ================= */
     @Override
     public Long rotate(HttpServletResponse response, String refreshToken) {
 
-        if (!jwtService.isTokenValid(refreshToken)) {
+        log.info("[RTR][ROTATE] start refreshToken={}", refreshToken);
+
+        boolean valid = jwtService.isTokenValid(refreshToken);
+        // 토큰 유효성 결과
+        log.info("[RTR][ROTATE] isTokenValid={}", valid);
+
+        if (!valid) {
             throw new IllegalStateException("Invalid refresh token");
         }
 
         Long memberId = jwtService.extractMemberId(refreshToken).orElseThrow();
         String deviceId = jwtService.extractDeviceId(refreshToken).orElseThrow();
 
+        // 토큰에서 추출한 식별자
+        log.info("[RTR][ROTATE] extracted memberId={} deviceId={}", memberId, deviceId);
+
         String key = key(memberId, deviceId);
+        log.info("[RTR][ROTATE] redisKey={}", key);
+
         String stored = redisTemplate.opsForValue().get(key);
+        log.info("[RTR][ROTATE] storedRefreshToken={}", stored);
 
         if (stored == null) {
             throw new IllegalStateException("No stored refresh token");
@@ -48,17 +67,21 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         // refresh reuse detection
         if (!refreshToken.equals(stored)) {
+            log.error("[RTR][ROTATE] refresh reuse detected memberId={}", memberId);
             invalidateAll(memberId);
             throw new IllegalStateException("Refresh token reuse detected");
         }
 
         // ROTATION
+        log.info("[RTR][ROTATE] rotation allowed, deleting old token");
         redisTemplate.delete(key);
 
         String newRefresh = jwtService.createRefreshToken(memberId, deviceId);
+        log.info("[RTR][ROTATE] newRefreshToken={}", newRefresh);
         save(newRefresh);
         jwtService.sendRefreshToken(response, newRefresh);
 
+        log.info("[RTR][ROTATE] rotation success memberId={}", memberId);
         return memberId;
     }
 
@@ -69,10 +92,19 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public void invalidateAll(Long memberId) {
+        log.warn("[RTR][INVALIDATE-ALL] start memberId={}", memberId);
+
         String pattern = KEY_PREFIX + memberId + ":*";
+        log.info("[RTR][INVALIDATE-ALL] pattern={}", pattern);
+
         Set<String> keys = redisTemplate.keys(pattern);
+        log.info("[RTR][INVALIDATE-ALL] foundKeys={}", keys);
+
         if (keys != null && !keys.isEmpty()) {
             redisTemplate.delete(keys);
+            log.warn("[RTR][INVALIDATE-ALL] deleted keyCount={}", keys.size());
+        } else {
+            log.info("[RTR][INVALIDATE-ALL] no keys to delete");
         }
     }
 
@@ -82,11 +114,16 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         Long memberId = jwtService.extractMemberId(refreshToken).orElseThrow();
         String deviceId = jwtService.extractDeviceId(refreshToken).orElseThrow();
 
+        log.info("[RTR][INVALIDATE] start memberId={} deviceId={}", memberId, deviceId);
+
         long ttlMs = jwtService.getExpiration(refreshToken) - System.currentTimeMillis();
         if (ttlMs <= 0) {
             throw new IllegalStateException("Refresh token already expired");
         }
         String redisKey = key(memberId, deviceId);
+
+        log.info("[RTR][INVALIDATE] delete redisKey={}", redisKey);
+
         redisTemplate.opsForValue()
                 .set(redisKey, refreshToken, ttlMs, TimeUnit.MILLISECONDS);
         log.info("[RTR] refresh token saved. key={}, ttlMs={}", redisKey, ttlMs);

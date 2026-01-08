@@ -42,22 +42,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String uri = request.getRequestURI();
 
+        log.info("[SECURITY][FILTER] ENTER uri={} method={}", uri, request.getMethod());
+
         String refreshToken = jwtService.extractRefreshToken(request).orElse(null);
         String accessToken = jwtService.extractAccessTokenFromHeader(request)
                 .filter(jwtService::isTokenValid)
                 .orElse(null);
 
-        log.debug("URI: {}, accessToken? {}, refreshToken? {}", uri, accessToken != null, refreshToken != null);
+        log.info("URI: {}, accessToken? {}, refreshToken? {}", uri, accessToken != null, refreshToken != null);
 
         // 1) 토큰이 아예 없는 경우 → 그냥 통과 (카카오 콜백 포함)
         if (accessToken == null && refreshToken == null) {
+            log.info("[SECURITY][FILTER] no tokens → pass");
             chain.doFilter(request, response);
             return;
         }
 
         // 2) 둘 다 있는 경우: 액세스 토큰 블랙리스트만 체크하고 통과
         if (accessToken != null && refreshToken != null) {
-            log.info("토큰 둘다 있는 경우");
+            log.info("[SECURITY][FILTER] access + refresh");
             if (isBlacklisted(accessToken)) {
                 unauthorized(response);
                 return;
@@ -69,7 +72,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 3) 액세스만 있는 경우: 블랙리스트 체크 후 인증 주입
         if (accessToken != null) {
-            log.info("Access만 있는 경우");
+            log.info("[SECURITY][FILTER] access token only");
+
             if (isBlacklisted(accessToken)) {
                 unauthorized(response);
                 return;
@@ -80,7 +84,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // 4) 액세스 없음 + 리프레시만 있는 경우: 재발급 후 401로 재시도 유도
-        log.info("refresh만 있는 경우");
+        log.info("[SECURITY][FILTER] refresh only → 401");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write("{\"message\":\"Access token이 필요합니다. /auth/refresh로 재발급하세요.\"}");
@@ -88,7 +92,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     /** AccessToken → memberId → Member 로드 → SecurityContext 주입 */
     private void authenticateUser(String accessToken, HttpServletRequest req) {
-        jwtService.extractMemberId(accessToken).flatMap(memberRepository::findById).ifPresent(member -> {
+
+        log.info("[SECURITY][AUTH] start authenticate");
+
+        jwtService.extractMemberId(accessToken)
+                .flatMap(memberRepository::findById)
+                .ifPresent(member -> {
+                    log.info("[SECURITY][AUTH] member found id={}", member.getId());
+
             CustomUserDetails principal = new CustomUserDetails(member);
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     principal, null, principal.getAuthorities());
@@ -98,6 +109,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContext context = SecurityContextHolder.createEmptyContext();
             context.setAuthentication(auth);
             SecurityContextHolder.setContext(context);
+            log.info("[SECURITY][AUTH] SecurityContext set");
         });
     }
 

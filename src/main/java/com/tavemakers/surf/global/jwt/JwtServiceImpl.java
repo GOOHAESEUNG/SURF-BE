@@ -155,17 +155,22 @@ public class JwtServiceImpl implements JwtService {
                         .maxAge(Duration.ofMillis(refreshTokenExpireMs));
 
         if (isDev()) {
-            // 운영
+            // dev
             builder
                     .secure(true)
                     .sameSite("None")
                     .domain(".tavesurf.site");
 
         } else if (isTest()) {
-            // 테스트
+            // test
             builder
                     .secure(false)      // HTTP라서 false
                     .sameSite("Lax");   // domain 설정 ❌
+        } else {
+            // localhost8080
+            builder
+                    .secure(false)
+                    .sameSite("Lax");  //
         }
 
         ResponseCookie refreshCookie = builder.build();
