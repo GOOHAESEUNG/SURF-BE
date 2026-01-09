@@ -18,6 +18,7 @@ import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
 import com.tavemakers.surf.global.logging.LogEvent;
 import com.tavemakers.surf.global.logging.LogParam;
 import com.tavemakers.surf.global.util.SecurityUtils;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
@@ -47,6 +48,7 @@ public class MemberUsecase {
     private final CareerGetService careerGetService;
     private final MemberPatchService memberPatchService;
     private final MemberService memberService;
+    private final MemberWithdrawService memberWithdrawService;
     private final ApplicationContext context;
 
     /** 마이페이지 + 프로필 조회 */
@@ -209,6 +211,11 @@ public class MemberUsecase {
             String errorReason
     ) {
         throw new RuntimeException(errorReason);
+    }
+
+    @Transactional
+    public void withdraw(Long memberId) {
+        memberWithdrawService.withdraw(memberId);
     }
 
     private List<CareerResDTO> getMyCareers(Long memberId) {
