@@ -14,6 +14,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
 import com.tavemakers.surf.domain.member.entity.enums.Part;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -22,6 +24,7 @@ import java.util.function.Consumer;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Where;
 
 
 @Entity
@@ -75,6 +78,11 @@ public class Member extends BaseEntity {
     private MemberType memberType; // OB, YB 구분
 
     private boolean activityStatus; // 활동/비활동 여부
+
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
+
+    private LocalDateTime deletedAt;
 
     public boolean isYB() {
         return memberType == MemberType.YB;
@@ -245,5 +253,13 @@ public class Member extends BaseEntity {
         }
     }
 
+
+    // 회원 탈퇴 처리
+    public void withdraw() {
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
+        this.activityStatus = false;
+        this.status = MemberStatus.WITHDRAWN;
+    }
 }
 

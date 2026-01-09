@@ -1,7 +1,6 @@
 package com.tavemakers.surf.global.config;
 
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
-import com.tavemakers.surf.domain.member.service.CustomUserDetailsService;
 import com.tavemakers.surf.global.jwt.JwtAuthenticationFilter;
 import com.tavemakers.surf.global.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +57,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/login/**").permitAll() // 로그인
                         .requestMatchers("/auth/refresh").permitAll()   //
+                        .requestMatchers("/auth/logout").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
                         .requestMatchers(permitUrlConfig.getPublicUrl()).permitAll()
                         .requestMatchers(permitUrlConfig.getMemberUrl()).hasAnyRole("MEMBER", "ADMIN", "PRESIDENT", "MANAGER")
@@ -98,7 +98,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtService, memberRepository, redisTemplate);
+        return new JwtAuthenticationFilter(jwtService, memberRepository);
     }
 
 }

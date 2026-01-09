@@ -151,7 +151,7 @@ public class JwtServiceImpl implements JwtService {
         ResponseCookie.ResponseCookieBuilder builder =
                 ResponseCookie.from(REFRESH_COOKIE_NAME, refreshToken)
                         .httpOnly(true)
-                        .path("/auth/refresh")
+                        .path("/")
                         .maxAge(Duration.ofMillis(refreshTokenExpireMs));
 
         if (isDev()) {
@@ -207,5 +207,28 @@ public class JwtServiceImpl implements JwtService {
         } catch (Exception e) {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public void clearRefreshTokenCookie(HttpServletResponse res) {
+        ResponseCookie.ResponseCookieBuilder builder =
+                ResponseCookie.from(REFRESH_COOKIE_NAME, "")
+                        .httpOnly(true)
+                        .path("/")          // 발급할 때랑 반드시 동일
+                        .maxAge(Duration.ZERO);         // 즉시 만료
+
+        if (isDev()) {
+            builder
+                    .secure(true)
+                    .domain(".tavesurf.site")
+                    .sameSite("None");
+        } else if (isTest()) {
+            builder
+                    .secure(false)
+                    .sameSite("Lax");
+        }
+
+        ResponseCookie refreshCookie = builder.build();
+        res.addHeader("Set-Cookie", refreshCookie.toString());
     }
 }

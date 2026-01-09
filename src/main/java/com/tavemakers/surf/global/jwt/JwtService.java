@@ -20,4 +20,6 @@ public interface JwtService {
 
     void sendRefreshToken(HttpServletResponse res, String refreshToken);
     Optional<String> extractDeviceId(String refreshToken);
+
+    void clearRefreshTokenCookie(HttpServletResponse response);
 }
