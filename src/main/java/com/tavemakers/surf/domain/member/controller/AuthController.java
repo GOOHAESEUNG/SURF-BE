@@ -61,6 +61,7 @@ public class AuthController {
         String authorizeUrl = kakaoAuthService.buildAuthorizeUrl(redirectUri);
 
         kakaoAuthService.logAuthorize("kakao", redirectUri);
+        log.info("[LOGIN][KAKAO][AUTHORIZE] redirect to kakao");
 
         // 3) 카카오로 보내기
         response.sendRedirect(authorizeUrl);
@@ -81,33 +82,45 @@ public class AuthController {
             @RequestParam("code") String code,
             HttpServletResponse response
     ) {
+        log.info("[LOGIN][KAKAO][CALLBACK] start codeLength={}",
+                code != null ? code.length() : null);
+
         if (code == null || code.isBlank()) {
             return ApiResponse.response(HttpStatus.BAD_REQUEST, "인가 코드가 없습니다.", null);
         }
         try {
+            // 1. 콜백 진입
             kakaoAuthService.logCallback("kakao", code.length());
 
-            // 토큰 발급
+            // 2. 인가 코드 → 토큰
             KakaoTokenResponseDto token = kakaoAuthService.exchangeCodeForToken(code);
+            log.info("[LOGIN][KAKAO] exchange token success accessTokenLength={}",
+                    token.accessToken() != null ? token.accessToken().length() : null);
 
-            // 사용자 정보 조회
+            // 3. 사용자 정보 조회
             KakaoUserInfoDto userInfo = kakaoAuthService.getUserInfo(token.accessToken());
+            log.info("[LOGIN][KAKAO] fetch user info success kakaoId={}", userInfo.id());
 
-            // 회원 upsert
+            // 4. 회원 upsert
             Member member = memberUpsertService.upsertRegisteringFromKakao(userInfo);
+            log.info("[LOGIN][MEMBER] upsert success memberId={}", member.getId());
 
-            // deviceId 생성 (기기 식별자)
+            // 5. deviceId 생성 (기기 식별자)
             String deviceId = UUID.randomUUID().toString();
+            log.info("[LOGIN][DEVICE] deviceId={}", deviceId);
 
-            // JWT 발급
+            // 6. AccessToken 발급
             String accessToken =
                     jwtService.createAccessToken(
                             member.getId(),
                             member.getRole().name()
                     );
+            log.info("[LOGIN][JWT][ACCESS] accessToken={}", accessToken);
 
+            // 7. RefreshToken 발급
             refreshTokenService.issue(response, member.getId(), deviceId);
 
+            // 8. SecurityContext 설정
             Authentication authentication = new UsernamePasswordAuthenticationToken(
                     member.getEmail(),
                     null,
@@ -124,10 +137,11 @@ public class AuthController {
                     account.profile().profileImageUrl()
             );
 
+            log.info("[LOGIN][KAKAO][CALLBACK] success memberId={}", member.getId());
             return ApiResponse.response(HttpStatus.OK, "로그인 성공", loginRes);
 
         } catch (Exception e) {
-            log.error("카카오 로그인 실패", e);
+            log.error("[LOGIN][KAKAO][CALLBACK] failed", e);
             try {
                 kakaoAuthService.logLoginFailed(
                         401,
@@ -141,22 +155,4 @@ public class AuthController {
         }
 
     }
-
-    /** 요청이 어디서 왔는지 확인하고 카카오 로그인 후에 리다이렉트할 프론트 주소를 결정 */
-//    private String determineRedirectUri(HttpServletRequest request) {
-//        String origin = request.getHeader("Origin");
-//        String host = request.getHeader("Host");
-//
-//        log.info("[AuthRedirect] origin={}, host={}", origin, host);
-//
-//        String base = origin != null ? origin : host;
-//
-//        if (base != null &&
-//                (base.contains("localhost") || base.contains("127.0.0.1"))) {
-//            return "http://localhost:3000/login/callback";
-//        }
-//
-//        return "https://www.tavesurf.site/login/callback"; // 운영 프론트 주소
-//    }
-
 }
