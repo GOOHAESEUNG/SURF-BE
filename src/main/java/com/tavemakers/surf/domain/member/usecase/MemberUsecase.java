@@ -1,7 +1,5 @@
 package com.tavemakers.surf.domain.member.usecase;
 
-import com.tavemakers.surf.domain.member.dto.request.CareerCreateReqDTO;
-import com.tavemakers.surf.domain.member.dto.request.CareerUpdateReqDTO;
 import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.dto.response.*;
 import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateReqDTO;
@@ -18,7 +16,6 @@ import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
 import com.tavemakers.surf.global.logging.LogEvent;
 import com.tavemakers.surf.global.logging.LogParam;
 import com.tavemakers.surf.global.util.SecurityUtils;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;

@@ -1,6 +1,7 @@
 package com.tavemakers.surf.domain.notification.service;
 
 import com.tavemakers.surf.domain.member.entity.Member;
+import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import com.tavemakers.surf.domain.notification.entity.NotificationType;
 import com.tavemakers.surf.domain.post.entity.Post;
@@ -33,7 +34,7 @@ public class NotificationUseCase {
         }
 
         // 1 알림 대상 조회
-        List<Member> targets = memberRepository.findByActivityStatusTrue();
+        List<Member> targets = memberRepository.findByActivityStatusTrueAndStatusNot(MemberStatus.WITHDRAWN);
 
         if (targets.isEmpty()) {
             log.info("[NoticeNotification] no target members, postId={}", post.getId());

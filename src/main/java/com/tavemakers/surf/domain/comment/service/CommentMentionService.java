@@ -5,6 +5,7 @@ import com.tavemakers.surf.domain.comment.entity.CommentMention;
 import com.tavemakers.surf.domain.comment.exception.CommentMentionSelfException;
 import com.tavemakers.surf.domain.comment.repository.CommentMentionRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
+import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import com.tavemakers.surf.domain.comment.dto.res.MentionResDTO;
 import com.tavemakers.surf.domain.comment.dto.res.MentionSearchResDTO;
@@ -78,7 +79,7 @@ public class CommentMentionService {
         String namePart = keyword.trim();
 
         // DB 조회 (정렬 없이)
-        List<Member> candidates = memberRepository.findMentionCandidates(namePart);
+        List<Member> candidates = memberRepository.findMentionCandidates(namePart, MemberStatus.WITHDRAWN);
 
         // 자바에서 정렬: 가장 최근 기수 → 오래된 순
         return candidates.stream()

@@ -20,7 +20,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByEmail(String email);
 
     //현재 활동 중 + 특정 이름을 가진 회원 리스트 반환
-    List<Member> findByActivityStatusAndName(Boolean activityStatus, String name);
+    List<Member> findByActivityStatusAndNameAndStatusNot(Boolean activityStatus, String name, MemberStatus status);
 
     Optional<Member> findByEmailAndStatus(String email, MemberStatus status);
   
@@ -31,11 +31,14 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
         SELECT m
         FROM Member m
         LEFT JOIN m.tracks t
-        WHERE LOWER(m.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        WHERE m.status <> :status
+              AND LOWER(m.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
         GROUP BY m.id
         ORDER BY MAX(t.generation) DESC
     """)
-    List<Member> findMentionCandidates(@Param("keyword") String keyword);
+    List<Member> findMentionCandidates(
+            @Param("keyword") String keyword,
+            @Param("status") MemberStatus status);
 
-    List<Member> findByActivityStatusTrue();
+    List<Member> findByActivityStatusTrueAndStatusNot(MemberStatus status);
 }
