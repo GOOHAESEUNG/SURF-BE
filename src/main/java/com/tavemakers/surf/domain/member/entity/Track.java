@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Track extends BaseEntity {
+public class Track extends BaseEntity implements Comparable<Track>{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,6 +56,11 @@ public class Track extends BaseEntity {
     public void update(Integer generation, Part part) {
         if (generation != null) this.generation = generation;
         if (part != null) this.part = part;
+    }
+
+    @Override
+    public int compareTo(Track o) {
+        return this.generation.compareTo(o.getGeneration());
     }
 
 }
