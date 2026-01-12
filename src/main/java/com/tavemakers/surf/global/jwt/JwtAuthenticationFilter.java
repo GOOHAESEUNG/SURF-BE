@@ -2,6 +2,7 @@ package com.tavemakers.surf.global.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tavemakers.surf.domain.member.entity.CustomUserDetails;
+import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -57,25 +58,49 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 3) 유효하면 인증 주입 후 통과
-        authenticateUser(accessToken, request);
+        // 3) member 로드 + 탈퇴 판별 + 인증 주입
+        AuthResult result = authenticateUser(accessToken, request);
+
+        if (result != AuthResult.AUTHENTICATED) {
+            unauthorized(response, result.message);
+            return;
+        }
         chain.doFilter(request, response);
     }
 
-    /** AccessToken → memberId → Member 로드 → SecurityContext 주입 */
-    private void authenticateUser(String accessToken, HttpServletRequest req) {
-        jwtService.extractMemberId(accessToken)
-                .flatMap(memberRepository::findById)
-                .ifPresent(member -> {
+    private enum AuthResult {
+        AUTHENTICATED(""),
+        NOT_FOUND("Member not found"),
+        WITHDRAWN("Withdrawn member");
+
+        final String message;
+        AuthResult(String message) { this.message = message; }
+    }
+
+    private AuthResult authenticateUser(String accessToken, HttpServletRequest req) {
+        Long memberId = jwtService.extractMemberId(accessToken).orElse(null);
+        if (memberId == null) return AuthResult.NOT_FOUND;
+
+        return memberRepository.findById(memberId)
+                .map(member -> {
+                    if (member.getStatus() == MemberStatus.WITHDRAWN) {
+                        return AuthResult.WITHDRAWN;
+                    }
+
                     CustomUserDetails principal = new CustomUserDetails(member);
-                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                            principal, null, principal.getAuthorities());
+                    UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(
+                                    principal, null, principal.getAuthorities()
+                            );
                     auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
 
                     SecurityContext context = SecurityContextHolder.createEmptyContext();
                     context.setAuthentication(auth);
                     SecurityContextHolder.setContext(context);
-        });
+
+                    return AuthResult.AUTHENTICATED;
+                })
+                .orElse(AuthResult.NOT_FOUND);
     }
 
     private void unauthorized(HttpServletResponse res, String message) throws IOException {
