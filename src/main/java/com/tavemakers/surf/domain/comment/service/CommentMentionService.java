@@ -83,13 +83,6 @@ public class CommentMentionService {
 
         // 자바에서 정렬: 가장 최근 기수 → 오래된 순
         return candidates.stream()
-                .sorted(Comparator.comparing(
-                        (Member m) -> m.getTracks().stream()
-                                .map(track -> track.getGeneration())
-                                .max(Integer::compareTo) // track 중 최신 기수 기준
-                                .orElse(0),
-                        Comparator.reverseOrder()
-                ))
                 .limit(10)
                 .map(MentionSearchResDTO::from)
                 .toList();
