@@ -40,5 +40,13 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
             @Param("keyword") String keyword,
             @Param("status") MemberStatus status);
 
-    List<Member> findByActivityStatusTrueAndStatusNot(MemberStatus status);
+    @Query("""
+        select m.id
+        from Member m
+        where m.activityStatus = true
+          and m.status <> :status
+    """)
+    List<Long> findActiveMemberIdsExcludeStatus(@Param("status") MemberStatus status);
+
+    boolean existsByIdAndStatusNot(Long id, MemberStatus status);
 }

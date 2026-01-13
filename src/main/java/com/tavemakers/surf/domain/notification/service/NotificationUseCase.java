@@ -34,17 +34,17 @@ public class NotificationUseCase {
         }
 
         // 1 알림 대상 조회
-        List<Member> targets = memberRepository.findByActivityStatusTrueAndStatusNot(MemberStatus.WITHDRAWN);
+        List<Long> targetIds = memberRepository.findActiveMemberIdsExcludeStatus(MemberStatus.WITHDRAWN);
 
-        if (targets.isEmpty()) {
+        if (targetIds.isEmpty()) {
             log.info("[NoticeNotification] no target members, postId={}", post.getId());
             return;
         }
 
         // 2 Notification 엔티티 생성
-        for (Member member : targets) {
+        for (Long memberId : targetIds) {
             notificationCreateService.createAndSend(
-                    member.getId(),                    // 알림 받는 사람
+                    memberId,                   // 알림 받는 사람
                     NotificationType.NOTICE,            // 공지 알림 타입
                     Map.of(
                             "boardId", post.getBoard().getId(),
@@ -55,7 +55,7 @@ public class NotificationUseCase {
 
         log.info(
                 "[NoticeNotification] sent to {} members, postId={}",
-                targets.size(),
+                targetIds.size(),
                 post.getId()
         );
     }
