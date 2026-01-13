@@ -1,5 +1,7 @@
 package com.tavemakers.surf.domain.post.dto.res;
 
+import com.tavemakers.surf.domain.member.entity.Member;
+import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.post.entity.Post;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -45,6 +47,9 @@ public record PostDetailResDTO(
         @Schema(description = "게시글 댓글 수", example = "0")
         long commentCount,
 
+        @Schema(description = "게시글 작성자 회원 ID (탈퇴 회원이면 null)", example = "7")
+        Long memberId,
+
         @Schema(description = "게시글 작성자 닉네임", example = "홍길동")
         String nickname,
 
@@ -80,29 +85,32 @@ public record PostDetailResDTO(
             List<PostImageResDTO> imageUrlList,
             LocalDateTime reservedAt,
             int viewCount
-            ) {
-        return PostDetailResDTO.builder()
-                .postId(post.getId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .pinned(post.isPinned())
-                .postedAt(post.getPostedAt())
-                .boardId(post.getBoard().getId())
-                .categoryId(post.getCategory().getId())
-                .scrappedByMe(scrappedByMe)
-                .scrapCount(post.getScrapCount())
-                .likedByMe(likedByMe)
-                .likeCount(post.getLikeCount())
-                .commentCount(post.getCommentCount())
-                .nickname(post.getMember().getName())
-                .profileImageUrl(post.getMember().getProfileImageUrl())
-                .isMine(isMine)
-                .imageUrlList(imageUrlList)
-                .isReserved(post.isReserved())
-                .reservedAt(reservedAt)
-                .viewCount(viewCount)
-                .hasSchedule(post.getHasSchedule())
-                .scheduleId(post.getScheduleId())
-                .build();
+    ){
+            Member writer = post.getMember();
+
+            return PostDetailResDTO.builder()
+                    .postId(post.getId())
+                    .title(post.getTitle())
+                    .content(post.getContent())
+                    .pinned(post.isPinned())
+                    .postedAt(post.getPostedAt())
+                    .boardId(post.getBoard().getId())
+                    .categoryId(post.getCategory().getId())
+                    .scrappedByMe(scrappedByMe)
+                    .scrapCount(post.getScrapCount())
+                    .likedByMe(likedByMe)
+                    .likeCount(post.getLikeCount())
+                    .commentCount(post.getCommentCount())
+                    .memberId(writer.getStatus() == MemberStatus.WITHDRAWN ? null : writer.getId())
+                    .nickname(writer.getName())
+                    .profileImageUrl(writer.getProfileImageUrl())
+                    .isMine(isMine)
+                    .imageUrlList(imageUrlList)
+                    .isReserved(post.isReserved())
+                    .reservedAt(reservedAt)
+                    .viewCount(viewCount)
+                    .hasSchedule(post.getHasSchedule())
+                    .scheduleId(post.getScheduleId())
+                    .build();
     }
 }

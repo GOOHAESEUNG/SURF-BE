@@ -1,6 +1,7 @@
 package com.tavemakers.surf.domain.member.dto.response;
 
 import com.tavemakers.surf.domain.member.entity.Member;
+import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import lombok.Builder;
 
 @Builder
@@ -11,7 +12,7 @@ public record MemberLikeListResDTO(
 ){
     public static MemberLikeListResDTO from(Member member) {
         return MemberLikeListResDTO.builder()
-                .id(member.getId())
+                .id(member.getStatus() == MemberStatus.WITHDRAWN ? null : member.getId())
                 .name(member.getName())
                 .profileImageUrl(member.getProfileImageUrl())
                 .build();
