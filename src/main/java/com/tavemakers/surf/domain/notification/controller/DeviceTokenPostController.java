@@ -1,7 +1,6 @@
 package com.tavemakers.surf.domain.notification.controller;
 
 import static com.tavemakers.surf.domain.notification.controller.ResponseMessage.DEVICE_TOKEN_SUCCESS;
-import static com.tavemakers.surf.domain.notification.controller.ResponseMessage.FCM_TEST_SUCCESS;
 
 import com.tavemakers.surf.domain.member.entity.CustomUserDetails;
 import com.tavemakers.surf.domain.notification.dto.req.DeviceTokenReqDTO;
@@ -12,7 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
