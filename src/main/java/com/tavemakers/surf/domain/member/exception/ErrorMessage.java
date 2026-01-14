@@ -17,6 +17,7 @@ public enum ErrorMessage {
     PASSWORD_ENCRYPTION_FAILED(HttpStatus.BAD_REQUEST ,"비밀번호 암호화에 실패했습니다."),
     PASSWORD_NOT_SETTING(HttpStatus.BAD_REQUEST, "비밀번호가 설정되지 않았습니다."),
     MIS_MATCH_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
+    ADMIN_PAGE_ROLE_EXCEPTION(HttpStatus.BAD_REQUEST, "관리자만 접근 가능합니다."),
     ;
 
     private final HttpStatus status;
