@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +24,13 @@ public class TrackGetService {
 
     public List<Track> getTrack(Long memberId) {
         return trackRepository.findByMemberId(memberId);
+    }
+
+    public List<Track> getTrackSortedByGeneration(Long memberId) {
+        return trackRepository.findByMemberId(memberId)
+                .stream()
+                .sorted()
+                .toList();
     }
 
     //트랙과 함께 모든 회원 반환

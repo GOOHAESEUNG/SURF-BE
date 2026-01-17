@@ -221,8 +221,10 @@ public class MemberUsecase {
     }
 
     private List<TrackResDTO> getMyTracks(Long memberId) {
-        return trackGetService.getTrack(memberId)
-                .stream().map(TrackResDTO::from).toList();
+        return trackGetService.getTrackSortedByGeneration(memberId)
+                .stream()
+                .map(TrackResDTO::from)
+                .toList();
     }
 
     public MemberSearchSliceResDTO searchMembers( int pageNum, int pageSize, Integer generation, String part, String keyword) {

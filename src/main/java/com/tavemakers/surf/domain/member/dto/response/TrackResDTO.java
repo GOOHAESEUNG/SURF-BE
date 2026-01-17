@@ -16,7 +16,7 @@ public record TrackResDTO(
     public static TrackResDTO from(Track track) {
         return TrackResDTO.builder()
                 .generation(track.getGeneration())
-                .part(track.getPart().getDisplayName())
+                .part(track.getPart().name())
                 .build();
     }
 }
