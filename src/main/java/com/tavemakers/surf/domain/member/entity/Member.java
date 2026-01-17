@@ -2,6 +2,8 @@ package com.tavemakers.surf.domain.member.entity;
 
 import com.tavemakers.surf.domain.login.kakao.dto.KakaoUserInfoDto;
 import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateReqDTO;
+import com.tavemakers.surf.domain.member.exception.MisMatchPasswordException;
+import com.tavemakers.surf.domain.member.exception.PasswordNotSettingException;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
 import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.entity.enums.MemberType;
@@ -52,6 +54,9 @@ public class Member extends BaseEntity {
 
     @Column(nullable = false, unique = true) // 이메일은 고유해야 함
     private String email;
+
+    @Embedded
+    private Password password;
 
     private String phoneNumber;
 
@@ -261,5 +266,20 @@ public class Member extends BaseEntity {
         this.activityStatus = false;
         this.status = MemberStatus.WITHDRAWN;
     }
+
+    public void updatePassword(String password) {
+        this.password = Password.from(password);
+    }
+
+    public void checkPassword(String password) {
+        try {
+            this.password.validateMatches(password);
+        } catch (NullPointerException e) {
+            throw new PasswordNotSettingException();
+        } catch (MisMatchPasswordException e) {
+            throw new MisMatchPasswordException();
+        }
+    }
+
 }
 
