@@ -45,7 +45,7 @@ public class ScheduleGetService {
         LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
         LocalDateTime endOfMonth = yearMonth.atEndOfMonth().atTime(23, 59, 59);
 
-        List<String> categories = List.of("정규행사", "기타일정");
+        List<String> categories = List.of("regular", "other");
 
         if(Objects.equals(memberRole, MemberRole.MEMBER.toString())) {
             return scheduleRepository.findByStartAtBetweenAndCategoryIn(startOfMonth, endOfMonth,categories);

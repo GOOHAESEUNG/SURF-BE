@@ -6,7 +6,6 @@ import com.tavemakers.surf.domain.post.dto.res.PostDetailResDTO;
 import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
 import com.tavemakers.surf.domain.post.service.PostService;
 import com.tavemakers.surf.global.common.response.ApiResponse;
-import com.tavemakers.surf.global.logging.LogEvent;
 import com.tavemakers.surf.global.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

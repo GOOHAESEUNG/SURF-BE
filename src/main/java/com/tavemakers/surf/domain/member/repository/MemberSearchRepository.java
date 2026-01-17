@@ -1,12 +1,12 @@
 package com.tavemakers.surf.domain.member.repository;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.QTrack;
+import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.entity.enums.Part;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -71,6 +71,8 @@ public class MemberSearchRepository {
 
     private BooleanBuilder createSearchBuilder(Integer generation, Part part, String keyword) {
         BooleanBuilder builder = new BooleanBuilder();
+
+        builder.and(member.status.ne(MemberStatus.WITHDRAWN));
 
         if (generation != null) {
             builder.and(member.tracks.any().generation.eq(generation));

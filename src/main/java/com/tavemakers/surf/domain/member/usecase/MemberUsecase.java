@@ -1,7 +1,5 @@
 package com.tavemakers.surf.domain.member.usecase;
 
-import com.tavemakers.surf.domain.member.dto.request.CareerCreateReqDTO;
-import com.tavemakers.surf.domain.member.dto.request.CareerUpdateReqDTO;
 import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
 import com.tavemakers.surf.domain.member.dto.response.*;
 import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateReqDTO;
@@ -47,6 +45,7 @@ public class MemberUsecase {
     private final CareerGetService careerGetService;
     private final MemberPatchService memberPatchService;
     private final MemberService memberService;
+    private final MemberWithdrawService memberWithdrawService;
     private final ApplicationContext context;
 
     /** 마이페이지 + 프로필 조회 */
@@ -209,6 +208,11 @@ public class MemberUsecase {
             String errorReason
     ) {
         throw new RuntimeException(errorReason);
+    }
+
+    @Transactional
+    public void withdraw(Long memberId) {
+        memberWithdrawService.withdraw(memberId);
     }
 
     private List<CareerResDTO> getMyCareers(Long memberId) {

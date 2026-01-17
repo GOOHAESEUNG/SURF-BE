@@ -1,6 +1,8 @@
 package com.tavemakers.surf.domain.comment.dto.res;
 
 import com.tavemakers.surf.domain.comment.entity.Comment;
+import com.tavemakers.surf.domain.member.entity.Member;
+import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
@@ -48,10 +50,14 @@ public record CommentResDTO(
         List<MentionResDTO> mentions
 
 ) {
-    public static CommentResDTO from(Comment comment,
-                                     Long postId,
-                                     List<MentionResDTO> mentions,
-                                     Boolean liked) {
+    public static CommentResDTO from(
+            Comment comment,
+            Long postId,
+            List<MentionResDTO> mentions,
+            Boolean liked
+    ) {
+        Member writer = comment.getMember();
+
         return new CommentResDTO(
                 comment.getId(),
                 postId,
@@ -59,9 +65,9 @@ public record CommentResDTO(
                 comment.getParent() != null ? comment.getParent().getId() : null,
                 comment.getDepth(),
                 comment.getContent(),
-                comment.getMember().getId(),
-                comment.getMember().getName(),
-                comment.getMember().getProfileImageUrl(),
+                writer.getStatus() == MemberStatus.WITHDRAWN ? null : writer.getId(),
+                writer.getName(),
+                writer.getProfileImageUrl(),
                 comment.getLikeCount(),
                 liked,
                 comment.getCreatedAt(),

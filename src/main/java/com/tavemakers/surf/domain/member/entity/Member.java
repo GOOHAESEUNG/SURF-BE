@@ -261,10 +261,33 @@ public class Member extends BaseEntity {
 
     // 회원 탈퇴 처리
     public void withdraw() {
+        if (this.isDeleted || this.status == MemberStatus.WITHDRAWN) return;
+
         this.isDeleted = true;
         this.deletedAt = LocalDateTime.now();
         this.activityStatus = false;
         this.status = MemberStatus.WITHDRAWN;
+
+        anonymizeOnWithdraw();
+    }
+
+    private void anonymizeOnWithdraw() {
+        if (this.id == null) {
+            throw new IllegalStateException("withdraw는 영속화된 회원만 가능합니다.");
+        }
+
+        this.name = "탈퇴한 회원";
+        this.profileImageUrl = null;
+        this.password = null;
+        this.phoneNumber = null;
+        this.phoneNumberPublic = false;
+        this.selfIntroduction = null;
+        this.link = null;
+        this.university = null;
+        this.graduateSchool = null;
+
+        this.email = "withdrawn_" + this.id + "_" + System.currentTimeMillis() + "@deleted.local";
+        this.kakaoId = -this.id;
     }
 
     public void updatePassword(String password) {
