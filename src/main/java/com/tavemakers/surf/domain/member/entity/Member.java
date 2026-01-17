@@ -278,6 +278,7 @@ public class Member extends BaseEntity {
 
         this.name = "탈퇴한 회원";
         this.profileImageUrl = null;
+        this.password = null;
         this.phoneNumber = null;
         this.phoneNumberPublic = false;
         this.selfIntroduction = null;
