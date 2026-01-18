@@ -4,14 +4,19 @@ import com.tavemakers.surf.domain.login.auth.service.RefreshTokenService;
 import com.tavemakers.surf.domain.member.dto.request.AdminPageLoginReqDto;
 import com.tavemakers.surf.domain.member.dto.request.PasswordReqDto;
 import com.tavemakers.surf.domain.member.dto.response.AdminPageLoginResDto;
+import com.tavemakers.surf.domain.member.dto.response.CareerResDTO;
+import com.tavemakers.surf.domain.member.dto.response.MemberInformationResDTO;
+import com.tavemakers.surf.domain.member.dto.response.TrackResDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
-import com.tavemakers.surf.domain.member.entity.Password;
 import com.tavemakers.surf.domain.member.entity.enums.MemberRole;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.exception.AdminPageRoleException;
+import com.tavemakers.surf.domain.member.service.CareerGetService;
 import com.tavemakers.surf.domain.member.service.MemberGetService;
 import com.tavemakers.surf.domain.member.service.MemberPatchService;
 import com.tavemakers.surf.domain.member.service.MemberService;
+import com.tavemakers.surf.domain.score.entity.PersonalActivityScore;
+import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
 import com.tavemakers.surf.domain.score.service.PersonalScoreSaveService;
 import com.tavemakers.surf.global.jwt.JwtService;
 import com.tavemakers.surf.global.logging.LogEvent;
@@ -23,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -33,7 +39,9 @@ public class MemberAdminUsecase {
     private final MemberPatchService memberPatchService;
     private final MemberGetService memberGetService;
     private final MemberService memberService;
+    private final CareerGetService careerGetService;
     private final PersonalScoreSaveService personalScoreSaveService;
+    private final PersonalScoreGetService scoreGetService;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
 
@@ -80,6 +88,20 @@ public class MemberAdminUsecase {
         refreshTokenService.issue(response, member.getId(), deviceId);
 
         return AdminPageLoginResDto.of(accessToken, member);
+    }
+
+    public MemberInformationResDTO readMemberInformation(Long memberId) {
+        Member member = memberGetService.readMemberInformation(memberId);
+
+        List<TrackResDTO> memberTracks = member.getTracks()
+                .stream()
+                .map(TrackResDTO::from)
+                .toList();
+
+        List<CareerResDTO> memberCareers = careerGetService.getMemberCareers(memberId);
+        PersonalActivityScore personalScore = scoreGetService.getPersonalScore(memberId);
+
+        return MemberInformationResDTO.of(member, memberTracks, personalScore.getScore(), memberCareers);
     }
 
     private void validateLoginMemberRole(Member member) {
