@@ -49,4 +49,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Long> findActiveMemberIdsExcludeStatus(@Param("status") MemberStatus status);
 
     boolean existsByIdAndStatusNot(Long id, MemberStatus status);
+
+    @Query("select m from Member m " +
+            "left join fetch m.tracks " +
+            "where m.id = :memberId")
+    Optional<Member> findByIdWithTracks(@Param("memberId") Long memberId);
+
 }
