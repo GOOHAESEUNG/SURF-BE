@@ -3,6 +3,7 @@ package com.tavemakers.surf.domain.member.service;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.entity.enums.Part;
+import com.tavemakers.surf.domain.member.exception.InvalidSignupListException;
 import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import com.tavemakers.surf.domain.member.repository.MemberSearchRepository;
@@ -33,14 +34,14 @@ public class MemberGetService {
 
     public List<Member> getMembersByStatus(List<Long> memberIds, MemberStatus status) {
         if (memberIds == null || memberIds.isEmpty()) {
-            throw new IllegalArgumentException("memberIds is empty");
+            throw new MemberNotFoundException();
         }
 
         List<Long> distinctIds = memberIds.stream().distinct().toList();
         List<Member> members = memberRepository.findAllByIdInAndStatus(distinctIds, status);
 
         if (members.size() != distinctIds.size()) {
-            throw new IllegalStateException("Not found or status mismatch.");
+            throw new InvalidSignupListException();
         }
 
         return members;
