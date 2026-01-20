@@ -1,6 +1,5 @@
 package com.tavemakers.surf.domain.notification.dto.res;
 
-import com.tavemakers.surf.domain.notification.entity.Notification;
 import com.tavemakers.surf.domain.notification.entity.NotificationType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
