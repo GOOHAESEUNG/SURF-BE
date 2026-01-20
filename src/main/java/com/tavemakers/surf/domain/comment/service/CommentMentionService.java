@@ -2,7 +2,6 @@ package com.tavemakers.surf.domain.comment.service;
 
 import com.tavemakers.surf.domain.comment.entity.Comment;
 import com.tavemakers.surf.domain.comment.entity.CommentMention;
-import com.tavemakers.surf.domain.comment.exception.CommentMentionSelfException;
 import com.tavemakers.surf.domain.comment.repository.CommentMentionRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
