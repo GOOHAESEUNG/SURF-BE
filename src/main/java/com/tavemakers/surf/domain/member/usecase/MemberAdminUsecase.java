@@ -4,6 +4,8 @@ import com.tavemakers.surf.domain.login.auth.service.RefreshTokenService;
 import com.tavemakers.surf.domain.member.dto.request.AdminPageLoginReqDto;
 import com.tavemakers.surf.domain.member.dto.request.PasswordReqDto;
 import com.tavemakers.surf.domain.member.dto.response.AdminPageLoginResDto;
+import com.tavemakers.surf.domain.member.dto.response.MemberRegistrationDetailResDTO;
+import com.tavemakers.surf.domain.member.dto.response.MemberRegistrationSliceResDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.Password;
 import com.tavemakers.surf.domain.member.entity.enums.MemberRole;
@@ -20,9 +22,14 @@ import com.tavemakers.surf.global.util.SecurityUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -80,6 +87,14 @@ public class MemberAdminUsecase {
         refreshTokenService.issue(response, member.getId(), deviceId);
 
         return AdminPageLoginResDto.of(accessToken, member);
+    }
+
+    public MemberRegistrationSliceResDTO readRegistrationList(String keyword, int pageSize, int pageNum) {
+        Pageable pageable = PageRequest.of(pageNum, pageSize, Sort.by("createdAt").descending());
+        Slice<MemberRegistrationDetailResDTO> registrationList = memberGetService.searchWaitingMembers(keyword, pageable)
+                .map(MemberRegistrationDetailResDTO::from);
+
+        return MemberRegistrationSliceResDTO.from(registrationList);
     }
 
     private void validateLoginMemberRole(Member member) {
