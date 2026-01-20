@@ -6,14 +6,31 @@ import com.tavemakers.surf.domain.score.repository.PersonalActivityScoreReposito
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class PersonalScoreSaveService {
 
     private final PersonalActivityScoreRepository personalScoreRepository;
 
-    public void savePersonalScore(Member savedMember) {
-        personalScoreRepository.save(PersonalActivityScore.from(savedMember));
-    }
+    public void savePersonalScores(List<Member> members) {
+        if (members == null || members.isEmpty()) return;
 
+        List<Long> memberIds = members.stream().map(Member::getId).distinct().toList();
+
+        Set<Long> existing = personalScoreRepository.findAllByMemberIdIn(memberIds).stream()
+                .map(s -> s.getMember().getId())
+                .collect(java.util.stream.Collectors.toSet());
+
+        List<PersonalActivityScore> toSave = members.stream()
+                .filter(m -> !existing.contains(m.getId()))
+                .map(PersonalActivityScore::from)
+                .toList();
+
+        if (!toSave.isEmpty()) {
+            personalScoreRepository.saveAll(toSave);
+        }
+    }
 }

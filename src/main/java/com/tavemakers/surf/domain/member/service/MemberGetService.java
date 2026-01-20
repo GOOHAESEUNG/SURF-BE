@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +29,21 @@ public class MemberGetService {
     public Member getMemberByStatus(Long memberId, MemberStatus memberStatus) {
         return memberRepository.findByIdAndStatus(memberId, memberStatus)
                 .orElseThrow(MemberNotFoundException::new);
+    }
+
+    public List<Member> getMembersByStatus(List<Long> memberIds, MemberStatus status) {
+        if (memberIds == null || memberIds.isEmpty()) {
+            throw new IllegalArgumentException("memberIds is empty");
+        }
+
+        List<Long> distinctIds = memberIds.stream().distinct().toList();
+        List<Member> members = memberRepository.findAllByIdInAndStatus(distinctIds, status);
+
+        if (members.size() != distinctIds.size()) {
+            throw new IllegalStateException("Not found or status mismatch.");
+        }
+
+        return members;
     }
 
     public Member getMember(Long memberId) {

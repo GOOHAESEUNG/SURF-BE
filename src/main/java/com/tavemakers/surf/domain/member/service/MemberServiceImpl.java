@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
+
+import java.util.List;
 import java.util.Locale;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,15 +38,19 @@ public class MemberServiceImpl implements MemberService {
     /** 회원 승인 */
     @Override
     @Transactional
-    public void approveMember(Member member) {
-        member.approve();
+    public void approveMembers(List<Member> members) {
+        for (Member member : members) {
+            member.approve();
+        }
     }
 
     /** 회원 거절 */
     @Override
     @Transactional
-    public void rejectMember(Member member) {
-        member.reject();
+    public void rejectMembers(List<Member> members) {
+        for (Member member : members) {
+            member.reject();
+        }
     }
 
     /** 온보딩 필요 여부 확인 */

@@ -19,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -107,12 +109,12 @@ public class MemberController {
             summary = "회원가입 승인",
             description = "관리자가 회원의 회원가입을 승인합니다."
     )
-    @PatchMapping("/v1/admin/members/{memberId}/approve")
+    @PatchMapping("/v1/admin/members/approve")
     public ApiResponse<Void> approveMember(
-            @PathVariable Long memberId
+            @RequestBody List<Long> memberIds
     ) {
         Long approverId = SecurityUtils.getCurrentMemberId();
-        memberAdminUsecase.approveMember(memberId, approverId);
+        memberAdminUsecase.approveMember(memberIds, approverId);
 
         return ApiResponse.response(HttpStatus.OK, "승인되었습니다.", null);
     }
@@ -125,12 +127,12 @@ public class MemberController {
             summary = "회원가입 거절",
             description = "관리자가 회원의 회원가입을 거절합니다."
     )
-    @PatchMapping("/v1/admin/members/{memberId}/reject")
+    @PatchMapping("/v1/admin/members/reject")
     public ApiResponse<Void> rejectMember(
-            @PathVariable Long memberId
+            @RequestBody List<Long> memberIds
     ) {
         Long approverId = SecurityUtils.getCurrentMemberId();
-        memberAdminUsecase.rejectMember(memberId, approverId);
+        memberAdminUsecase.rejectMember(memberIds, approverId);
 
         return ApiResponse.response(HttpStatus.OK, "거절되었습니다.", null);
     }
