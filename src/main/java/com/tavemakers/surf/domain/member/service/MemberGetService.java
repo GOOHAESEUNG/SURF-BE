@@ -38,10 +38,13 @@ public class MemberGetService {
         }
 
         List<Long> distinctIds = memberIds.stream().distinct().toList();
-        List<Member> members = memberRepository.findAllByIdInAndStatus(distinctIds, status);
-
-        if (members.size() != distinctIds.size()) {
+        if (distinctIds.size() != memberIds.size()) {
             throw new InvalidSignupListException();
+        }
+
+        List<Member> members = memberRepository.findAllByIdInAndStatus(distinctIds, status);
+        if (members.size() != distinctIds.size()) {
+            throw new MemberNotFoundException();
         }
 
         return members;
