@@ -33,11 +33,6 @@ public class CommentMentionService {
 
         Long writerId = comment.getMember().getId();
 
-        // 자기 자신 멘션 방지
-        if (mentionMemberIds.contains(writerId)) {
-            throw new CommentMentionSelfException();
-        }
-
         // 중복 제거
         List<Long> filteredIds = mentionMemberIds.stream()
                 .distinct()
