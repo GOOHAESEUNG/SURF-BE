@@ -89,9 +89,9 @@ public class MemberAdminUsecase {
         return AdminPageLoginResDto.of(accessToken, member);
     }
 
-    public MemberRegistrationSliceResDTO readRegistrationList(int pageSize, int pageNum) {
+    public MemberRegistrationSliceResDTO readRegistrationList(String keyword, int pageSize, int pageNum) {
         Pageable pageable = PageRequest.of(pageNum, pageSize, Sort.by("createdAt").descending());
-        Slice<MemberRegistrationDetailResDTO> registrationList = memberGetService.searchMembers(MemberStatus.WAITING, pageable)
+        Slice<MemberRegistrationDetailResDTO> registrationList = memberGetService.searchWaitingMembers(keyword, pageable)
                 .map(MemberRegistrationDetailResDTO::from);
 
         return MemberRegistrationSliceResDTO.from(registrationList);

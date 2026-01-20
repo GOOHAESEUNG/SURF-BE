@@ -55,10 +55,11 @@ public class AdminController {
     @Operation(summary = "가입신청 목록", description = "가입신청 목록을 조회합니다.")
     @GetMapping("/v1/manager/registration-list")
     public ApiResponse<MemberRegistrationSliceResDTO> readRegistrationList (
+            @RequestParam(required = false) String keyword,
             @RequestParam int pageSize,
             @RequestParam int pageNum
     ) {
-        MemberRegistrationSliceResDTO data = memberAdminUsecase.readRegistrationList(pageSize, pageNum);
+        MemberRegistrationSliceResDTO data = memberAdminUsecase.readRegistrationList(keyword, pageSize, pageNum);
         return ApiResponse.response(HttpStatus.OK, REGISTRATION_LIST_READ.getMessage(), data);
     }
 
