@@ -21,10 +21,10 @@ public class HomeContentService {
 
         HomeContent content = homeContentRepository.findById(HOME_CONTENT_ID)
                 .map(existing -> {
-                    existing.changeMessage(req.message());
+                    existing.changeHomeContent(req.message(), req.sender());
                     return existing;
                 })
-                .orElseGet(() -> homeContentRepository.save(HomeContent.of(req.message())));
+                .orElseGet(() -> homeContentRepository.save(HomeContent.of(req.message(), req.sender())));
 
         return HomeContentResDTO.from(content);
     }
@@ -33,6 +33,6 @@ public class HomeContentService {
     public HomeContentResDTO getContent() {
         return homeContentRepository.findById(HOME_CONTENT_ID)
                 .map(HomeContentResDTO::from)
-                .orElse(new HomeContentResDTO(HOME_CONTENT_ID, ""));
+                .orElse(new HomeContentResDTO(HOME_CONTENT_ID, "", ""));
     }
 }

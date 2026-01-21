@@ -2,6 +2,7 @@ package com.tavemakers.surf.domain.home.service;
 
 import com.tavemakers.surf.domain.home.dto.response.HomeBannerResDTO;
 import com.tavemakers.surf.domain.home.dto.response.HomeResDTO;
+import com.tavemakers.surf.domain.home.entity.HomeContent;
 import com.tavemakers.surf.domain.home.repository.HomeBannerRepository;
 import com.tavemakers.surf.domain.home.repository.HomeContentRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
@@ -33,7 +34,14 @@ public class HomeService {
     @Transactional(readOnly = true)
     public HomeResDTO getHome() {
         // 1) main message
-        String message = homeContentRepository.findMessage().orElse("");
+        String message = "";
+        String sender = "";
+
+        HomeContent hc = homeContentRepository.findById(1L).orElse(null);
+        if (hc != null) {
+            message = hc.getMessage();
+            sender = hc.getSender();
+        }
 
         // 2) banners
         List<HomeBannerResDTO> banners = homeBannerRepository.findAllByOrderByDisplayOrderAsc()
@@ -96,6 +104,7 @@ public class HomeService {
 
         return new HomeResDTO(
                 message,
+                sender,
                 banners,
                 memberName,
                 memberGeneration,

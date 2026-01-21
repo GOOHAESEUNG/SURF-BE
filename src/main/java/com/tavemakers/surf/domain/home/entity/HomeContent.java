@@ -21,14 +21,19 @@ public class HomeContent extends BaseEntity {
     @Column(nullable = false, length = 2000)
     private String message;
 
-    public static HomeContent of(String message) {
+    @Column(nullable = false, length = 200)
+    private String sender;
+
+    public static HomeContent of(String message, String sender) {
         return HomeContent.builder()
                 .id(1L)
                 .message(message)
+                .sender(sender)
                 .build();
     }
 
-    public void changeMessage(String message) {
+    public void changeHomeContent(String message, String sender) {
         this.message = message;
+        this.sender = sender;
     }
 }
