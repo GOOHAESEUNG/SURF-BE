@@ -8,7 +8,10 @@ import java.util.List;
 public record HomeResDTO(
 
         @Schema(description = "홈 문구", example = "TAVE 신규 회원을 환영합니다.")
-        String mainText,
+        String message,
+
+        @Schema(description = "홈 문구 작성자", example = "TAVE 운영진")
+        String sender,
 
         @Schema(description = "홈 배너 목록")
         List<HomeBannerResDTO> banners,

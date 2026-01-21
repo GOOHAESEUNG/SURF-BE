@@ -3,6 +3,7 @@ package com.tavemakers.surf.domain.member.service;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.entity.enums.Part;
+import com.tavemakers.surf.domain.member.exception.InvalidSignupListException;
 import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
 import com.tavemakers.surf.domain.member.repository.MemberSearchRepository;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +30,24 @@ public class MemberGetService {
     public Member getMemberByStatus(Long memberId, MemberStatus memberStatus) {
         return memberRepository.findByIdAndStatus(memberId, memberStatus)
                 .orElseThrow(MemberNotFoundException::new);
+    }
+
+    public List<Member> getMembersByStatus(List<Long> memberIds, MemberStatus status) {
+        if (memberIds == null || memberIds.isEmpty()) {
+            throw new MemberNotFoundException();
+        }
+
+        List<Long> distinctIds = memberIds.stream().distinct().toList();
+        if (distinctIds.size() != memberIds.size()) {
+            throw new InvalidSignupListException();
+        }
+
+        List<Member> members = memberRepository.findAllByIdInAndStatus(distinctIds, status);
+        if (members.size() != distinctIds.size()) {
+            throw new MemberNotFoundException();
+        }
+
+        return members;
     }
 
     public Member getMember(Long memberId) {

@@ -7,7 +7,6 @@ import com.tavemakers.surf.domain.member.dto.response.AdminPageLoginResDto;
 import com.tavemakers.surf.domain.member.dto.response.MemberRegistrationDetailResDTO;
 import com.tavemakers.surf.domain.member.dto.response.MemberRegistrationSliceResDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
-import com.tavemakers.surf.domain.member.entity.Password;
 import com.tavemakers.surf.domain.member.entity.enums.MemberRole;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.exception.AdminPageRoleException;
@@ -53,22 +52,22 @@ public class MemberAdminUsecase {
     @Transactional
     @LogEvent(value = "signup.approve", message = "회원가입 승인 처리")
     public void approveMember(
-            @LogParam("member_id") Long memberId,
+            @LogParam("member_ids") List<Long> memberIds,
             @LogParam("approver_id") Long approverId
     ) {
-        Member member = memberGetService.getMemberByStatus(memberId, MemberStatus.WAITING);
-        memberService.approveMember(member);
-        personalScoreSaveService.savePersonalScore(member);
+        List<Member> members = memberGetService.getMembersByStatus(memberIds, MemberStatus.WAITING);
+        memberService.approveMembers(members);
+        personalScoreSaveService.savePersonalScores(members);
     }
 
     @Transactional
     @LogEvent(value = "signup.reject", message = "회원가입 거절 처리")
     public void rejectMember(
-            @LogParam("member_id") Long memberId,
+            @LogParam("member_ids") List<Long> memberIds,
             @LogParam("approver_id") Long approverId
     ) {
-        Member member = memberGetService.getMemberByStatus(memberId, MemberStatus.WAITING);
-        memberService.rejectMember(member);
+        List<Member> members = memberGetService.getMembersByStatus(memberIds, MemberStatus.WAITING);
+        memberService.rejectMembers(members);
     }
 
     @Transactional
@@ -102,5 +101,4 @@ public class MemberAdminUsecase {
             throw new AdminPageRoleException();
         }
     }
-
 }
