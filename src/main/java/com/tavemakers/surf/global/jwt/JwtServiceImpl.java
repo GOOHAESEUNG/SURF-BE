@@ -165,7 +165,7 @@ public class JwtServiceImpl implements JwtService {
             // test
             builder
                     .secure(false)      // HTTP라서 false
-                    .sameSite("Lax");   // domain 설정 ❌
+                    .sameSite("None");
         } else {
             // localhost8080
             builder
@@ -225,7 +225,7 @@ public class JwtServiceImpl implements JwtService {
         } else if (isTest()) {
             builder
                     .secure(false)
-                    .sameSite("Lax");
+                    .sameSite("None");
         }
 
         ResponseCookie refreshCookie = builder.build();
