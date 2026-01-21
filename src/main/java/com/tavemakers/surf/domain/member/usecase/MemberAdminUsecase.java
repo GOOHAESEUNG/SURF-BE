@@ -79,7 +79,7 @@ public class MemberAdminUsecase {
     public AdminPageLoginResDto loginAdminHomePage(AdminPageLoginReqDto dto, HttpServletResponse response) {
         Member member = memberGetService.getMemberByEmail(dto.email());
         member.checkPassword(dto.password());
-        validateLoginMemberRole(member);
+        //validateLoginMemberRole(member);
 
         String accessToken = jwtService.createAccessToken(member.getId(), member.getRole().name());
         String deviceId = UUID.randomUUID().toString();
