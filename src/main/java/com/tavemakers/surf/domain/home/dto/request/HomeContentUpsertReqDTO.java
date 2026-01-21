@@ -8,5 +8,5 @@ public record HomeContentUpsertReqDTO(
 
         @Schema(description = "홈 문구", example = "TAVE 신규 회원을 환영합니다.")
         @NotBlank @Size(max = 2000)
-        String mainText
+        String message
 ) {}

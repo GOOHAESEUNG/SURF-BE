@@ -21,10 +21,10 @@ public class HomeContentService {
 
         HomeContent content = homeContentRepository.findById(HOME_CONTENT_ID)
                 .map(existing -> {
-                    existing.changeMainText(req.mainText());
+                    existing.changeMessage(req.message());
                     return existing;
                 })
-                .orElseGet(() -> homeContentRepository.save(HomeContent.of(req.mainText())));
+                .orElseGet(() -> homeContentRepository.save(HomeContent.of(req.message())));
 
         return HomeContentResDTO.from(content);
     }

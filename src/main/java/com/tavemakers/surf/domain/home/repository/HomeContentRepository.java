@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface HomeContentRepository extends JpaRepository<HomeContent, Long> {
 
-    @Query("select hc.mainText from HomeContent hc where hc.id = 1")
-    Optional<String> findMainText();
+    @Query("select hc.message from HomeContent hc where hc.id = 1")
+    Optional<String> findMessage();
 }

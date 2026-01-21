@@ -32,8 +32,8 @@ public class HomeService {
 
     @Transactional(readOnly = true)
     public HomeResDTO getHome() {
-        // 1) main text
-        String mainText = homeContentRepository.findMainText().orElse("");
+        // 1) main message
+        String message = homeContentRepository.findMessage().orElse("");
 
         // 2) banners
         List<HomeBannerResDTO> banners = homeBannerRepository.findAllByOrderByDisplayOrderAsc()
@@ -95,7 +95,7 @@ public class HomeService {
         }
 
         return new HomeResDTO(
-                mainText,
+                message,
                 banners,
                 memberName,
                 memberGeneration,
