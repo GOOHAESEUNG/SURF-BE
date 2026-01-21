@@ -25,5 +25,12 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
     Optional<Schedule> findFirstByCategoryAndStartAtAfterOrderByStartAtAsc(
             String category,
-            LocalDateTime now);
+            LocalDateTime now
+    );
+
+    Optional<Schedule> findFirstByCategoryAndStartAtLessThanEqualOrderByStartAtDesc(
+            String category,
+            LocalDateTime now
+    );
+
 }

@@ -25,6 +25,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class HomeService {
 
+    private static final Long HOME_CONTENT_ID = 1L;
+
     private final HomeContentRepository homeContentRepository;
     private final HomeBannerRepository homeBannerRepository;
 
@@ -37,7 +39,7 @@ public class HomeService {
         String message = "";
         String sender = "";
 
-        HomeContent hc = homeContentRepository.findById(1L).orElse(null);
+        HomeContent hc = homeContentRepository.findById(HOME_CONTENT_ID).orElse(null);
         if (hc != null) {
             message = hc.getMessage();
             sender = hc.getSender();
@@ -78,27 +80,33 @@ public class HomeService {
             }
         }
 
-        // 4) next schedule
-        String nextTitle = null;
-        String nextScheduleDate = null;
-        String nextScheduleDeepLink = null;
+        // 4) display schedule
+        String scheduleTitle = null;
+        String scheduleDate = null;
+        String scheduleDeepLink = null;
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd");
 
-        Optional<Schedule> next = scheduleRepository.findFirstByCategoryAndStartAtAfterOrderByStartAtAsc(
+        Optional<Schedule> scheduleOpt = scheduleRepository.findFirstByCategoryAndStartAtAfterOrderByStartAtAsc(
                 "regular",
                 LocalDateTime.now()
         );
 
-        if (next.isPresent()) {
-            Schedule s = next.get();
-            nextTitle = s.getTitle();
-            nextScheduleDate = s.getStartAt().toLocalDate().format(formatter);
+        if (scheduleOpt.isEmpty()) {
+            scheduleOpt = scheduleRepository.findFirstByCategoryAndStartAtLessThanEqualOrderByStartAtDesc(
+                            "regular",
+                    LocalDateTime.now());
+        }
+
+        if (scheduleOpt.isPresent()) {
+            Schedule s = scheduleOpt.get();
+            scheduleTitle = s.getTitle();
+            scheduleDate = s.getStartAt().toLocalDate().format(formatter);
 
             if (s.getPost() != null && s.getPost().getBoard() != null) {
                 Long postId = s.getPost().getId();
                 Long boardId = s.getPost().getBoard().getId();
-                nextScheduleDeepLink = "/board/" + boardId + "/post/" + postId;
+                scheduleDeepLink = "/board/" + boardId + "/post/" + postId;
             }
         }
 
@@ -109,9 +117,9 @@ public class HomeService {
                 memberName,
                 memberGeneration,
                 memberPart,
-                nextTitle,
-                nextScheduleDate,
-                nextScheduleDeepLink
+                scheduleTitle,
+                scheduleDate,
+                scheduleDeepLink
         );
     }
 }
