@@ -99,15 +99,12 @@ public class AuthController {
 
             // 3. 사용자 정보 조회
             KakaoUserInfoDto userInfo = kakaoAuthService.getUserInfo(token.accessToken());
-            log.info("[LOGIN][KAKAO] fetch user info success kakaoId={}", userInfo.id());
 
             // 4. 회원 upsert
             Member member = memberUpsertService.upsertRegisteringFromKakao(userInfo);
-            log.info("[LOGIN][MEMBER] upsert success memberId={}", member.getId());
 
             // 5. deviceId 생성 (기기 식별자)
             String deviceId = UUID.randomUUID().toString();
-            log.info("[LOGIN][DEVICE] deviceId={}", deviceId);
 
             // 6. AccessToken 발급
             String accessToken =
@@ -115,7 +112,6 @@ public class AuthController {
                             member.getId(),
                             member.getRole().name()
                     );
-            log.info("[LOGIN][JWT][ACCESS] accessToken={}", accessToken);
 
             // 7. RefreshToken 발급
             refreshTokenService.issue(response, member.getId(), deviceId);
@@ -137,7 +133,7 @@ public class AuthController {
                     account.profile().profileImageUrl()
             );
 
-            log.info("[LOGIN][KAKAO][CALLBACK] success memberId={}", member.getId());
+            log.info("[LOGIN][KAKAO][CALLBACK] success");
             return ApiResponse.response(HttpStatus.OK, "로그인 성공", loginRes);
 
         } catch (Exception e) {

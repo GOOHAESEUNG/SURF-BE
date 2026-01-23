@@ -23,12 +23,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public void issue(HttpServletResponse response, Long memberId, String deviceId) {
-        log.info("[RTR][ISSUE] start memberId={} deviceId={}", memberId, deviceId);
-
         String refreshToken = jwtService.createRefreshToken(memberId, deviceId);
-
-        log.info("[RTR][ISSUE] refreshToken={}", refreshToken);
-
         save(refreshToken);
         jwtService.sendRefreshToken(response, refreshToken);
 
@@ -38,9 +33,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     /** ================= RTR 핵심 ================= */
     @Override
     public Long rotate(HttpServletResponse response, String refreshToken) {
-
-        log.info("[RTR][ROTATE] start refreshToken={}", refreshToken);
-
         boolean valid = jwtService.isTokenValid(refreshToken);
         // 토큰 유효성 결과
         log.info("[RTR][ROTATE] isTokenValid={}", valid);
@@ -53,13 +45,12 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         String deviceId = jwtService.extractDeviceId(refreshToken).orElseThrow();
 
         // 토큰에서 추출한 식별자
-        log.info("[RTR][ROTATE] extracted memberId={} deviceId={}", memberId, deviceId);
+        log.info("[RTR][ROTATE] extracted memberId={}", memberId);
 
         String key = key(memberId, deviceId);
-        log.info("[RTR][ROTATE] redisKey={}", key);
+        log.debug("[RTR][ROTATE] redisKey generated");
 
         String stored = redisTemplate.opsForValue().get(key);
-        log.info("[RTR][ROTATE] storedRefreshToken={}", stored);
 
         if (stored == null) {
             throw new IllegalStateException("No stored refresh token");
@@ -77,7 +68,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         redisTemplate.delete(key);
 
         String newRefresh = jwtService.createRefreshToken(memberId, deviceId);
-        log.info("[RTR][ROTATE] newRefreshToken={}", newRefresh);
         save(newRefresh);
         jwtService.sendRefreshToken(response, newRefresh);
 
@@ -98,7 +88,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         log.info("[RTR][INVALIDATE-ALL] pattern={}", pattern);
 
         Set<String> keys = redisTemplate.keys(pattern);
-        log.info("[RTR][INVALIDATE-ALL] foundKeys={}", keys);
+        log.info("[RTR][INVALIDATE-ALL] foundKeyCount={}",
+                keys == null ? 0 : keys.size());
 
         if (keys != null && !keys.isEmpty()) {
             redisTemplate.delete(keys);
@@ -121,8 +112,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
             throw new IllegalStateException("Refresh token already expired");
         }
         String redisKey = key(memberId, deviceId);
-
-        log.info("[RTR][INVALIDATE] delete redisKey={}", redisKey);
 
         redisTemplate.opsForValue()
                 .set(redisKey, refreshToken, ttlMs, TimeUnit.MILLISECONDS);
