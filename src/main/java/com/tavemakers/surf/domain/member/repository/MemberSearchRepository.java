@@ -28,11 +28,13 @@ public class MemberSearchRepository {
     private final JPAQueryFactory queryFactory;
 
     /*
-    * NOTE: SURF 규칙
-    * "기수 > 이름 > 대학 > 가입일" 순으로 정렬
-    * */
+     * NOTE: SURF 규칙
+     * "기수 > 이름 > 대학 > 가입일" 순으로 정렬
+     * */
     public Slice<Member> searchMembers(Integer generation, Part part, String keyword, Pageable pageable) {
         BooleanBuilder builder = createSearchBuilder(generation, part, keyword);
+
+        builder.and(member.status.eq(MemberStatus.APPROVED));
 
         NumberExpression<Integer> maxGeneration = getMaxGenerationExpression();
         List<Member> results = queryFactory
@@ -61,6 +63,7 @@ public class MemberSearchRepository {
 
     public Long countMembers(Integer generation, Part part, String keyword) {
         BooleanBuilder builder = createSearchBuilder(generation, part, keyword);
+        builder.and(member.status.eq(MemberStatus.APPROVED));
 
         return queryFactory
                 .select(member.countDistinct())
