@@ -37,9 +37,7 @@ public class NotificationService {
             notifications = notificationRepository.findByMemberIdAndTypeInOrderByIdDesc(memberId, types);
         }
 
-        return notifications.stream()
-                .map(notificationQueryService::toDto)
-                .toList();
+        return notificationQueryService.toDtoList(notifications);
     }
 
     @Transactional

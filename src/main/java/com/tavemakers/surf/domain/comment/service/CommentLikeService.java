@@ -121,6 +121,7 @@ public class CommentLikeService {
                 NotificationType.COMMENT_LIKE,
                 Map.of(
                         "actorName", member.getName(),
+                        "actorId", member.getId(),
                         "boardId", boardId,
                         "postId", postId
                 )

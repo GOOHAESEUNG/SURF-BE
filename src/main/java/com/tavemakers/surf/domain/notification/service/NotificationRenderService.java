@@ -22,6 +22,19 @@ public class NotificationRenderService {
         return replaceTemplate(notification.getType().getDeeplink(), payload);
     }
 
+    /**
+     * payload에서 actorId 추출
+     * 기존 알림(actorId 없음)이나 시스템 알림의 경우 null 반환
+     */
+    public Long extractActorId(Notification notification) {
+        Map<String, Object> payload = parsePayload(notification.getPayload());
+        Object actorId = payload.get("actorId");
+        if (actorId == null) {
+            return null;
+        }
+        return ((Number) actorId).longValue();
+    }
+
     private Map<String, Object> parsePayload(String payloadJson) {
         try {
             return objectMapper.readValue(payloadJson, new TypeReference<>() {});

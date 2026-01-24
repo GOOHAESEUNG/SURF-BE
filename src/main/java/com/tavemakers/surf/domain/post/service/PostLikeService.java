@@ -117,6 +117,7 @@ public class PostLikeService {
                 NotificationType.POST_LIKE,
                 Map.of(
                         "actorName", member.getName(),
+                        "actorId", member.getId(),
                         "boardId", boardId,
                         "postId", postId
                 )
