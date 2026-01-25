@@ -102,7 +102,8 @@ public class LetterFacade {
                 recipient.getId(),
                 NotificationType.MESSAGE,
                 Map.of(
-                        "actorName", sender.getName()
+                        "actorName", sender.getName(),
+                        "actorId", sender.getId()
                 )
         );
     }

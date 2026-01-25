@@ -6,6 +6,7 @@ import com.tavemakers.surf.domain.member.dto.request.PasswordReqDto;
 import com.tavemakers.surf.domain.member.dto.request.RoleChangeRequestDto;
 import com.tavemakers.surf.domain.member.dto.response.AdminPageLoginResDto;
 import com.tavemakers.surf.domain.member.dto.response.MemberInformationResDTO;
+import com.tavemakers.surf.domain.member.dto.response.MemberRegistrationSliceResDTO;
 import com.tavemakers.surf.domain.member.usecase.MemberAdminUsecase;
 import io.swagger.v3.oas.annotations.Operation;
 import com.tavemakers.surf.global.common.response.ApiResponse;
@@ -51,6 +52,17 @@ public class AdminController {
     ) {
         AdminPageLoginResDto data = memberAdminUsecase.loginAdminHomePage(dto, response);
         return ApiResponse.response(HttpStatus.OK, ADMIN_PAGE_LOGIN_SUCCESS.getMessage(),data);
+    }
+
+    @Operation(summary = "가입신청 목록", description = "가입신청 목록을 조회합니다.")
+    @GetMapping("/v1/manager/registration-list")
+    public ApiResponse<MemberRegistrationSliceResDTO> readRegistrationList (
+            @RequestParam(required = false) String keyword,
+            @RequestParam int pageSize,
+            @RequestParam int pageNum
+    ) {
+        MemberRegistrationSliceResDTO data = memberAdminUsecase.readRegistrationList(keyword, pageSize, pageNum);
+        return ApiResponse.response(HttpStatus.OK, REGISTRATION_LIST_READ.getMessage(), data);
     }
 
     @Operation(summary = "유저 정보 상세 조회", description = "관리자 페이지에서 유저 정보를 상세 조회합니다.")

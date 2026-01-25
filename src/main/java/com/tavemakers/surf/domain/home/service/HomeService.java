@@ -2,6 +2,7 @@ package com.tavemakers.surf.domain.home.service;
 
 import com.tavemakers.surf.domain.home.dto.response.HomeBannerResDTO;
 import com.tavemakers.surf.domain.home.dto.response.HomeResDTO;
+import com.tavemakers.surf.domain.home.entity.HomeContent;
 import com.tavemakers.surf.domain.home.repository.HomeBannerRepository;
 import com.tavemakers.surf.domain.home.repository.HomeContentRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
@@ -24,6 +25,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class HomeService {
 
+    private static final Long HOME_CONTENT_ID = 1L;
+
     private final HomeContentRepository homeContentRepository;
     private final HomeBannerRepository homeBannerRepository;
 
@@ -32,8 +35,15 @@ public class HomeService {
 
     @Transactional(readOnly = true)
     public HomeResDTO getHome() {
-        // 1) main text
-        String mainText = homeContentRepository.findMainText().orElse("");
+        // 1) main message
+        String message = "";
+        String sender = "";
+
+        HomeContent hc = homeContentRepository.findById(HOME_CONTENT_ID).orElse(null);
+        if (hc != null) {
+            message = hc.getMessage();
+            sender = hc.getSender();
+        }
 
         // 2) banners
         List<HomeBannerResDTO> banners = homeBannerRepository.findAllByOrderByDisplayOrderAsc()
@@ -70,39 +80,46 @@ public class HomeService {
             }
         }
 
-        // 4) next schedule
-        String nextTitle = null;
-        String nextScheduleDate = null;
-        String nextScheduleDeepLink = null;
+        // 4) display schedule
+        String scheduleTitle = null;
+        String scheduleDate = null;
+        String scheduleDeepLink = null;
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd");
 
-        Optional<Schedule> next = scheduleRepository.findFirstByCategoryAndStartAtAfterOrderByStartAtAsc(
+        Optional<Schedule> scheduleOpt = scheduleRepository.findFirstByCategoryAndStartAtAfterOrderByStartAtAsc(
                 "regular",
                 LocalDateTime.now()
         );
 
-        if (next.isPresent()) {
-            Schedule s = next.get();
-            nextTitle = s.getTitle();
-            nextScheduleDate = s.getStartAt().toLocalDate().format(formatter);
+        if (scheduleOpt.isEmpty()) {
+            scheduleOpt = scheduleRepository.findFirstByCategoryAndStartAtLessThanEqualOrderByStartAtDesc(
+                            "regular",
+                    LocalDateTime.now());
+        }
+
+        if (scheduleOpt.isPresent()) {
+            Schedule s = scheduleOpt.get();
+            scheduleTitle = s.getTitle();
+            scheduleDate = s.getStartAt().toLocalDate().format(formatter);
 
             if (s.getPost() != null && s.getPost().getBoard() != null) {
                 Long postId = s.getPost().getId();
                 Long boardId = s.getPost().getBoard().getId();
-                nextScheduleDeepLink = "/board/" + boardId + "/post/" + postId;
+                scheduleDeepLink = "/board/" + boardId + "/post/" + postId;
             }
         }
 
         return new HomeResDTO(
-                mainText,
+                message,
+                sender,
                 banners,
                 memberName,
                 memberGeneration,
                 memberPart,
-                nextTitle,
-                nextScheduleDate,
-                nextScheduleDeepLink
+                scheduleTitle,
+                scheduleDate,
+                scheduleDeepLink
         );
     }
 }

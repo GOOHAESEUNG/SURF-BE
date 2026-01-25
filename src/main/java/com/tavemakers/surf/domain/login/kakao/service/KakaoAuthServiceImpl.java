@@ -26,8 +26,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, KakaoUserInfoDto> {
 
-    private final @Qualifier("kakaoAuthRestTemplate") RestTemplate kakaoAuthRestTemplate;
-    private final @Qualifier("kakaoApiRestTemplate")  RestTemplate kakaoApiRestTemplate;
+    private final RestTemplate restTemplate;
     private final KakaoOAuthProps props;
 
     @Override
@@ -78,7 +77,7 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
             ResponseEntity<KakaoTokenResponseDto> response =
-                    kakaoAuthRestTemplate.postForEntity(url, request, KakaoTokenResponseDto.class);
+                    restTemplate.postForEntity(url, request, KakaoTokenResponseDto.class);
 
             // [3] HTTP 응답 상태 확인
             log.info("[KAKAO][TOKEN] response status={}", response.getStatusCode());
@@ -123,7 +122,7 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
 
             HttpEntity<Void> request = new HttpEntity<>(headers);
 
-            ResponseEntity<KakaoUserInfoDto> response = kakaoApiRestTemplate.exchange(
+            ResponseEntity<KakaoUserInfoDto> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     request,
@@ -160,7 +159,7 @@ public class KakaoAuthServiceImpl implements AuthService<KakaoTokenResponseDto, 
 
             HttpEntity<Void> request = new HttpEntity<>(headers);
 
-            ResponseEntity<Map> response = kakaoApiRestTemplate.exchange(
+            ResponseEntity<Map> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     request,

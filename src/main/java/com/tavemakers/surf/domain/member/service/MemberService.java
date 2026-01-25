@@ -5,13 +5,15 @@ import com.tavemakers.surf.domain.member.dto.response.MemberSignupResDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 
+import java.util.List;
+
 public interface MemberService {
 
     /** 회원 승인 (관리자) */
-    void approveMember(Member member);
+    void approveMembers(List<Member> member);
 
     /** 회원 거절 (관리자) */
-    void rejectMember(Member member);
+    void rejectMembers(List<Member> member);
 
     /** 자체 회원가입 신청 완료 */
     MemberSignupResDTO signup(Member member, MemberSignupReqDTO request);

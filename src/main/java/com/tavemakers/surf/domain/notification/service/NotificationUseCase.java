@@ -47,6 +47,7 @@ public class NotificationUseCase {
                     memberId,                   // 알림 받는 사람
                     NotificationType.NOTICE,            // 공지 알림 타입
                     Map.of(
+                            "boardName", post.getBoard().getName(),
                             "boardId", post.getBoard().getId(),
                             "postId", post.getId()
                     )

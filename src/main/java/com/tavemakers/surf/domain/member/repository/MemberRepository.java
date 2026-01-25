@@ -2,6 +2,8 @@ package com.tavemakers.surf.domain.member.repository;
 
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -14,7 +16,9 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByIdAndStatus(Long memberId, MemberStatus status);
-  
+
+    List<Member> findAllByIdInAndStatus(List<Long> ids, MemberStatus status);
+
     boolean existsByEmail(String email);
   
     Optional<Member> findByEmail(String email);
@@ -49,6 +53,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Long> findActiveMemberIdsExcludeStatus(@Param("status") MemberStatus status);
 
     boolean existsByIdAndStatusNot(Long id, MemberStatus status);
+
+    @Query("select m from Member m where m.status = :status")
+    Slice<Member> findByMemberListStatus(@Param("status") MemberStatus status, Pageable pageable);
+
 
     @Query("select m from Member m " +
             "left join fetch m.tracks " +

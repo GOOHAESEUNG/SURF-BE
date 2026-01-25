@@ -1,6 +1,5 @@
 package com.tavemakers.surf.domain.notification.dto.res;
 
-import com.tavemakers.surf.domain.notification.entity.Notification;
 import com.tavemakers.surf.domain.notification.entity.NotificationType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -26,6 +25,9 @@ public record NotificationResDTO (
         boolean read,
 
         @Schema(description = "알람 생성 일시", example = "2023-10-05T14:48:00")
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+
+        @Schema(description = "행위자 프로필 이미지 URL", example = "https://s3.amazonaws.com/surf/profiles/123.jpg")
+        String actorProfileImageUrl
 ){
 }
