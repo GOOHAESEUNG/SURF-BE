@@ -13,6 +13,22 @@
 [![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
 [![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white)](https://aws.amazon.com/)
 
+<br/>
+
+[📖 API 문서](https://tavesurf.site/swagger-ui.html) · [🐛 이슈 리포트](https://github.com/Tave-Makers/SURF-BE/issues) · [📋 프로젝트 보드](https://github.com/Tave-Makers/SURF-BE/projects)
+
+<br/>
+
+<table>
+<tr>
+<td align="center" width="50%">
+<img src="./docs/login.png" alt="로그인 화면" width="280"/>
+</td>
+<td align="center" width="50%">
+<img src="./docs/home.png" alt="홈 화면" width="280"/>
+</td>
+</tr>
+</table>
 
 </div>
 
@@ -123,7 +139,7 @@
 > **Claude Code + Gemini CLI 멀티 에이전트 아키텍처**
 
 <div align="center">
-<img src="./docs/QA.png" alt="QA 멀티 에이전트 아키텍처" width="800"/>
+<img src="./docs/QA 아키텍처.png" alt="QA 멀티 에이전트 아키텍처" width="800"/>
 
 *Claude Code 멀티 에이전트 + Gemini CLI 서브 에이전트 기반 QA 자동화 시스템*
 </div>
@@ -252,6 +268,50 @@
 - MySQL 8.0+
 - Redis
 - Firebase Admin SDK
+
+### Installation
+
+```bash
+# 1. Clone
+git clone https://github.com/Tave-Makers/SURF-BE.git
+cd SURF-BE
+
+# 2. 환경변수 설정
+cp .env.example .env
+# .env 파일 수정
+
+# 3. Build & Run
+./gradlew build
+./gradlew bootRun
+```
+
+### Environment Variables
+
+```env
+# Database
+DB_URL=jdbc:mysql://localhost:3306/surf
+DB_USERNAME=root
+DB_PASSWORD=password
+
+# JWT
+JWT_SECRET=your-secret-key
+JWT_EXPIRATION=3600000
+
+# Kakao OAuth
+KAKAO_CLIENT_ID=your-client-id
+KAKAO_CLIENT_SECRET=your-client-secret
+
+# AWS
+AWS_S3_ACCESS_KEY=your-access-key
+AWS_S3_SECRET_KEY=your-secret-key
+AWS_BUCKET_NAME=your-bucket
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+```
+
+---
 
 ## 📚 Documentation
 
