@@ -1,9 +1,11 @@
 package com.tavemakers.surf.domain.member.controller;
 
+import com.google.protobuf.Api;
 import com.tavemakers.surf.domain.member.dto.request.AdminPageLoginReqDto;
 import com.tavemakers.surf.domain.member.dto.request.PasswordReqDto;
 import com.tavemakers.surf.domain.member.dto.request.RoleChangeRequestDto;
 import com.tavemakers.surf.domain.member.dto.response.AdminPageLoginResDto;
+import com.tavemakers.surf.domain.member.dto.response.MemberInformationResDTO;
 import com.tavemakers.surf.domain.member.dto.response.MemberRegistrationSliceResDTO;
 import com.tavemakers.surf.domain.member.usecase.MemberAdminUsecase;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,6 +63,15 @@ public class AdminController {
     ) {
         MemberRegistrationSliceResDTO data = memberAdminUsecase.readRegistrationList(keyword, pageSize, pageNum);
         return ApiResponse.response(HttpStatus.OK, REGISTRATION_LIST_READ.getMessage(), data);
+    }
+
+    @Operation(summary = "유저 정보 상세 조회", description = "관리자 페이지에서 유저 정보를 상세 조회합니다.")
+    @GetMapping("/v1/manager/member/{memberId}")
+    public ApiResponse<MemberInformationResDTO> readMemberInformation(
+            @PathVariable Long memberId
+    ) {
+        MemberInformationResDTO data = memberAdminUsecase.readMemberInformation(memberId);
+        return ApiResponse.response(HttpStatus.OK, MEMBER_INFORMATION_READ.getMessage(), data);
     }
 
 }

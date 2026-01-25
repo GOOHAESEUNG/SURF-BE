@@ -65,6 +65,11 @@ public class MemberGetService {
         return memberRepository.findByActivityStatusAndNameAndStatusNot(true, name, MemberStatus.WITHDRAWN);
     }
 
+    public Member readMemberInformation(Long memberId) {
+        return memberRepository.findByIdWithTracks(memberId)
+                .orElseThrow(MemberNotFoundException::new);
+    }
+
     public Void validateMember(Long memberId) {
         memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);

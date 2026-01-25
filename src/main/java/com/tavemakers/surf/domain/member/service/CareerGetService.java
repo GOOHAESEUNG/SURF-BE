@@ -18,4 +18,11 @@ public class CareerGetService {
         return careerRepository.findByMemberId(memberId);
     }
 
+    public List<CareerResDTO> getMemberCareers(Long memberId) {
+        return careerRepository.findByMemberId(memberId)
+                .stream()
+                .map(CareerResDTO::from)
+                .toList();
+    }
+
 }
