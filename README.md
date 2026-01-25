@@ -123,7 +123,7 @@
 > **Claude Code + Gemini CLI 멀티 에이전트 아키텍처**
 
 <div align="center">
-<img src="./docs/QA 아키텍처.png" alt="QA 멀티 에이전트 아키텍처" width="800"/>
+<img src="./docs/QA.png" alt="QA 멀티 에이전트 아키텍처" width="800"/>
 
 *Claude Code 멀티 에이전트 + Gemini CLI 서브 에이전트 기반 QA 자동화 시스템*
 </div>
