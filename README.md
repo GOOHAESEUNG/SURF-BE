@@ -139,7 +139,7 @@
 > **Claude Code + Gemini CLI 멀티 에이전트 아키텍처**
 
 <div align="center">
-<img src="./docs/QA 아키텍처.png" alt="QA 멀티 에이전트 아키텍처" width="800"/>
+<img src="./docs/QA.png" alt="QA 멀티 에이전트 아키텍처" width="800"/>
 
 *Claude Code 멀티 에이전트 + Gemini CLI 서브 에이전트 기반 QA 자동화 시스템*
 </div>
@@ -290,7 +290,5 @@ src/main/java/com/tavemakers/surf/
 <div align="center">
 
 **Made with ❤️ by TAVE Makers**
-
-[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FTave-Makers%2FSURF-BE&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 
 </div>
