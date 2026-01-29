@@ -25,11 +25,15 @@ public class HomeBanner {
     @Column(nullable = false)
     private Integer displayOrder;
 
+    @Column(nullable = false)
+    private boolean status = true; // 활성화 여부
+
     public static HomeBanner of(String imageUrl, String linkUrl, Integer displayOrder) {
         return HomeBanner.builder()
                 .imageUrl(imageUrl)
                 .linkUrl(linkUrl)
                 .displayOrder(displayOrder)
+                .status(true)
                 .build();
     }
 
@@ -46,5 +50,9 @@ public class HomeBanner {
 
     public void changeDisplayOrder(Integer displayOrder) {
         this.displayOrder = displayOrder;
+    }
+
+    public void deactivate() {
+        this.status = false;
     }
 }
