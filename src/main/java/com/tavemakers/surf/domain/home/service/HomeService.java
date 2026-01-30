@@ -46,7 +46,7 @@ public class HomeService {
         }
 
         // 2) banners
-        List<HomeBannerResDTO> banners = homeBannerRepository.findAllByOrderByDisplayOrderAsc()
+        List<HomeBannerResDTO> banners = homeBannerRepository.findAllByStatusTrueOrderByDisplayOrderAsc()
                 .stream()
                 .map(HomeBannerResDTO::from)
                 .toList();

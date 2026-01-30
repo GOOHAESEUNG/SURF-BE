@@ -52,6 +52,10 @@ public class HomeBanner {
         this.displayOrder = displayOrder;
     }
 
+    public void activate() {
+        this.status = true;
+    }
+
     public void deactivate() {
         this.status = false;
     }
