@@ -92,4 +92,8 @@ public class MemberGetService {
         return memberSearchRepository.findWaitingMembersByName(keyword, pageable, statuses);
     }
 
+    public Long countMembers(List<MemberStatus> statuses) {
+        return memberSearchRepository.countMembers(statuses);
+    }
+
 }

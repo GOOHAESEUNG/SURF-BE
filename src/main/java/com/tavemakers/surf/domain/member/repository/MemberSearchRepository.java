@@ -142,4 +142,14 @@ public class MemberSearchRepository {
         return new SliceImpl<>(results, pageable, hasNext);
     }
 
+    public Long countMembers(List<MemberStatus> statuses) {
+        if (statuses == null || statuses.isEmpty()) return 0L;
+
+        return queryFactory
+                .select(member.count())
+                .from(member)
+                .where(member.status.in(statuses))
+                .fetchOne();
+    }
+
 }
