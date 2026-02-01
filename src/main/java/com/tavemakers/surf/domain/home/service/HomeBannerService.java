@@ -29,6 +29,7 @@ public class HomeBannerService {
         int nextOrder = homeBannerRepository.findMaxDisplayOrder().orElse(0) + 1;
 
         HomeBanner banner = HomeBanner.builder()
+                .name(req.name())
                 .imageUrl(req.imageUrl())
                 .linkUrl(req.linkUrl())
                 .displayOrder(nextOrder)
@@ -90,10 +91,7 @@ public class HomeBannerService {
         HomeBanner banner = homeBannerRepository.findById(bannerId)
                 .orElseThrow(HomeBannerNotFoundException::new);
 
-        banner.changeImageUrl(req.imageUrl());
-
-        if (req.linkUrl() != null)
-            banner.changeLinkUrl(req.linkUrl());
+        banner.updateBanner(req.name(), req.imageUrl(), req.linkUrl());
 
         return HomeBannerResDTO.from(banner);
     }

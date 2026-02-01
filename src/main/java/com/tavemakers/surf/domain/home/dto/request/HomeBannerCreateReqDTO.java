@@ -5,6 +5,10 @@ import jakarta.validation.constraints.NotBlank;
 
 public record HomeBannerCreateReqDTO(
 
+        @Schema(description = "배너 이름", example = "새로운 17기 환영 배너")
+        @NotBlank
+        String name,
+
         @Schema(description = "배너 이미지 URL", example = "https://example-bucket.s3.amazonaws.com/banner1.png")
         @NotBlank
         String imageUrl,   // S3 업로드 완료 후 URL
