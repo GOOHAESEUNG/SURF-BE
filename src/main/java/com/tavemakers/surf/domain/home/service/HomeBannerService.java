@@ -133,4 +133,23 @@ public class HomeBannerService {
 
         return banners;
     }
+
+    @Transactional
+    public HomeBannerResDTO activateBanner(Long bannerId) {
+        HomeBanner banner = findBanner(bannerId);
+        banner.activate();
+        return HomeBannerResDTO.from(banner);
+    }
+
+    @Transactional
+    public HomeBannerResDTO deactivateBanner(Long bannerId) {
+        HomeBanner banner = findBanner(bannerId);
+        banner.deactivate();
+        return HomeBannerResDTO.from(banner);
+    }
+
+    private HomeBanner findBanner(Long id) {
+        return homeBannerRepository.findById(id)
+                .orElseThrow(HomeBannerNotFoundException::new);
+    }
 }
