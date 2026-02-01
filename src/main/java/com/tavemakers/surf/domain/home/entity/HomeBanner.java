@@ -22,7 +22,7 @@ public class HomeBanner {
     @Column(nullable = false, length = 1000)
     private String imageUrl;
 
-    @Column(length = 1000)
+    @Column(nullable = false, length = 1000)
     private String linkUrl;
 
     @Column(nullable = false)

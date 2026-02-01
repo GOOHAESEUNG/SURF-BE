@@ -14,6 +14,7 @@ public record HomeBannerCreateReqDTO(
         String imageUrl,   // S3 업로드 완료 후 URL
 
         @Schema(description = "배너 링크 URL", example = "https://www.example.com/promotion")
+        @NotBlank
         String linkUrl
 ) {
 
