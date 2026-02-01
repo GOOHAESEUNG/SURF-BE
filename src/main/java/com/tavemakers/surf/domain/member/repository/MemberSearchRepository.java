@@ -105,23 +105,18 @@ public class MemberSearchRepository {
         );
     }
 
-    public Slice<Member> findWaitingMembersByName(String keyword, Pageable pageable) {
+    public Slice<Member> findWaitingMembersByName(String keyword, Pageable pageable, List<MemberStatus> statuses) {
 
         List<Member> results = queryFactory
                 .selectFrom(member)
                 .where(
-                        member.status.eq(MemberStatus.WAITING), // 상태는 무조건 WAITING
+                        member.status.in(statuses),
                         containsName(keyword) // 이름 검색 조건
                 )
-                .orderBy(member.createdAt.desc()) // 최신순 정렬 (필요시 변경)
+                .orderBy(member.createdAt.desc())
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize() + 1) // 다음 페이지 확인을 위해 +1 조회
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
-
-        // ⚠️ 주의: 여기서 tracks를 fetch join 하지 않습니다.
-        // tracks에는 @BatchSize(size=20)이 걸려있으므로,
-        // 서비스 단에서 DTO 변환 시 접근할 때 최적화된 쿼리(IN 절)가 나갑니다.
-        // 페이징 쿼리에서 컬렉션 fetch join은 메모리 부하를 일으키므로 피해야 합니다.
 
         return checkLastPage(pageable, results);
     }
@@ -145,6 +140,16 @@ public class MemberSearchRepository {
         }
 
         return new SliceImpl<>(results, pageable, hasNext);
+    }
+
+    public Long countMembers(List<MemberStatus> statuses) {
+        if (statuses == null || statuses.isEmpty()) return 0L;
+
+        return queryFactory
+                .select(member.count())
+                .from(member)
+                .where(member.status.in(statuses))
+                .fetchOne();
     }
 
 }

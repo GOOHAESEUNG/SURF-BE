@@ -88,8 +88,12 @@ public class MemberGetService {
         return memberSearchRepository.countMembers(generation, memberPart, keyword);
     }
 
-    public Slice<Member> searchWaitingMembers(String keyword, Pageable pageable) {
-        return memberSearchRepository.findWaitingMembersByName(keyword, pageable);
+    public Slice<Member> searchWaitingMembers(String keyword, Pageable pageable, List<MemberStatus> statuses) {
+        return memberSearchRepository.findWaitingMembersByName(keyword, pageable, statuses);
+    }
+
+    public Long countMembers(List<MemberStatus> statuses) {
+        return memberSearchRepository.countMembers(statuses);
     }
 
 }

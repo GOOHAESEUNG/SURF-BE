@@ -1,7 +1,9 @@
 package com.tavemakers.surf.domain.member.dto.response;
 
 import com.tavemakers.surf.domain.member.entity.Member;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -19,6 +21,13 @@ public record MemberInformationResDTO(
         String graduateSchool,
         String role,
         BigDecimal activityScore,
+
+        @Schema(
+                description = "가입 상태 (REGISTERING: 가입중, WAITING: 대기, APPROVED: 승인, REJECTED: 거절, WITHDRAWN: 탈퇴)",
+                example = "APPROVED",
+                allowableValues = {"REGISTERING", "WAITING", "APPROVED", "REJECTED", "WITHDRAWN"}
+        )
+        String memberStatus,
         boolean isActive,
         List<TrackResDTO> trackList,
         List<CareerResDTO> careerList
@@ -36,6 +45,7 @@ public record MemberInformationResDTO(
                 .graduateSchool(member.getGraduateSchool())
                 .role(member.getRole().name())
                 .activityScore(activityScore)
+                .memberStatus(member.getStatus().name())
                 .isActive((member.isActivityStatus()))
                 .trackList(trackList)
                 .careerList(careerList)

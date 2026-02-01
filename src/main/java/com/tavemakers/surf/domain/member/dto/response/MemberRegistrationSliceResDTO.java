@@ -11,15 +11,17 @@ public record MemberRegistrationSliceResDTO(
         int pageNumber,
         int pageSize,
         int numberOfElements,
-        boolean isLast
+        boolean isLast,
+        Long totalMemberCount
 ) {
-    public static MemberRegistrationSliceResDTO from(Slice<MemberRegistrationDetailResDTO> slice) {
+    public static MemberRegistrationSliceResDTO of(Slice<MemberRegistrationDetailResDTO> slice, Long totalMemberCount) {
         return MemberRegistrationSliceResDTO.builder()
                 .content(slice.getContent())
                 .pageNumber(slice.getNumber())
                 .pageSize(slice.getSize())
                 .numberOfElements(slice.getNumberOfElements())
                 .isLast(slice.isLast())
+                .totalMemberCount(totalMemberCount)
                 .build();
     }
 }
