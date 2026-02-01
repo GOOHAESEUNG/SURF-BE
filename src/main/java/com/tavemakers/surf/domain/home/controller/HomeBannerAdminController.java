@@ -70,6 +70,7 @@ public class HomeBannerAdminController {
         return ApiResponse.response(HttpStatus.OK, HOME_BANNER_UPDATED.getMessage(), response);
     }
 
+    @Operation(summary = "홈 배너 활성화", description = "특정 ID의 홈 배너를 활성화합니다.")
     @PatchMapping("/v1/admin/home/banners/{id}/activate")
     public ApiResponse<HomeBannerResDTO> activate(
             @PathVariable Long id) {
@@ -77,6 +78,7 @@ public class HomeBannerAdminController {
         return ApiResponse.response(HttpStatus.OK, HOME_BANNER_STATUS_ACTIVATED.getMessage(), response);
     }
 
+    @Operation(summary = "홈 배너 비활성화", description = "특정 ID의 홈 배너를 비활성화합니다.")
     @PatchMapping("/v1/admin/home/banners/{id}/deactivate")
     public ApiResponse<HomeBannerResDTO> deactivate(
             @PathVariable Long id) {
