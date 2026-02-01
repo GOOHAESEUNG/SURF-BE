@@ -38,7 +38,7 @@ public class ScheduleGetService {
         return getScheduleMonthlyResDTOs(year, month, scheduleResDTOS);
     }
 
-    //특정 월의 일정 조회
+    //특정 월의 일정 조회 (예약글과 연동된 일정은 제외)
     @Transactional(readOnly = true)
     public List<Schedule> getSchedulesByMonth(String memberRole,  int year, int month) {
         YearMonth yearMonth = YearMonth.of(year, month);
@@ -48,9 +48,11 @@ public class ScheduleGetService {
         List<String> categories = List.of("regular", "other");
 
         if(Objects.equals(memberRole, MemberRole.MEMBER.toString())) {
-            return scheduleRepository.findByStartAtBetweenAndCategoryIn(startOfMonth, endOfMonth,categories);
-        }else {
-            return scheduleRepository.findByStartAtBetween(startOfMonth, endOfMonth);
+            return scheduleRepository.findByStartAtBetweenAndCategoryInExcludingReserved(
+                    startOfMonth, endOfMonth, categories);
+        } else {
+            return scheduleRepository.findByStartAtBetweenExcludingReserved(
+                    startOfMonth, endOfMonth);
         }
     }
 
