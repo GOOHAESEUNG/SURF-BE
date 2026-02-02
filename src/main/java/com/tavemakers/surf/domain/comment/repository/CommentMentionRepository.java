@@ -25,4 +25,9 @@ public interface CommentMentionRepository extends JpaRepository<CommentMention, 
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM CommentMention cm WHERE cm.comment = :comment")
     void deleteAllByComment(@Param("comment") Comment comment);
+
+    /** 게시글의 모든 댓글 멘션 삭제 */
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("DELETE FROM CommentMention cm WHERE cm.comment.post.id = :postId")
+    void deleteAllByPostId(@Param("postId") Long postId);
 }
