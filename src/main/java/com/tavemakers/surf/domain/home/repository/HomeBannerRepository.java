@@ -14,4 +14,6 @@ public interface HomeBannerRepository extends JpaRepository<HomeBanner, Long> {
 
     @Query("select max(b.displayOrder) from HomeBanner b")
     Optional<Integer> findMaxDisplayOrder();
+
+    List<HomeBanner> findAllByStatusTrueOrderByDisplayOrderAsc();
 }

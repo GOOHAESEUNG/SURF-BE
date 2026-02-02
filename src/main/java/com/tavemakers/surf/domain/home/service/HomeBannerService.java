@@ -29,6 +29,7 @@ public class HomeBannerService {
         int nextOrder = homeBannerRepository.findMaxDisplayOrder().orElse(0) + 1;
 
         HomeBanner banner = HomeBanner.builder()
+                .name(req.name())
                 .imageUrl(req.imageUrl())
                 .linkUrl(req.linkUrl())
                 .displayOrder(nextOrder)
@@ -90,10 +91,7 @@ public class HomeBannerService {
         HomeBanner banner = homeBannerRepository.findById(bannerId)
                 .orElseThrow(HomeBannerNotFoundException::new);
 
-        banner.changeImageUrl(req.imageUrl());
-
-        if (req.linkUrl() != null)
-            banner.changeLinkUrl(req.linkUrl());
+        banner.updateBanner(req.name(), req.imageUrl(), req.linkUrl());
 
         return HomeBannerResDTO.from(banner);
     }
@@ -132,5 +130,24 @@ public class HomeBannerService {
         }
 
         return banners;
+    }
+
+    @Transactional
+    public HomeBannerResDTO activateBanner(Long bannerId) {
+        HomeBanner banner = findBanner(bannerId);
+        banner.activate();
+        return HomeBannerResDTO.from(banner);
+    }
+
+    @Transactional
+    public HomeBannerResDTO deactivateBanner(Long bannerId) {
+        HomeBanner banner = findBanner(bannerId);
+        banner.deactivate();
+        return HomeBannerResDTO.from(banner);
+    }
+
+    private HomeBanner findBanner(Long id) {
+        return homeBannerRepository.findById(id)
+                .orElseThrow(HomeBannerNotFoundException::new);
     }
 }
