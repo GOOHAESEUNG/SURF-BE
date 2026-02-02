@@ -4,10 +4,9 @@ import com.tavemakers.surf.domain.activity.dto.request.ActivityRecordReqDTO;
 import com.tavemakers.surf.domain.activity.dto.response.ActivityRecordResDTO;
 import com.tavemakers.surf.domain.activity.dto.response.ActivityRecordSliceResDTO;
 import com.tavemakers.surf.domain.activity.entity.ActivityRecord;
-import com.tavemakers.surf.domain.activity.entity.enums.ActivityType;
 import com.tavemakers.surf.domain.activity.entity.enums.ScoreType;
 import com.tavemakers.surf.domain.activity.service.ActivityRecordGetService;
-import com.tavemakers.surf.domain.activity.service.ActivityRecordSaveService;
+import com.tavemakers.surf.domain.activity.service.ActivityRecordCreateService;
 import com.tavemakers.surf.domain.score.entity.PersonalActivityScore;
 import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
 import com.tavemakers.surf.domain.score.utils.ScoreCalculator;
@@ -26,11 +25,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ActivityRecordUsecase {
 
-    private final ActivityRecordSaveService activityRecordSaveService;
+    private final ActivityRecordCreateService activityRecordCreateService;
     private final ActivityRecordGetService activityRecordGetService;
     private final PersonalScoreGetService personalScoreGetService;
     private final ScoreCalculator scoreCalculator;
 
+    /** 다수 회원의 활동기록 생성 및 점수 반영 */
     @Transactional
     public void createActivityRecordList(ActivityRecordReqDTO dto) {
         // 다수의 활동 점수 -> 감점 + 가점 -> 누적합과 함께 활동기록 생성
@@ -42,9 +42,10 @@ public class ActivityRecordUsecase {
                         }
                 ).toList();
 
-        activityRecordSaveService.saveActivityRecordList(recordList);
+        activityRecordCreateService.saveActivityRecordList(recordList);
     }
 
+    /** 회원의 활동기록 목록 페이징 조회 */
     public ActivityRecordSliceResDTO getActivityRecordList(Long memberId, ScoreType scoreType, int pageSize, int pageNum) {
         Pageable pageable = PageRequest.of(pageNum, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
         Slice<ActivityRecord> slice = activityRecordGetService.findActivityRecordList(memberId, scoreType, pageable);

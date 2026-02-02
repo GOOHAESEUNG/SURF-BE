@@ -1,13 +1,12 @@
 package com.tavemakers.surf.domain.scrap.service;
 
 import com.tavemakers.surf.domain.member.entity.Member;
-import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
-import com.tavemakers.surf.domain.member.repository.MemberRepository;
-import com.tavemakers.surf.domain.post.dto.res.PostResDTO;
+import com.tavemakers.surf.domain.member.service.MemberGetService;
+import com.tavemakers.surf.domain.post.dto.response.PostResDTO;
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
-import com.tavemakers.surf.domain.post.repository.PostLikeRepository;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
+import com.tavemakers.surf.domain.post.service.like.PostLikeGetService;
 import com.tavemakers.surf.domain.scrap.entity.Scrap;
 import com.tavemakers.surf.domain.scrap.repository.ScrapRepository;
 import com.tavemakers.surf.global.logging.LogEvent;
@@ -31,17 +30,18 @@ import java.util.Set;
 public class ScrapService {
 
     private final ScrapRepository scrapRepository;
+    // PostGetService와 순환 의존성 방지를 위해 PostRepository 직접 사용 (특수 메서드 포함)
     private final PostRepository postRepository;
-    private final MemberRepository memberRepository;
-    private final PostLikeRepository postLikeRepository;
+    private final MemberGetService memberGetService;
+    private final PostLikeGetService postLikeGetService;
 
+    /** 게시글 스크랩 추가 */
     @Transactional
     @LogEvent(value = "scrap.add", message = "스크랩 추가 성공")
     public void addScrap(
             @LogParam("user_id") Long memberId,
             @LogParam("post_id") Long postId) {
-        Member member = memberRepository.findById(memberId).
-                orElseThrow(MemberNotFoundException::new);
+        Member member = memberGetService.getMember(memberId);
         Post post = postRepository.findById(postId).
                 orElseThrow(PostNotFoundException::new);
         try {
@@ -58,6 +58,7 @@ public class ScrapService {
         }
     }
 
+    /** 게시글 스크랩 삭제 */
     @Transactional
     @LogEvent(value = "scrap.remove", message = "스크랩 삭제 성공")
     public void removeScrap(
@@ -74,6 +75,7 @@ public class ScrapService {
         }
     }
 
+    /** 내 스크랩 목록 조회 */
     @LogEvent(value = "scrap.list.view", message = "스크랩 목록 조회")
     public Slice<PostResDTO> getMyScraps(Long memberId, Pageable pageable) {
         Slice<Post> slice = scrapRepository.findPostsByMemberId(memberId, pageable);
@@ -82,7 +84,7 @@ public class ScrapService {
                 .map(Post::getId)
                 .toList();
 
-        Set<Long> likedIds = new HashSet<>(postLikeRepository.findLikedPostIdsByMemberAndPostIds(memberId, postIds));
+        Set<Long> likedIds = new HashSet<>(postLikeGetService.findLikedPostIdsByMemberAndPostIds(memberId, postIds));
 
         Slice<PostResDTO> result = slice.map(post ->
                 PostResDTO.from(post, true, likedIds.contains(post.getId()))
@@ -91,9 +93,5 @@ public class ScrapService {
         LogEventContext.put("count", slice.getNumberOfElements());
 
         return result;
-    }
-
-    public boolean isScrappedByMe(Long memberId, Long postId) {
-        return scrapRepository.existsByMemberIdAndPostId(memberId, postId);
     }
 }

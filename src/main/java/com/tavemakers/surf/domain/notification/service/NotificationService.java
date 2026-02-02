@@ -1,6 +1,6 @@
 package com.tavemakers.surf.domain.notification.service;
 
-import com.tavemakers.surf.domain.notification.dto.res.NotificationResDTO;
+import com.tavemakers.surf.domain.notification.dto.response.NotificationResDTO;
 import com.tavemakers.surf.domain.notification.entity.Notification;
 import com.tavemakers.surf.domain.notification.entity.NotificationCategory;
 import com.tavemakers.surf.domain.notification.entity.NotificationType;
@@ -18,8 +18,9 @@ import java.util.List;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final NotificationQueryService notificationQueryService;
+    private final NotificationGetService notificationGetService;
 
+    /** 회원의 알림 목록 조회 (카테고리별 필터링 가능) */
     @Transactional(readOnly = true)
     public List<NotificationResDTO> getNotifications(Long memberId, NotificationCategory category) {
 
@@ -37,9 +38,10 @@ public class NotificationService {
             notifications = notificationRepository.findByMemberIdAndTypeInOrderByIdDesc(memberId, types);
         }
 
-        return notificationQueryService.toDtoList(notifications);
+        return notificationGetService.toDtoList(notifications);
     }
 
+    /** 알림 읽음 처리 */
     @Transactional
     public void markAsRead(Long notificationId, Long memberId) {
         int updated = notificationRepository.markAsRead(notificationId, memberId);

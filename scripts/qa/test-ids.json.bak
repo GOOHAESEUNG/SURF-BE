@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-02-02T10:36:45Z",
+  "baseUrl": "http://localhost:8080",
+  "resources": {
+    "board": {
+      "id": 1,
+      "created": false
+    },
+    "category": {
+      "id": 1,
+      "created": false
+    },
+    "post": {
+      "id": 1,
+      "created": false
+    },
+    "comment": {
+      "id": 2,
+      "created": false
+    },
+    "schedule": {
+      "id": null,
+      "created": false
+    },
+    "banner": {
+      "id": 1,
+      "created": false
+    }
+  }
+}

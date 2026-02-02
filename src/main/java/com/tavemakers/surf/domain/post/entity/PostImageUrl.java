@@ -1,6 +1,6 @@
 package com.tavemakers.surf.domain.post.entity;
 
-import com.tavemakers.surf.domain.post.dto.req.PostImageCreateReqDTO;
+import com.tavemakers.surf.domain.post.dto.request.PostImageCreateReqDTO;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;

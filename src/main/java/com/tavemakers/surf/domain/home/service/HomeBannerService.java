@@ -24,6 +24,7 @@ public class HomeBannerService {
 
     private final HomeBannerRepository homeBannerRepository;
 
+    /** 홈 배너 생성 */
     @Transactional
     public HomeBannerResDTO createBanner(HomeBannerCreateReqDTO req) {
         int nextOrder = homeBannerRepository.findMaxDisplayOrder().orElse(0) + 1;
@@ -38,6 +39,7 @@ public class HomeBannerService {
         return HomeBannerResDTO.from(homeBannerRepository.save(banner));
     }
 
+    /** 홈 배너 목록 조회 */
     @Transactional(readOnly = true)
     public List<HomeBannerResDTO> getBanners() {
         return homeBannerRepository.findAllByOrderByDisplayOrderAsc()
@@ -46,6 +48,7 @@ public class HomeBannerService {
                 .toList();
     }
 
+    /** 홈 배너 삭제 */
     @Transactional
     public void deleteBanner(Long bannerId) {
         HomeBanner target = homeBannerRepository.findById(bannerId)
@@ -65,6 +68,7 @@ public class HomeBannerService {
         }
     }
 
+    /** 홈 배너 순서 변경 */
     @Transactional
     public List<HomeBannerResDTO> reorderBanners(HomeBannerReorderReqDTO req) {
         List<Long> orderedIds = req.orderedIds();
@@ -86,6 +90,7 @@ public class HomeBannerService {
                 .toList();
     }
 
+    /** 홈 배너 수정 */
     @Transactional
     public HomeBannerResDTO updateBanner(Long bannerId, HomeBannerUpdateReqDTO req) {
         HomeBanner banner = homeBannerRepository.findById(bannerId)

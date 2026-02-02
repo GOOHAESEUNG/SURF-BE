@@ -12,11 +12,13 @@ import org.springframework.stereotype.Service;
 public class NotificationRenderService {
     private final ObjectMapper objectMapper;
 
+    /** 알림 본문 템플릿 렌더링 */
     public String renderBody(Notification notification) {
         Map<String, Object> payload = parsePayload(notification.getPayload());
         return replaceTemplate(notification.getType().getTemplate(), payload);
     }
 
+    /** 알림 딥링크 템플릿 렌더링 */
     public String renderDeeplink(Notification notification) {
         Map<String, Object> payload = parsePayload(notification.getPayload());
         return replaceTemplate(notification.getType().getDeeplink(), payload);

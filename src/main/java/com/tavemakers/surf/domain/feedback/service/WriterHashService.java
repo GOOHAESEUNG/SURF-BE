@@ -10,6 +10,7 @@ public class WriterHashService {
     @Value("${feedback.hash.secret}")
     private String secret;
 
+    /** 회원 ID와 날짜 기반 익명 해시 생성 */
     public String hashDaily(Long memberId, LocalDate date) {
         return hmacSha256Hex(secret, "M|" + memberId + "|" + date);
     }

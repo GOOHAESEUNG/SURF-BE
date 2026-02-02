@@ -13,6 +13,7 @@ public class MemberBadgeGetService {
 
     private final MemberBadgeRepository memberBadgeRepository;
 
+    /** 회원의 배지 목록을 페이징 조회 */
     public Slice<MemberBadge> findMemberBadgeWithSlice(Long memberId, Pageable pageable) {
         return memberBadgeRepository.findMemberBadgeListByMemberId(memberId, pageable);
     }

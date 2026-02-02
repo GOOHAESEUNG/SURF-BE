@@ -17,6 +17,7 @@ public class ReservationScheduleService {
     private final PostPublishRunner taskRunner;
     private final TaskScheduler taskScheduler;
 
+    /** 예약 게시글 발행 스케줄 등록 */
     public void schedule(Long reservationId, Instant publishAt) {
         PostPublishTask task = PostPublishTask.of(reservationId, taskRunner);
         taskScheduler.schedule(task, publishAt);

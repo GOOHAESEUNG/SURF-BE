@@ -29,6 +29,7 @@ public class S3Service {
     @Value("${cloud.aws.bucket-name}")
     private String bucketName;
 
+    /** 다수 파일에 대한 PreSigned URL 목록 생성 */
     public List<PreSignedUrlResDto> generatePreSignedUrlList(List<String> fileNames) {
         validateFileName(fileNames);
         return fileNames.stream()
@@ -42,6 +43,7 @@ public class S3Service {
         }
     }
 
+    /** 단일 파일 업로드용 PreSigned URL 생성 */
     public PreSignedUrlResDto generateSinglePutPreSignedUrl(String filename) {
         String key = ORIGINAL_PATH + UUID.randomUUID() + "/" + filename;
         Date expiration = getExpiration();

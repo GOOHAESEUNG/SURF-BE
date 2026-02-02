@@ -2,7 +2,6 @@ package com.tavemakers.surf.domain.member.service;
 
 import com.tavemakers.surf.domain.member.entity.Career;
 import com.tavemakers.surf.domain.member.entity.Member;
-import com.tavemakers.surf.domain.member.exception.CareerNotFoundException;
 import com.tavemakers.surf.domain.member.repository.CareerRepository;
 import com.tavemakers.surf.domain.member.validator.CareerValidator;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

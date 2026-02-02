@@ -5,7 +5,6 @@ import com.tavemakers.surf.domain.notification.entity.DeviceToken;
 import com.tavemakers.surf.domain.notification.repository.DeviceTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,6 +14,7 @@ public class FcmService {
 
     private final DeviceTokenRepository deviceTokenRepository;
 
+    /** 회원에게 FCM 푸시 알림 전송 */
     public void sendToMember(Long memberId, String body, String deeplink, Long notificationId) {
         List<DeviceToken> tokens = deviceTokenRepository.findAllByMemberIdAndEnabledTrue(memberId);
         if (tokens.isEmpty()) return;

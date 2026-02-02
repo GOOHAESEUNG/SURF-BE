@@ -6,15 +6,14 @@ import com.tavemakers.surf.domain.comment.repository.CommentMentionRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.repository.MemberRepository;
-import com.tavemakers.surf.domain.comment.dto.res.MentionResDTO;
-import com.tavemakers.surf.domain.comment.dto.res.MentionSearchResDTO;
+import com.tavemakers.surf.domain.comment.dto.response.MentionResDTO;
+import com.tavemakers.surf.domain.comment.dto.response.MentionSearchResDTO;
 import com.tavemakers.surf.domain.comment.exception.InvalidMentionSearchKeywordException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -29,8 +28,6 @@ public class CommentMentionService {
         if (mentionMemberIds == null || mentionMemberIds.isEmpty()) {
             return List.of();
         }
-
-        Long writerId = comment.getMember().getId();
 
         // 중복 제거
         List<Long> filteredIds = mentionMemberIds.stream()
