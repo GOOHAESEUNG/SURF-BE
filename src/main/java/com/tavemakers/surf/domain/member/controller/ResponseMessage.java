@@ -11,6 +11,7 @@ public enum ResponseMessage {
     MANAGER_PASSWORD_SET_UP_SUCCESS("[비밀번호 설정]을 완료했습니다."),
     ADMIN_PAGE_LOGIN_SUCCESS("[관리자 페이지]에 성공적으로 로그인했습니다."),
     REGISTRATION_LIST_READ("[가입신청 목록]을 조회합니다."),
+    MEMBER_INFORMATION_READ("[관리자 페이지]에서 유저 정보를 조회합니다."),
 
     //회원가입 온보딩 확인 여부 체크
     MEMBER_ONBOARDING_STATUS_CHECK_SUCCESS("[회원]의 추가 회원가입 정보 입력 필요 여부를 확인했습니다."),

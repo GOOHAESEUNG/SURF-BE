@@ -18,7 +18,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByIdAndStatus(Long memberId, MemberStatus status);
 
     List<Member> findAllByIdInAndStatus(List<Long> ids, MemberStatus status);
-  
+
     boolean existsByEmail(String email);
   
     Optional<Member> findByEmail(String email);
@@ -56,5 +56,11 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query("select m from Member m where m.status = :status")
     Slice<Member> findByMemberListStatus(@Param("status") MemberStatus status, Pageable pageable);
+
+
+    @Query("select m from Member m " +
+            "left join fetch m.tracks " +
+            "where m.id = :memberId")
+    Optional<Member> findByIdWithTracks(@Param("memberId") Long memberId);
 
 }

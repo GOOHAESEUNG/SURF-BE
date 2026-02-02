@@ -1,0 +1,14 @@
+/v1/user/members/withdraw
+/v1/user/posts/{postId}
+/v1/user/posts/{postId}/comments/{commentId}
+/v1/admin/schedules/{scheduleId}
+/v1/admin/posts/{postId}/schedules/{scheduleId}
+/v1/admin/boards/{boardId}
+/v1/admin/home/banners/{bannerId}
+/v1/user/scraps/{postId}
+/v1/user/search/recent
+/v1/user/search/recent/{keyword}
+/v1/user/posts/{postId}/like
+/v1/admin/members/{memberId}/role
+/v1/admin/members/approve
+/v1/admin/members/reject

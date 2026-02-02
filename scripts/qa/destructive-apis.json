@@ -1,0 +1,122 @@
+{
+  "description": "파괴적인 API 목록 - QA 테스트 시 실행 전 확인 필요",
+  "levels": {
+    "critical": "실행 시 복구 불가능하거나 매우 어려움",
+    "high": "실행 시 데이터 삭제/변경, 복구 가능",
+    "medium": "실행 시 상태 변경, 쉽게 복구 가능"
+  },
+  "apis": [
+    {
+      "method": "POST",
+      "path": "/v1/user/members/withdraw",
+      "description": "회원 탈퇴",
+      "level": "critical",
+      "impact": "회원 정보 익명화, 모든 후속 API 인증 실패",
+      "recommendation": "skip"
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/user/posts/{postId}",
+      "description": "게시글 삭제",
+      "level": "high",
+      "impact": "게시글 및 연관 댓글/좋아요 삭제",
+      "recommendation": "test_data_only"
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/user/posts/{postId}/comments/{commentId}",
+      "description": "댓글 삭제",
+      "level": "high",
+      "impact": "댓글 삭제",
+      "recommendation": "test_data_only"
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/admin/schedules/{scheduleId}",
+      "description": "일정 삭제",
+      "level": "high",
+      "impact": "일정 삭제",
+      "recommendation": "test_data_only"
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/admin/posts/{postId}/schedules/{scheduleId}",
+      "description": "게시글 연결 일정 삭제",
+      "level": "high",
+      "impact": "게시글과 매핑된 일정 삭제",
+      "recommendation": "test_data_only"
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/admin/boards/{boardId}",
+      "description": "게시판 삭제",
+      "level": "critical",
+      "impact": "게시판 및 하위 게시글 모두 영향",
+      "recommendation": "skip"
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/admin/home/banners/{bannerId}",
+      "description": "홈 배너 삭제",
+      "level": "medium",
+      "impact": "배너 삭제",
+      "recommendation": "test_data_only"
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/user/scraps/{postId}",
+      "description": "스크랩 삭제",
+      "level": "medium",
+      "impact": "스크랩 해제",
+      "recommendation": "allow"
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/user/search/recent",
+      "description": "최근 검색어 전체 삭제",
+      "level": "medium",
+      "impact": "검색 기록 삭제",
+      "recommendation": "allow"
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/user/search/recent/{keyword}",
+      "description": "최근 검색어 단건 삭제",
+      "level": "low",
+      "impact": "검색어 1개 삭제",
+      "recommendation": "allow"
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/user/posts/{postId}/like",
+      "description": "좋아요 해제",
+      "level": "low",
+      "impact": "좋아요 취소 (재설정 가능)",
+      "recommendation": "allow"
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/admin/members/{memberId}/role",
+      "description": "회원 역할 변경",
+      "level": "high",
+      "impact": "회원 권한 변경",
+      "recommendation": "skip"
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/admin/members/approve",
+      "description": "회원가입 승인",
+      "level": "medium",
+      "impact": "회원 상태 변경",
+      "recommendation": "skip"
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/admin/members/reject",
+      "description": "회원가입 거절",
+      "level": "high",
+      "impact": "회원 상태 거절로 변경",
+      "recommendation": "skip"
+    }
+  ]
+}

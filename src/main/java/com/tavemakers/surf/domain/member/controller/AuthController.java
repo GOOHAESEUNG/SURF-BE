@@ -1,16 +1,15 @@
 package com.tavemakers.surf.domain.member.controller;
 
-import com.tavemakers.surf.domain.login.AuthService;
 import com.tavemakers.surf.domain.login.LoginResDto;
 import com.tavemakers.surf.domain.login.auth.service.RefreshTokenService;
 import com.tavemakers.surf.domain.login.kakao.config.KakaoOAuthProps;
-import com.tavemakers.surf.domain.login.kakao.dto.KakaoTokenResponseDto;
+import com.tavemakers.surf.domain.login.kakao.dto.KakaoTokenResDTO;
 import com.tavemakers.surf.domain.login.kakao.dto.KakaoUserInfoDto;
+import com.tavemakers.surf.domain.login.kakao.service.KakaoAuthService;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.service.MemberUpsertService;
 import com.tavemakers.surf.global.common.response.ApiResponse;
 import com.tavemakers.surf.global.jwt.JwtService;
-import com.tavemakers.surf.global.logging.LogParam;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,7 +24,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,7 +35,7 @@ import java.util.UUID;
 @Tag(name = "소셜 로그인 관련", description = "이 명세서를 통해서는 아무런 결과는 안나옵니다..")
 public class AuthController {
 
-    private final AuthService<KakaoTokenResponseDto, KakaoUserInfoDto> kakaoAuthService;
+    private final KakaoAuthService kakaoAuthService;
     private final JwtService jwtService;
     private final MemberUpsertService memberUpsertService;
     private final RefreshTokenService refreshTokenService;
@@ -93,7 +91,7 @@ public class AuthController {
             kakaoAuthService.logCallback("kakao", code.length());
 
             // 2. 인가 코드 → 토큰
-            KakaoTokenResponseDto token = kakaoAuthService.exchangeCodeForToken(code);
+            KakaoTokenResDTO token = kakaoAuthService.exchangeCodeForToken(code);
             log.info("[LOGIN][KAKAO] exchange token success accessTokenLength={}",
                     token.accessToken() != null ? token.accessToken().length() : null);
 

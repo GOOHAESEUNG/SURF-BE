@@ -1,0 +1,10 @@
+{
+  "baseUrl": "https://tavesurf.site",
+  "auth": {
+    "type": "JWT",
+    "method": "OAuth Callback",
+    "tokenEnv": "QA_TOKEN"
+  },
+  "timeout": 30,
+  "retries": 1
+}

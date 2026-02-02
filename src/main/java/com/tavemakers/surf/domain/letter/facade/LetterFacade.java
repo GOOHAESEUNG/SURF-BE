@@ -1,18 +1,17 @@
 package com.tavemakers.surf.domain.letter.facade;
 
-import com.tavemakers.surf.domain.letter.dto.req.LetterCreateReqDTO;
-import com.tavemakers.surf.domain.letter.dto.res.LetterResDTO;
+import com.tavemakers.surf.domain.letter.dto.request.LetterCreateReqDTO;
+import com.tavemakers.surf.domain.letter.dto.response.LetterResDTO;
 import com.tavemakers.surf.domain.letter.entity.Letter;
+import com.tavemakers.surf.domain.letter.event.LetterSentEvent;
 import com.tavemakers.surf.domain.letter.exception.LetterMailSendFailException;
 import com.tavemakers.surf.domain.letter.service.LetterGetService;
-import com.tavemakers.surf.domain.letter.service.LetterSaveService;
+import com.tavemakers.surf.domain.letter.service.LetterCreateService;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.service.MemberGetService;
-import com.tavemakers.surf.domain.notification.entity.NotificationType;
-import com.tavemakers.surf.domain.notification.service.NotificationCreateService;
 import com.tavemakers.surf.global.util.EmailSender;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.mail.MailException;
@@ -24,11 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class LetterFacade {
 
     private final MemberGetService memberGetService;
-    private final LetterSaveService letterSaveService;
+    private final LetterCreateService letterCreateService;
     private final EmailSender emailSender;
     private final LetterGetService letterGetService;
-    private final NotificationCreateService notificationCreateService;
+    private final ApplicationEventPublisher eventPublisher;
 
+    /** 쪽지 생성 및 이메일 발송 */
     @Transactional
     public LetterResDTO createLetter(Long senderId, LetterCreateReqDTO req) {
 
@@ -77,33 +77,23 @@ public class LetterFacade {
         );
 
         // 6) 저장
-        Letter saved = letterSaveService.save(letter);
+        Letter saved = letterCreateService.save(letter);
 
-        //알림 발송
-        createNotificationAtLetterSend(receiver,sender);
+        // 7) 알림 이벤트 발행
+        eventPublisher.publishEvent(new LetterSentEvent(
+                receiver.getId(),
+                sender.getName(),
+                sender.getId()
+        ));
 
-        // 7) 저장된 엔티티 기반으로 Response 생성
+        // 8) 저장된 엔티티 기반으로 Response 생성
         return LetterResDTO.from(saved);
     }
 
+    /** 발신한 쪽지 목록 조회 */
     @Transactional
     public Slice<LetterResDTO> getSentLetters(Long senderId, Pageable pageable) {
         return letterGetService.getSentLetters(senderId, pageable)
                 .map(LetterResDTO::from);
-    }
-
-    /** 쪽지 발송시 알림 - 쪽지 수신자에게 */
-    protected void createNotificationAtLetterSend(
-            Member recipient,
-            Member sender
-    ) {
-
-        notificationCreateService.createAndSend(
-                recipient.getId(),
-                NotificationType.MESSAGE,
-                Map.of(
-                        "actorName", sender.getName()
-                )
-        );
     }
 }

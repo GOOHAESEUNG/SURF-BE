@@ -3,8 +3,8 @@ package com.tavemakers.surf.domain.post.entity;
 import com.tavemakers.surf.domain.board.entity.Board;
 import com.tavemakers.surf.domain.board.entity.BoardCategory;
 import com.tavemakers.surf.domain.member.entity.Member;
-import com.tavemakers.surf.domain.post.dto.req.PostCreateReqDTO;
-import com.tavemakers.surf.domain.post.dto.req.PostUpdateReqDTO;
+import com.tavemakers.surf.domain.post.dto.request.PostCreateReqDTO;
+import com.tavemakers.surf.domain.post.dto.request.PostUpdateReqDTO;
 import com.tavemakers.surf.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -69,7 +69,7 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    private Boolean hasSchedule;
+    private Boolean hasSchedule = false;
 
     @Column(nullable = true)
     private Long scheduleId;
@@ -90,7 +90,7 @@ public class Post extends BaseEntity {
                 .likeCount(0L)
                 .commentCount(0L)
                 .isReserved(req.isReserved())
-                .hasSchedule(req.hasSchedule())
+                .hasSchedule(req.hasSchedule() != null ? req.hasSchedule() : false)
                 .viewCount(0)
                 .build();
     }
@@ -106,7 +106,7 @@ public class Post extends BaseEntity {
         this.category = category;
         this.categoryName = category.getName();
 
-        this.hasSchedule = req.hasSchedule();
+        this.hasSchedule = req.hasSchedule() != null ? req.hasSchedule() : this.hasSchedule;
 
         if (Boolean.FALSE.equals(req.hasSchedule())) {
             this.scheduleId = null;

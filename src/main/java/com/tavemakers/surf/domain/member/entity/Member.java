@@ -21,12 +21,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.BatchSize;
-import org.hibernate.annotations.Where;
 
 
 @Entity
@@ -95,6 +93,10 @@ public class Member extends BaseEntity {
 
     public boolean isActive() {
         return activityStatus;
+    }
+
+    public boolean isApproved() {
+        return status == MemberStatus.APPROVED;
     }
 
     @Builder

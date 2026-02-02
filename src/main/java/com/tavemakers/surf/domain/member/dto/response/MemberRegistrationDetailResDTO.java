@@ -1,6 +1,7 @@
 package com.tavemakers.surf.domain.member.dto.response;
 
 import com.tavemakers.surf.domain.member.entity.Member;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 import java.time.format.DateTimeFormatter;
@@ -13,6 +14,12 @@ public record MemberRegistrationDetailResDTO(
         String university,
         String profileImageUrl,
         List<TrackResDTO> trackList,
+        @Schema(
+                description = "가입 상태 (REGISTERING: 가입중, WAITING: 대기, APPROVED: 승인, REJECTED: 거절, WITHDRAWN: 탈퇴)",
+                example = "APPROVED",
+                allowableValues = {"REGISTERING", "WAITING", "APPROVED", "REJECTED", "WITHDRAWN"}
+        )
+        String memberStatus,
         String createdAt
 ) {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yy.MM.dd HH:mm");
@@ -26,6 +33,7 @@ public record MemberRegistrationDetailResDTO(
                 .trackList(member.getTracks().stream()
                         .map(TrackResDTO::from)
                         .toList())
+                .memberStatus(member.getStatus().name())
                 .createdAt(member.getCreatedAt().format(FORMATTER))
                 .build();
     }

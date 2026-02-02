@@ -16,6 +16,7 @@ public class HomeContentService {
 
     private final HomeContentRepository homeContentRepository;
 
+    /** 홈 콘텐츠 생성 또는 수정 */
     @Transactional
     public HomeContentResDTO upsertContent(HomeContentUpsertReqDTO req) {
 
@@ -29,6 +30,7 @@ public class HomeContentService {
         return HomeContentResDTO.from(content);
     }
 
+    /** 홈 콘텐츠 조회 */
     @Transactional(readOnly = true)
     public HomeContentResDTO getContent() {
         return homeContentRepository.findById(HOME_CONTENT_ID)

@@ -13,6 +13,7 @@ public class MemberUpsertService {
 
     private final MemberRepository memberRepository;
 
+    /** 카카오 정보로 회원 생성 또는 기존 회원 반환 */
     @Transactional
     public Member upsertRegisteringFromKakao(KakaoUserInfoDto info) {
         return memberRepository.findByKakaoId(info.id()).orElseGet(() -> {

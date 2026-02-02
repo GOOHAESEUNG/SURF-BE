@@ -7,9 +7,10 @@ import com.tavemakers.surf.domain.home.repository.HomeBannerRepository;
 import com.tavemakers.surf.domain.home.repository.HomeContentRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.Track;
-import com.tavemakers.surf.domain.member.repository.MemberRepository;
-import com.tavemakers.surf.domain.post.entity.Schedule;
-import com.tavemakers.surf.domain.post.repository.ScheduleRepository;
+import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
+import com.tavemakers.surf.domain.member.service.MemberGetService;
+import com.tavemakers.surf.domain.schedule.entity.Schedule;
+import com.tavemakers.surf.domain.schedule.service.ScheduleGetService;
 import com.tavemakers.surf.global.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,9 +31,10 @@ public class HomeService {
     private final HomeContentRepository homeContentRepository;
     private final HomeBannerRepository homeBannerRepository;
 
-    private final MemberRepository memberRepository;
-    private final ScheduleRepository scheduleRepository;
+    private final MemberGetService memberGetService;
+    private final ScheduleGetService scheduleGetService;
 
+    /** 홈 화면 정보 조회 (메시지, 배너, 회원정보, 일정) */
     @Transactional(readOnly = true)
     public HomeResDTO getHome() {
         // 1) main message
@@ -46,7 +48,7 @@ public class HomeService {
         }
 
         // 2) banners
-        List<HomeBannerResDTO> banners = homeBannerRepository.findAllByOrderByDisplayOrderAsc()
+        List<HomeBannerResDTO> banners = homeBannerRepository.findAllByStatusTrueOrderByDisplayOrderAsc()
                 .stream()
                 .map(HomeBannerResDTO::from)
                 .toList();
@@ -58,9 +60,9 @@ public class HomeService {
 
         Long memberId = SecurityUtils.getCurrentMemberId();
         if (memberId != null) {
-            Member m = memberRepository.findById(memberId).orElse(null);
+            try {
+                Member m = memberGetService.getMember(memberId);
 
-            if (m != null) {
                 memberName = m.getName();
 
                 List<Track> tracks = m.getTracks();
@@ -77,6 +79,8 @@ public class HomeService {
                                 : null;
                     }
                 }
+            } catch (MemberNotFoundException ignored) {
+                // 회원을 찾을 수 없는 경우 null 유지
             }
         }
 
@@ -87,14 +91,14 @@ public class HomeService {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd");
 
-        Optional<Schedule> scheduleOpt = scheduleRepository.findFirstByCategoryAndStartAtAfterOrderByStartAtAsc(
+        Optional<Schedule> scheduleOpt = scheduleGetService.findFirstScheduleAfter(
                 "regular",
                 LocalDateTime.now()
         );
 
         if (scheduleOpt.isEmpty()) {
-            scheduleOpt = scheduleRepository.findFirstByCategoryAndStartAtLessThanEqualOrderByStartAtDesc(
-                            "regular",
+            scheduleOpt = scheduleGetService.findFirstScheduleBefore(
+                    "regular",
                     LocalDateTime.now());
         }
 

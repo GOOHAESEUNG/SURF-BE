@@ -1,6 +1,5 @@
 package com.tavemakers.surf.domain.member.entity;
 
-import com.tavemakers.surf.domain.member.exception.ErrorMessage;
 import com.tavemakers.surf.domain.member.exception.MisMatchPasswordException;
 import com.tavemakers.surf.domain.member.exception.PasswordEncryptionException;
 import com.tavemakers.surf.global.common.encoder.HexEncoder;

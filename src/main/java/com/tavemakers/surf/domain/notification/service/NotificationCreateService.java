@@ -2,7 +2,7 @@ package com.tavemakers.surf.domain.notification.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
-import com.tavemakers.surf.domain.member.repository.MemberRepository;
+import com.tavemakers.surf.domain.member.service.MemberGetService;
 import com.tavemakers.surf.domain.notification.entity.Notification;
 import com.tavemakers.surf.domain.notification.entity.NotificationType;
 import com.tavemakers.surf.domain.notification.event.NotificationCreatedEvent;
@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class NotificationCreateService {
 
     private final NotificationRepository notificationRepository;
-    private final MemberRepository memberRepository;
+    private final MemberGetService memberGetService;
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -52,7 +52,7 @@ public class NotificationCreateService {
             Map<String, Object> payload
     ) {
         boolean activeReceiver =
-                memberRepository.existsByIdAndStatusNot(receiverId, MemberStatus.WITHDRAWN);
+                memberGetService.existsByIdAndStatusNot(receiverId, MemberStatus.WITHDRAWN);
         if (!activeReceiver) return;
 
         Notification notification = create(receiverId, type, payload);

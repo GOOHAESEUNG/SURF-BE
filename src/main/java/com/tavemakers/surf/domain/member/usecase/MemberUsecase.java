@@ -1,9 +1,15 @@
 package com.tavemakers.surf.domain.member.usecase;
 
 import com.tavemakers.surf.domain.member.dto.request.MemberSignupReqDTO;
-import com.tavemakers.surf.domain.member.dto.response.*;
 import com.tavemakers.surf.domain.member.dto.request.ProfileUpdateReqDTO;
+import com.tavemakers.surf.domain.member.dto.response.CareerResDTO;
+import com.tavemakers.surf.domain.member.dto.response.MemberSearchDetailResDTO;
+import com.tavemakers.surf.domain.member.dto.response.MemberSearchResDTO;
+import com.tavemakers.surf.domain.member.dto.response.MemberSearchSliceResDTO;
+import com.tavemakers.surf.domain.member.dto.response.MemberSignupResDTO;
+import com.tavemakers.surf.domain.member.dto.response.MemberSimpleResDTO;
 import com.tavemakers.surf.domain.member.dto.response.MyPageProfileResDTO;
+import com.tavemakers.surf.domain.member.dto.response.OnboardingCheckResDTO;
 import com.tavemakers.surf.domain.member.dto.response.TrackResDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.Track;
@@ -11,7 +17,15 @@ import com.tavemakers.surf.domain.member.entity.enums.MemberRole;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.entity.enums.Part;
 import com.tavemakers.surf.domain.member.exception.TrackNotFoundException;
-import com.tavemakers.surf.domain.member.service.*;
+import com.tavemakers.surf.domain.member.service.CareerDeleteService;
+import com.tavemakers.surf.domain.member.service.CareerGetService;
+import com.tavemakers.surf.domain.member.service.CareerPatchService;
+import com.tavemakers.surf.domain.member.service.CareerCreateService;
+import com.tavemakers.surf.domain.member.service.MemberGetService;
+import com.tavemakers.surf.domain.member.service.MemberPatchService;
+import com.tavemakers.surf.domain.member.service.MemberService;
+import com.tavemakers.surf.domain.member.service.MemberWithdrawService;
+import com.tavemakers.surf.domain.member.service.TrackGetService;
 import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
 import com.tavemakers.surf.global.logging.LogEvent;
 import com.tavemakers.surf.global.logging.LogParam;
@@ -39,7 +53,7 @@ public class MemberUsecase {
     private final MemberGetService memberGetService;
     private final TrackGetService trackGetService;
     private final PersonalScoreGetService personalScoreGetService;
-    private final CareerPostService careerPostService;
+    private final CareerCreateService careerCreateService;
     private final CareerPatchService careerPatchService;
     private final CareerDeleteService careerDeleteService;
     private final CareerGetService careerGetService;
@@ -109,7 +123,7 @@ public class MemberUsecase {
                 ));
     }
 
-    //프로필 수정
+    /** 회원 프로필 및 경력 정보 수정 */
     @LogEvent(value = "member.profile_update", message = "회원 정보 수정")
     @Transactional
     public void updateProfile(@LogParam("member_id") Long memberId,
@@ -132,7 +146,7 @@ public class MemberUsecase {
 
         // 경력 생성
         if (dto.careersToCreate() != null) {
-            careerPostService.createCareer(member, dto.careersToCreate());
+            careerCreateService.createCareer(member, dto.careersToCreate());
         }
     }
 
@@ -210,6 +224,7 @@ public class MemberUsecase {
         throw new RuntimeException(errorReason);
     }
 
+    /** 회원 탈퇴 처리 */
     @Transactional
     public void withdraw(Long memberId) {
         memberWithdrawService.withdraw(memberId);
@@ -227,6 +242,7 @@ public class MemberUsecase {
                 .toList();
     }
 
+    /** 조건별 회원 검색 및 페이징 처리 */
     public MemberSearchSliceResDTO searchMembers( int pageNum, int pageSize, Integer generation, String part, String keyword) {
         Pageable pageable = PageRequest.of(pageNum, pageSize);
         Part memberPart = part == null ? null : Part.valueOf(part);

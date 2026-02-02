@@ -1,25 +1,27 @@
 package com.tavemakers.surf.domain.comment.service;
 
-import com.tavemakers.surf.domain.comment.dto.req.CommentCreateReqDTO;
-import com.tavemakers.surf.domain.comment.dto.res.CommentListResDTO;
-import com.tavemakers.surf.domain.comment.dto.res.CommentResDTO;
-import com.tavemakers.surf.domain.comment.dto.res.MentionResDTO;
+import com.tavemakers.surf.domain.comment.dto.request.CommentCreateReqDTO;
+import com.tavemakers.surf.domain.comment.dto.response.CommentListResDTO;
+import com.tavemakers.surf.domain.comment.dto.response.CommentResDTO;
+import com.tavemakers.surf.domain.comment.dto.response.MentionResDTO;
 import com.tavemakers.surf.domain.comment.entity.Comment;
-import com.tavemakers.surf.domain.comment.exception.*;
+import com.tavemakers.surf.domain.comment.event.CommentCreatedEvent;
+import com.tavemakers.surf.domain.comment.event.CommentReplyEvent;
+import com.tavemakers.surf.domain.comment.exception.CommentNotFoundException;
+import com.tavemakers.surf.domain.comment.exception.InvalidBlankCommentException;
+import com.tavemakers.surf.domain.comment.exception.InvalidReplyException;
+import com.tavemakers.surf.domain.comment.exception.NotMyCommentException;
 import com.tavemakers.surf.domain.comment.repository.CommentLikeRepository;
 import com.tavemakers.surf.domain.comment.repository.CommentRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
-import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
-import com.tavemakers.surf.domain.member.repository.MemberRepository;
-import com.tavemakers.surf.domain.notification.entity.NotificationType;
-import com.tavemakers.surf.domain.notification.service.NotificationCreateService;
+import com.tavemakers.surf.domain.member.service.MemberGetService;
 import com.tavemakers.surf.domain.post.entity.Post;
-import com.tavemakers.surf.domain.post.exception.PostNotFoundException;
 import com.tavemakers.surf.domain.post.repository.PostRepository;
+import com.tavemakers.surf.domain.post.service.post.PostGetService;
 import com.tavemakers.surf.global.logging.LogEvent;
 import com.tavemakers.surf.global.logging.LogParam;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -33,12 +35,13 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
-    private final MemberRepository memberRepository;
+    private final PostGetService postGetService;
+    private final MemberGetService memberGetService;
     private final CommentMentionService commentMentionService;
     private final CommentLikeService commentLikeService;
     private final CommentLikeRepository commentLikeRepository;
 
-    private final NotificationCreateService notificationCreateService;
+    private final ApplicationEventPublisher eventPublisher;
 
     /** 댓글 작성 */
     @Transactional
@@ -46,8 +49,8 @@ public class CommentService {
     public CommentResDTO createComment(
             @LogParam("post_id") Long postId,
             Long memberId, CommentCreateReqDTO req) {
-        Post post = postRepository.findById(postId).orElseThrow(PostNotFoundException::new);
-        Member member = memberRepository.findById(memberId).orElseThrow(MemberNotFoundException::new);
+        Post post = postGetService.getPost(postId);
+        Member member = memberGetService.getMember(memberId);
         if (req.content() == null || req.content().isEmpty()) throw new InvalidBlankCommentException();
 
         // 댓글 생성 (루트/대댓글 분기)
@@ -62,17 +65,14 @@ public class CommentService {
             saved.markAsRoot();
 
             if(!post.getMember().getId().equals(memberId)) {
-
                 // 댓글 생성 알림 - 게시글 작성자에게
-                notificationCreateService.createAndSend(
+                eventPublisher.publishEvent(new CommentCreatedEvent(
                         post.getMember().getId(),
-                        NotificationType.POST_COMMENT,
-                        Map.of(
-                                "actorName", member.getName(),
-                                "boardId", post.getBoard().getId(),
-                                "postId", postId
-                        )
-                );
+                        member.getName(),
+                        member.getId(),
+                        post.getBoard().getId(),
+                        postId
+                ));
             }
 
         } else {
@@ -100,15 +100,14 @@ public class CommentService {
             saved = commentRepository.save(child);
 
             if (!parentWriterId.equals(memberId)) {
-                notificationCreateService.createAndSend(
+                // 대댓글 생성 알림 - 부모 댓글 작성자에게
+                eventPublisher.publishEvent(new CommentReplyEvent(
                         parentWriterId,
-                        NotificationType.COMMENT_REPLY,
-                        Map.of(
-                                "actorName", member.getName(),
-                                "boardId", post.getBoard().getId(),
-                                "postId", postId
-                        )
-                );
+                        member.getName(),
+                        member.getId(),
+                        post.getBoard().getId(),
+                        postId
+                ));
             }
         }
         // 멘션 등록
@@ -152,7 +151,7 @@ public class CommentService {
         postRepository.decreaseCommentCount(postId);
     }
 
-    /** 댓글 목록 조회 (Slice) */
+    /** 댓글 목록 조회 */
     @Transactional(readOnly = true)
     public CommentListResDTO getComments(Long postId, Pageable pageable, Long memberId) {
 

@@ -3,7 +3,6 @@ package com.tavemakers.surf.domain.member.service;
 import com.tavemakers.surf.domain.member.dto.request.CareerUpdateReqDTO;
 import com.tavemakers.surf.domain.member.entity.Career;
 import com.tavemakers.surf.domain.member.entity.Member;
-import com.tavemakers.surf.domain.member.exception.CareerNotFoundException;
 import com.tavemakers.surf.domain.member.repository.CareerRepository;
 import com.tavemakers.surf.domain.member.validator.CareerValidator;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +22,7 @@ public class CareerPatchService {
     private final CareerRepository careerRepository;
     private final CareerValidator careerValidator;
 
+    /** 회원 경력 정보 수정 */
     @Transactional
     public void updateCareer(Member member, List<CareerUpdateReqDTO> dtos) {
         // 요청으로 들어온 ID 목록

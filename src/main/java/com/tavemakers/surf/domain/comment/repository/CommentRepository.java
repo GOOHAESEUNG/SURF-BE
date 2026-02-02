@@ -8,8 +8,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
-
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     /** 게시글 내 모든 댓글 + 대댓글 조회 (작성 시간순) */
@@ -18,10 +16,15 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     /** 댓글 총 개수 */
     long countByPostId(Long postId);
 
-    /** 게시글 삭제 시 댓글 전체 삭제 */
+    /** 게시글 삭제 시 대댓글(자식) 먼저 삭제 */
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("delete from Comment c where c.post.id = :postId")
-    void deleteAllByPostId(@Param("postId") Long postId);
+    @Query("delete from Comment c where c.post.id = :postId and c.parent is not null")
+    void deleteRepliesByPostId(@Param("postId") Long postId);
+
+    /** 게시글 삭제 시 루트 댓글 삭제 */
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("delete from Comment c where c.post.id = :postId and c.parent is null")
+    void deleteRootCommentsByPostId(@Param("postId") Long postId);
 
     /** 댓글 작성자 ID 조회 */
     @Query("""

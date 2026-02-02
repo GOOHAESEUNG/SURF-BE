@@ -1,7 +1,7 @@
 package com.tavemakers.surf.domain.feedback.service;
 
-import com.tavemakers.surf.domain.feedback.dto.req.FeedbackCreateReqDTO;
-import com.tavemakers.surf.domain.feedback.dto.res.FeedbackResDTO;
+import com.tavemakers.surf.domain.feedback.dto.request.FeedbackCreateReqDTO;
+import com.tavemakers.surf.domain.feedback.dto.response.FeedbackResDTO;
 import com.tavemakers.surf.domain.feedback.entity.Feedback;
 import com.tavemakers.surf.domain.feedback.exception.TooManyFeedbackException;
 import com.tavemakers.surf.domain.feedback.repository.FeedbackRepository;
@@ -24,6 +24,7 @@ public class FeedbackService {
 
     private static final int DAILY_LIMIT = 3; // 하루 최대 3회
 
+    /** 피드백 생성 (하루 3회 제한) */
     @Transactional
     @LogEvent(value = "feedback.create", message = "피드백 생성 성공")
     public FeedbackResDTO createFeedback(FeedbackCreateReqDTO req, Long memberId) {
@@ -34,6 +35,7 @@ public class FeedbackService {
         return FeedbackResDTO.from(saved);
     }
 
+    /** 피드백 목록 페이징 조회 */
     public Slice<FeedbackResDTO> getFeedbacks(Pageable pageable) {
         return feedbackRepository.findAllByOrderByCreatedAtDesc(pageable)
                 .map(FeedbackResDTO::from);

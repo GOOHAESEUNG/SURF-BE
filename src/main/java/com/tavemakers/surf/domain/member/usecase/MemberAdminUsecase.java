@@ -4,16 +4,22 @@ import com.tavemakers.surf.domain.login.auth.service.RefreshTokenService;
 import com.tavemakers.surf.domain.member.dto.request.AdminPageLoginReqDto;
 import com.tavemakers.surf.domain.member.dto.request.PasswordReqDto;
 import com.tavemakers.surf.domain.member.dto.response.AdminPageLoginResDto;
+import com.tavemakers.surf.domain.member.dto.response.CareerResDTO;
+import com.tavemakers.surf.domain.member.dto.response.MemberInformationResDTO;
+import com.tavemakers.surf.domain.member.dto.response.TrackResDTO;
 import com.tavemakers.surf.domain.member.dto.response.MemberRegistrationDetailResDTO;
 import com.tavemakers.surf.domain.member.dto.response.MemberRegistrationSliceResDTO;
 import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.enums.MemberRole;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
 import com.tavemakers.surf.domain.member.exception.AdminPageRoleException;
+import com.tavemakers.surf.domain.member.service.CareerGetService;
 import com.tavemakers.surf.domain.member.service.MemberGetService;
 import com.tavemakers.surf.domain.member.service.MemberPatchService;
 import com.tavemakers.surf.domain.member.service.MemberService;
-import com.tavemakers.surf.domain.score.service.PersonalScoreSaveService;
+import com.tavemakers.surf.domain.score.entity.PersonalActivityScore;
+import com.tavemakers.surf.domain.score.service.PersonalScoreGetService;
+import com.tavemakers.surf.domain.score.service.PersonalScoreCreateService;
 import com.tavemakers.surf.global.jwt.JwtService;
 import com.tavemakers.surf.global.logging.LogEvent;
 import com.tavemakers.surf.global.logging.LogParam;
@@ -39,16 +45,20 @@ public class MemberAdminUsecase {
     private final MemberPatchService memberPatchService;
     private final MemberGetService memberGetService;
     private final MemberService memberService;
-    private final PersonalScoreSaveService personalScoreSaveService;
+    private final CareerGetService careerGetService;
+    private final PersonalScoreCreateService personalScoreCreateService;
+    private final PersonalScoreGetService scoreGetService;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
 
+    /** 회원 권한 변경 */
     @Transactional
     public void changeRole (Long memberId, MemberRole role) {
         Member member = memberGetService.getMember(memberId);
         memberPatchService.grantRole(member, role);
     }
 
+    /** 회원가입 승인 처리 */
     @Transactional
     @LogEvent(value = "signup.approve", message = "회원가입 승인 처리")
     public void approveMember(
@@ -57,9 +67,10 @@ public class MemberAdminUsecase {
     ) {
         List<Member> members = memberGetService.getMembersByStatus(memberIds, MemberStatus.WAITING);
         memberService.approveMembers(members);
-        personalScoreSaveService.savePersonalScores(members);
+        personalScoreCreateService.savePersonalScores(members);
     }
 
+    /** 회원가입 거절 처리 */
     @Transactional
     @LogEvent(value = "signup.reject", message = "회원가입 거절 처리")
     public void rejectMember(
@@ -70,12 +81,14 @@ public class MemberAdminUsecase {
         memberService.rejectMembers(members);
     }
 
+    /** 관리자 비밀번호 설정 */
     @Transactional
     public void setUpPassword(PasswordReqDto dto) {
         Member member = memberGetService.getMember(SecurityUtils.getCurrentMemberId());
         member.updatePassword(dto.password());
     }
 
+    /** 관리자 페이지 로그인 처리 */
     public AdminPageLoginResDto loginAdminHomePage(AdminPageLoginReqDto dto, HttpServletResponse response) {
         Member member = memberGetService.getMemberByEmail(dto.email());
         member.checkPassword(dto.password());
@@ -88,12 +101,33 @@ public class MemberAdminUsecase {
         return AdminPageLoginResDto.of(accessToken, member);
     }
 
+    /** 가입 대기 회원 목록 조회 */
     public MemberRegistrationSliceResDTO readRegistrationList(String keyword, int pageSize, int pageNum) {
         Pageable pageable = PageRequest.of(pageNum, pageSize, Sort.by("createdAt").descending());
-        Slice<MemberRegistrationDetailResDTO> registrationList = memberGetService.searchWaitingMembers(keyword, pageable)
+        List<MemberStatus> statuses = List.of(MemberStatus.WAITING, MemberStatus.REJECTED);
+        Slice<MemberRegistrationDetailResDTO> registrationList = memberGetService.searchWaitingMembers(keyword, pageable, statuses)
                 .map(MemberRegistrationDetailResDTO::from);
+        Long totalMemberCount = memberGetService.countMembers(statuses);
+        return MemberRegistrationSliceResDTO.of(registrationList, totalMemberCount);
+    }
 
-        return MemberRegistrationSliceResDTO.from(registrationList);
+    /** 회원 상세 정보 조회 */
+    public MemberInformationResDTO readMemberInformation(Long memberId) {
+        Member member = memberGetService.readMemberInformation(memberId);
+
+        List<TrackResDTO> memberTracks = member.getTracks()
+                .stream()
+                .map(TrackResDTO::from)
+                .toList();
+
+        List<CareerResDTO> memberCareers = careerGetService.getMemberCareers(memberId);
+
+        if (member.isApproved()) {
+            PersonalActivityScore personalScore = scoreGetService.getPersonalScore(memberId);
+            return MemberInformationResDTO.of(member, memberTracks, personalScore.getScore(), memberCareers);
+        }
+
+        return MemberInformationResDTO.of(member, memberTracks, null, memberCareers);
     }
 
     private void validateLoginMemberRole(Member member) {

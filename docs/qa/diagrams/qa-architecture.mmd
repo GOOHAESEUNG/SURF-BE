@@ -1,0 +1,58 @@
+flowchart TB
+    subgraph Main["Claude Code - Main Context"]
+        direction TB
+        M1["사용자 인터랙션"]
+        M2["전체 오케스트레이션"]
+        M3["결과 집계 및 리포트"]
+    end
+
+    subgraph Analysis["분석 단계"]
+        direction TB
+        G["Gemini CLI\n서브 LLM\n354개 파일 분석"]
+        A["qa-analyzer\n에이전트\nController 분석"]
+    end
+
+    subgraph Generation["생성 단계"]
+        GEN["qa-generator\n에이전트\n테스트 스크립트 생성"]
+    end
+
+    subgraph Artifacts["생성 산출물"]
+        direction LR
+        CLAUDE["CLAUDE.md\n프로젝트 가이드"]
+        ENDPOINTS["endpoints.json\n79개 API"]
+        SCRIPTS["test-*.sh\n21개 스크립트"]
+    end
+
+    subgraph Runners["qa-runner - 병렬 실행"]
+        direction LR
+        R1["Runner 1\nauth, members\nboards"]
+        R2["Runner 2\nposts, postLikes\nsearch"]
+        R3["Runner 3\nschedules, comments\nlikes"]
+        R4["Runner 4\nadmin, homeAdmin\nbadges"]
+        R5["Runner 5\nletters, scores\nhome"]
+    end
+
+    subgraph Results["결과"]
+        direction TB
+        JSON["results/*.json\n도메인별 결과"]
+        REPORT["docs/qa/report.md\nQA 리포트"]
+    end
+
+    Main --> Analysis
+    Main --> Generation
+    G --> CLAUDE
+    A --> ENDPOINTS
+    ENDPOINTS --> GEN
+    GEN --> SCRIPTS
+    SCRIPTS --> Runners
+    R1 --> JSON
+    R2 --> JSON
+    R3 --> JSON
+    R4 --> JSON
+    R5 --> JSON
+    JSON --> REPORT
+    REPORT --> Main
+
+    style Main fill:#e1f5fe,stroke:#01579b
+    style Runners fill:#fff3e0,stroke:#e65100
+    style Results fill:#e8f5e9,stroke:#2e7d32

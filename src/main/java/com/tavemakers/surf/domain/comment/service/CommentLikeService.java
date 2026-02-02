@@ -1,23 +1,21 @@
 package com.tavemakers.surf.domain.comment.service;
 
-import com.tavemakers.surf.domain.comment.dto.res.CommentLikeMemberResDTO;
+import com.tavemakers.surf.domain.comment.dto.response.CommentLikeMemberResDTO;
 import com.tavemakers.surf.domain.comment.entity.Comment;
 import com.tavemakers.surf.domain.comment.entity.CommentLike;
+import com.tavemakers.surf.domain.comment.event.CommentLikedEvent;
 import com.tavemakers.surf.domain.comment.exception.CommentNotFoundException;
 import com.tavemakers.surf.domain.comment.repository.CommentLikeRepository;
 import com.tavemakers.surf.domain.comment.repository.CommentRepository;
 import com.tavemakers.surf.domain.member.entity.Member;
-import com.tavemakers.surf.domain.member.exception.MemberNotFoundException;
-import com.tavemakers.surf.domain.member.repository.MemberRepository;
-import com.tavemakers.surf.domain.notification.entity.NotificationType;
-import com.tavemakers.surf.domain.notification.service.NotificationCreateService;
+import com.tavemakers.surf.domain.member.service.MemberGetService;
 import com.tavemakers.surf.domain.post.entity.Post;
-import com.tavemakers.surf.domain.post.repository.PostRepository;
-import java.util.Map;
+import com.tavemakers.surf.domain.post.service.post.PostGetService;
 
 import com.tavemakers.surf.global.logging.LogEvent;
 import com.tavemakers.surf.global.logging.LogParam;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -30,10 +28,10 @@ public class CommentLikeService {
 
     private final CommentLikeRepository commentLikeRepository;
     private final CommentRepository commentRepository;
-    private final MemberRepository memberRepository;
-    private final PostRepository postRepository;
+    private final MemberGetService memberGetService;
+    private final PostGetService postGetService;
 
-    private final NotificationCreateService notificationCreateService;
+    private final ApplicationEventPublisher eventPublisher;
 
     /** 좋아요 및 좋아요 취소 */
     @Transactional
@@ -41,12 +39,9 @@ public class CommentLikeService {
     public boolean toggleLike(@LogParam("comment_id") Long commentId, Long memberId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(CommentNotFoundException::new);
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(MemberNotFoundException::new);
+        Member member = memberGetService.getMember(memberId);
 
-        Post post = postRepository.findById(
-                comment.getPost().getId()
-        ).orElseThrow(CommentNotFoundException::new);
+        Post post = postGetService.getPost(comment.getPost().getId());
 
         // 좋아요 이미 존재하면 취소
         int removed = commentLikeRepository.deleteByCommentAndMember(comment, member);
@@ -81,8 +76,7 @@ public class CommentLikeService {
     public boolean isLikedByMe(Long commentId, Long memberId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(CommentNotFoundException::new);
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(MemberNotFoundException::new);
+        Member member = memberGetService.getMember(memberId);
         return commentLikeRepository.existsByCommentAndMember(comment, member);
     }
 
@@ -116,15 +110,13 @@ public class CommentLikeService {
             return;
         }
 
-        notificationCreateService.createAndSend(
+        eventPublisher.publishEvent(new CommentLikedEvent(
                 commentOwnerId,
-                NotificationType.COMMENT_LIKE,
-                Map.of(
-                        "actorName", member.getName(),
-                        "boardId", boardId,
-                        "postId", postId
-                )
-        );
+                member.getName(),
+                member.getId(),
+                boardId,
+                postId
+        ));
     }
 
 }
