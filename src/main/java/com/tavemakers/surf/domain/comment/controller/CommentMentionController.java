@@ -1,6 +1,6 @@
 package com.tavemakers.surf.domain.comment.controller;
 
-import com.tavemakers.surf.domain.comment.dto.res.MentionSearchResDTO;
+import com.tavemakers.surf.domain.comment.dto.response.MentionSearchResDTO;
 import com.tavemakers.surf.domain.comment.service.CommentMentionService;
 import com.tavemakers.surf.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;

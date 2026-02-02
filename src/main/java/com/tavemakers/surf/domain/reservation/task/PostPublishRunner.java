@@ -2,8 +2,8 @@ package com.tavemakers.surf.domain.reservation.task;
 
 import com.tavemakers.surf.domain.post.entity.Post;
 import com.tavemakers.surf.domain.post.exception.PostAlreadyDeletedException;
-import com.tavemakers.surf.domain.post.service.PostGetService;
-import com.tavemakers.surf.domain.post.service.PostPublishedEvent;
+import com.tavemakers.surf.domain.post.repository.PostRepository;
+import com.tavemakers.surf.domain.post.service.support.PostPublishedEvent;
 import com.tavemakers.surf.domain.reservation.entity.Reservation;
 import com.tavemakers.surf.domain.reservation.exception.ReservationCanceledException;
 import com.tavemakers.surf.domain.reservation.service.ReservationGetService;
@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostPublishRunner {
 
     private final ReservationGetService reservationGetService;
-    private final PostGetService postGetService;
+    private final PostRepository postRepository;
     private final ApplicationEventPublisher eventPublisher;
 
 
@@ -28,7 +28,7 @@ public class PostPublishRunner {
         Reservation reservation = reservationGetService.getReservationById(reservationId);
         validateReservation(reservation);
 
-        Post post = postGetService.getPostOrNull(reservation.getPostId());
+        Post post = postRepository.findById(reservation.getPostId()).orElse(null);
         cancelReservationIfPostDeleted(post, reservation);
 
         log.info("예약 번호 {}번 예약 작업 수행", reservationId);

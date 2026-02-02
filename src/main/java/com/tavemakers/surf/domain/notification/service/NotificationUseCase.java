@@ -1,8 +1,7 @@
 package com.tavemakers.surf.domain.notification.service;
 
-import com.tavemakers.surf.domain.member.entity.Member;
 import com.tavemakers.surf.domain.member.entity.enums.MemberStatus;
-import com.tavemakers.surf.domain.member.repository.MemberRepository;
+import com.tavemakers.surf.domain.member.service.MemberGetService;
 import com.tavemakers.surf.domain.notification.entity.NotificationType;
 import com.tavemakers.surf.domain.post.entity.Post;
 import java.util.List;
@@ -15,9 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class NotificationUseCase {
+public class NotificationUsecase {
 
-    private final MemberRepository memberRepository;
+    private final MemberGetService memberGetService;
     private final NotificationCreateService notificationCreateService;
 
 
@@ -34,7 +33,7 @@ public class NotificationUseCase {
         }
 
         // 1 알림 대상 조회
-        List<Long> targetIds = memberRepository.findActiveMemberIdsExcludeStatus(MemberStatus.WITHDRAWN);
+        List<Long> targetIds = memberGetService.getActiveMemberIdsExcludeStatus(MemberStatus.WITHDRAWN);
 
         if (targetIds.isEmpty()) {
             log.info("[NoticeNotification] no target members, postId={}", post.getId());

@@ -1,6 +1,6 @@
 package com.tavemakers.surf.domain.notification.service;
 
-import com.tavemakers.surf.domain.notification.dto.req.DeviceTokenReqDTO;
+import com.tavemakers.surf.domain.notification.dto.request.DeviceTokenReqDTO;
 import com.tavemakers.surf.domain.notification.entity.DeviceToken;
 import com.tavemakers.surf.domain.notification.repository.DeviceTokenRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +13,7 @@ public class DeviceTokenRegisterService {
 
     private final DeviceTokenRepository deviceTokenRepository;
 
+    /** 회원의 디바이스 토큰 등록 또는 갱신 */
     @Transactional
     public void register(Long memberId, DeviceTokenReqDTO dto) {
         deviceTokenRepository.findByToken(dto.token())

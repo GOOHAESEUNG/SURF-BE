@@ -1,0 +1,775 @@
+{
+  "baseUrl": "https://tavesurf.site",
+  "auth": {
+    "type": "JWT",
+    "method": "OAuth Callback"
+  },
+  "domains": {
+    "auth": {
+      "name": "인증",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/login/kakao",
+          "description": "카카오 인가 화면으로 리다이렉트",
+          "auth": false
+        },
+        {
+          "method": "GET",
+          "path": "/login/oauth2/code/kakao",
+          "description": "카카오 로그인 콜백 - 인가 코드로 JWT AccessToken과 사용자 정보 반환",
+          "auth": false,
+          "queryParams": ["code"]
+        },
+        {
+          "method": "POST",
+          "path": "/auth/refresh",
+          "description": "Access Token 재발급 - HttpOnly Refresh Token 쿠키 이용",
+          "auth": false
+        },
+        {
+          "method": "POST",
+          "path": "/auth/logout",
+          "description": "로그아웃 - refreshToken 무효화 및 쿠키 삭제",
+          "auth": true
+        }
+      ]
+    },
+    "members": {
+      "name": "회원",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/user/members/signup",
+          "description": "자체 회원가입 온보딩 - 카카오 로그인 후 추가 정보 입력",
+          "auth": true,
+          "requestBody": {
+            "profileImageUrl": "string (optional)",
+            "name": "string (required)",
+            "tracks": "array of {generation: number, part: string} (required)",
+            "university": "string (required)",
+            "graduateSchool": "string (optional)",
+            "email": "string (required)",
+            "phoneNumber": "string (required, 10-11 digits)"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/user/members/valid-status",
+          "description": "온보딩(추가 정보 입력) 필요 여부 확인",
+          "auth": true
+        },
+        {
+          "method": "PATCH",
+          "path": "/v1/user/members/profile/update",
+          "description": "회원 프로필 수정하기",
+          "auth": true,
+          "requestBody": {
+            "email": "string (optional)",
+            "university": "string (optional)",
+            "graduateSchool": "string (optional)",
+            "selfIntroduction": "string (optional, max 256)",
+            "link": "string (optional, max 1024)",
+            "phoneNumber": "string (optional)",
+            "phoneNumberPublic": "boolean (optional)",
+            "profileImageUrl": "string (optional)",
+            "isProfileImageChanged": "boolean (optional)",
+            "careersToCreate": "array (optional)",
+            "careersToUpdate": "array (optional)",
+            "careerIdsToDelete": "array of number (optional)"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/user/members/profile",
+          "description": "마이페이지에서 프로필 정보 조회",
+          "auth": true,
+          "queryParams": ["memberId"]
+        },
+        {
+          "method": "GET",
+          "path": "/v1/user/members",
+          "description": "회원이름 및 학교로 검색 (기수/파트 필터링)",
+          "auth": true,
+          "queryParams": ["pageNum", "pageSize", "keyword", "generation", "part"]
+        },
+        {
+          "method": "POST",
+          "path": "/v1/user/members/withdraw",
+          "description": "회원 탈퇴",
+          "auth": true
+        }
+      ]
+    },
+    "admin": {
+      "name": "관리자",
+      "endpoints": [
+        {
+          "method": "PATCH",
+          "path": "/v1/admin/members/approve",
+          "description": "회원가입 승인",
+          "auth": true,
+          "requestBody": {
+            "memberIds": "array of number (required)"
+          }
+        },
+        {
+          "method": "PATCH",
+          "path": "/v1/admin/members/reject",
+          "description": "회원가입 거절",
+          "auth": true,
+          "requestBody": {
+            "memberIds": "array of number (required)"
+          }
+        },
+        {
+          "method": "PATCH",
+          "path": "/v1/admin/members/{memberId}/role",
+          "description": "회원 역할 변경",
+          "auth": true,
+          "pathVariables": ["memberId"],
+          "requestBody": {
+            "role": "string (required, enum: MANAGER, etc.)"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/admin/members/search",
+          "description": "이름 기반 회원 조회",
+          "auth": true,
+          "queryParams": ["name"]
+        },
+        {
+          "method": "GET",
+          "path": "/v1/admin/members/search/grouped-by-track",
+          "description": "활동 중인 회원 전체 트랙+기수별로 출력",
+          "auth": true
+        },
+        {
+          "method": "PATCH",
+          "path": "/v1/manager/password",
+          "description": "관리자 비밀번호 설정",
+          "auth": true,
+          "requestBody": {
+            "password": "string (required)"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/v1/manager/sign-in",
+          "description": "관리자 페이지 로그인",
+          "auth": false,
+          "requestBody": {
+            "email": "string (required)",
+            "password": "string (required)"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/manager/registration-list",
+          "description": "가입신청 목록 조회",
+          "auth": true,
+          "queryParams": ["keyword", "pageSize", "pageNum"]
+        }
+      ]
+    },
+    "posts": {
+      "name": "게시물",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/user/posts",
+          "description": "게시글 생성",
+          "auth": true,
+          "requestBody": {
+            "boardId": "number (required)",
+            "categoryId": "number (required)",
+            "title": "string (required)",
+            "content": "string (required)",
+            "pinned": "boolean (optional)",
+            "reservedAt": "datetime (optional)",
+            "imageUrlList": "array of {imageUrl: string, order: number} (optional)",
+            "hasSchedule": "boolean (optional)"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/user/posts/{postId}",
+          "description": "게시글 단건 조회",
+          "auth": true,
+          "pathVariables": ["postId"]
+        },
+        {
+          "method": "GET",
+          "path": "/v1/user/posts/me",
+          "description": "내가 작성한 게시글 목록",
+          "auth": true,
+          "queryParams": ["page", "size", "sort"]
+        },
+        {
+          "method": "GET",
+          "path": "/v1/user/posts/author/{authorId}",
+          "description": "특정 작성자의 게시글 목록",
+          "auth": true,
+          "pathVariables": ["authorId"],
+          "queryParams": ["page", "size", "sort"]
+        },
+        {
+          "method": "GET",
+          "path": "/v1/user/posts/board/{boardId}",
+          "description": "보드 게시글 목록 (카테고리 필터 가능)",
+          "auth": true,
+          "pathVariables": ["boardId"],
+          "queryParams": ["category", "page", "size", "sort"]
+        },
+        {
+          "method": "PATCH",
+          "path": "/v1/user/posts/{postId}",
+          "description": "게시글 수정",
+          "auth": true,
+          "pathVariables": ["postId"],
+          "requestBody": {
+            "title": "string (required)",
+            "content": "string (required)",
+            "isContentChanged": "boolean (optional)",
+            "categoryId": "number (optional)",
+            "pinned": "boolean (optional)",
+            "isReservationChanged": "boolean (optional)",
+            "reservedAt": "datetime (optional)",
+            "isImageChanged": "boolean (optional)",
+            "imageUrlList": "array (optional)",
+            "hasSchedule": "boolean (optional)"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/v1/user/posts/{postId}",
+          "description": "게시글 삭제",
+          "auth": true,
+          "pathVariables": ["postId"]
+        }
+      ]
+    },
+    "postLikes": {
+      "name": "게시물 좋아요",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/user/posts/{postId}/like",
+          "description": "좋아요 설정",
+          "auth": true,
+          "pathVariables": ["postId"]
+        },
+        {
+          "method": "DELETE",
+          "path": "/v1/user/posts/{postId}/like",
+          "description": "좋아요 해제",
+          "auth": true,
+          "pathVariables": ["postId"]
+        },
+        {
+          "method": "GET",
+          "path": "/v1/user/posts/{postId}/like",
+          "description": "특정 게시글 좋아요 리스트",
+          "auth": true,
+          "pathVariables": ["postId"]
+        }
+      ]
+    },
+    "search": {
+      "name": "검색",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/v1/user/search/posts",
+          "description": "게시글 검색 및 최근검색 저장",
+          "auth": true,
+          "queryParams": ["param", "page", "size", "sort"]
+        },
+        {
+          "method": "GET",
+          "path": "/v1/user/search/recent",
+          "description": "최근 검색어 10개 조회",
+          "auth": true
+        },
+        {
+          "method": "DELETE",
+          "path": "/v1/user/search/recent",
+          "description": "최근 검색어 전체 삭제",
+          "auth": true
+        },
+        {
+          "method": "DELETE",
+          "path": "/v1/user/search/recent/{keyword}",
+          "description": "최근 검색어 단건 삭제",
+          "auth": true,
+          "pathVariables": ["keyword"]
+        }
+      ]
+    },
+    "schedules": {
+      "name": "일정",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/v1/user/calendar/schedules",
+          "description": "캘린더에 월별 일정 목록 조회",
+          "auth": true,
+          "queryParams": ["year", "month"]
+        },
+        {
+          "method": "GET",
+          "path": "/v1/user/post/{postId}/schedule",
+          "description": "특정 게시글 일정 조회",
+          "auth": true,
+          "pathVariables": ["postId"]
+        },
+        {
+          "method": "GET",
+          "path": "/v1/admin/calendar/schedules/{scheduleId}",
+          "description": "특정 일정 조회 (캘린더에서 수정/삭제용)",
+          "auth": true,
+          "pathVariables": ["scheduleId"]
+        },
+        {
+          "method": "POST",
+          "path": "/v1/admin/posts/{postId}/schedules",
+          "description": "게시글 작성 시 일정 생성",
+          "auth": true,
+          "pathVariables": ["postId"],
+          "requestBody": {
+            "category": "string (required)",
+            "title": "string (required)",
+            "startAt": "datetime (required)",
+            "endAt": "datetime (required)",
+            "location": "string (required)"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/v1/admin/calendar/schedules",
+          "description": "개별 일정 생성 (캘린더에서)",
+          "auth": true,
+          "requestBody": {
+            "category": "string (required)",
+            "title": "string (required)",
+            "startAt": "datetime (required)",
+            "endAt": "datetime (required)",
+            "location": "string (required)"
+          }
+        },
+        {
+          "method": "PATCH",
+          "path": "/v1/admin/schedules/{scheduleId}",
+          "description": "개별 일정 수정",
+          "auth": true,
+          "pathVariables": ["scheduleId"],
+          "requestBody": {
+            "category": "string (optional)",
+            "title": "string (optional)",
+            "startAt": "datetime (optional)",
+            "endAt": "datetime (optional)",
+            "location": "string (optional)"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/v1/admin/schedules/{scheduleId}",
+          "description": "개별 일정 삭제",
+          "auth": true,
+          "pathVariables": ["scheduleId"]
+        },
+        {
+          "method": "DELETE",
+          "path": "/v1/admin/posts/{postId}/schedules/{scheduleId}",
+          "description": "게시글과 매핑된 일정 삭제",
+          "auth": true,
+          "pathVariables": ["postId", "scheduleId"]
+        }
+      ]
+    },
+    "comments": {
+      "name": "댓글",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/user/posts/{postId}/comments",
+          "description": "댓글 생성 (루트/대댓글)",
+          "auth": true,
+          "pathVariables": ["postId"],
+          "requestBody": {
+            "parentId": "number (optional, for reply)",
+            "content": "string (required, max 1000)",
+            "mentionMemberIds": "array of number (optional)"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/user/posts/{postId}/comments",
+          "description": "댓글 목록 조회 (페이징)",
+          "auth": true,
+          "pathVariables": ["postId"],
+          "queryParams": ["page", "size", "sort"]
+        },
+        {
+          "method": "DELETE",
+          "path": "/v1/user/posts/{postId}/comments/{commentId}",
+          "description": "댓글 삭제 (내 댓글만)",
+          "auth": true,
+          "pathVariables": ["postId", "commentId"]
+        }
+      ]
+    },
+    "commentLikes": {
+      "name": "댓글 좋아요",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/user/comments/{commentId}/like",
+          "description": "댓글 좋아요 토글",
+          "auth": true,
+          "pathVariables": ["commentId"]
+        },
+        {
+          "method": "GET",
+          "path": "/v1/user/comments/{commentId}/like/count",
+          "description": "댓글 좋아요 개수 조회",
+          "auth": true,
+          "pathVariables": ["commentId"]
+        },
+        {
+          "method": "GET",
+          "path": "/v1/user/comments/{commentId}/like/me",
+          "description": "댓글 좋아요 여부 조회 (내가 눌렀는지)",
+          "auth": true,
+          "pathVariables": ["commentId"]
+        },
+        {
+          "method": "GET",
+          "path": "/v1/user/comments/{commentId}/like/members",
+          "description": "댓글 좋아요 누른 회원 목록 조회",
+          "auth": true,
+          "pathVariables": ["commentId"]
+        }
+      ]
+    },
+    "commentMentions": {
+      "name": "댓글 멘션",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/v1/user/comments/mentions/search",
+          "description": "멘션할 회원 검색 (자동완성)",
+          "auth": true,
+          "queryParams": ["keyword"]
+        }
+      ]
+    },
+    "boards": {
+      "name": "게시판",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/admin/boards",
+          "description": "게시판 생성",
+          "auth": true,
+          "requestBody": {
+            "name": "string (required)",
+            "type": "string (required, enum: NOTICE, etc.)"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/user/boards",
+          "description": "게시판 목록 조회",
+          "auth": true
+        },
+        {
+          "method": "GET",
+          "path": "/v1/admin/boards/{boardId}",
+          "description": "게시판 단건 조회",
+          "auth": true,
+          "pathVariables": ["boardId"]
+        },
+        {
+          "method": "PATCH",
+          "path": "/v1/admin/boards/{boardId}",
+          "description": "게시판 수정",
+          "auth": true,
+          "pathVariables": ["boardId"],
+          "requestBody": {
+            "name": "string (required)",
+            "type": "string (required)"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/v1/admin/boards/{boardId}",
+          "description": "게시판 삭제",
+          "auth": true,
+          "pathVariables": ["boardId"]
+        }
+      ]
+    },
+    "scraps": {
+      "name": "스크랩",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/user/scraps/{postId}",
+          "description": "스크랩 추가",
+          "auth": true,
+          "pathVariables": ["postId"]
+        },
+        {
+          "method": "DELETE",
+          "path": "/v1/user/scraps/{postId}",
+          "description": "스크랩 삭제",
+          "auth": true,
+          "pathVariables": ["postId"]
+        },
+        {
+          "method": "GET",
+          "path": "/v1/user/scraps/me",
+          "description": "내가 스크랩한 게시글 목록",
+          "auth": true,
+          "queryParams": ["page", "size", "sort"]
+        }
+      ]
+    },
+    "notifications": {
+      "name": "알림",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/v1/user/notifications",
+          "description": "알람 조회 (카테고리 필터 가능)",
+          "auth": true,
+          "queryParams": ["category"]
+        },
+        {
+          "method": "PATCH",
+          "path": "/v1/user/notifications/{notificationId}/read",
+          "description": "알람 읽음 처리",
+          "auth": true,
+          "pathVariables": ["notificationId"]
+        },
+        {
+          "method": "POST",
+          "path": "/v1/user/notifications/device-tokens",
+          "description": "디바이스 FCM 토큰 등록",
+          "auth": true,
+          "requestBody": {
+            "token": "string (required)",
+            "platform": "string (required, enum: WEB, IOS, ANDROID)"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/v1/user/notifications/test/push",
+          "description": "FCM 푸시 알림 테스트 (개발용)",
+          "auth": true,
+          "requestBody": {
+            "memberId": "number (required)",
+            "title": "string (required)",
+            "body": "string (required)"
+          }
+        }
+      ]
+    },
+    "letters": {
+      "name": "쪽지",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/user/letters",
+          "description": "쪽지 전송",
+          "auth": true,
+          "requestBody": {
+            "receiverId": "number (required)",
+            "title": "string (required, max 100)",
+            "content": "string (required, max 10000)",
+            "sns": "string (optional, max 100)",
+            "replyEmail": "string (required, email format)"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/user/letters/sent",
+          "description": "보낸 쪽지 목록 조회",
+          "auth": true,
+          "queryParams": ["page", "size"]
+        }
+      ]
+    },
+    "home": {
+      "name": "홈",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/v1/user/home",
+          "description": "홈 화면 렌더링",
+          "auth": true
+        }
+      ]
+    },
+    "homeAdmin": {
+      "name": "홈 관리 (관리자)",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/v1/admin/home/banners",
+          "description": "홈 배너 목록 조회",
+          "auth": true
+        },
+        {
+          "method": "POST",
+          "path": "/v1/admin/home/banners",
+          "description": "홈 배너 생성",
+          "auth": true,
+          "requestBody": {
+            "imageUrl": "string (required)",
+            "linkUrl": "string (optional)"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/v1/admin/home/banners/{bannerId}",
+          "description": "홈 배너 삭제",
+          "auth": true,
+          "pathVariables": ["bannerId"]
+        },
+        {
+          "method": "PUT",
+          "path": "/v1/admin/home/banners/reorder",
+          "description": "홈 배너 순서 변경",
+          "auth": true,
+          "requestBody": {
+            "orderedIds": "array of number (required)"
+          }
+        },
+        {
+          "method": "PUT",
+          "path": "/v1/admin/home/banners/{bannerId}",
+          "description": "홈 배너 수정",
+          "auth": true,
+          "pathVariables": ["bannerId"],
+          "requestBody": {
+            "imageUrl": "string (required)",
+            "linkUrl": "string (optional)"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/admin/home/content",
+          "description": "홈 문구 조회",
+          "auth": true
+        },
+        {
+          "method": "PUT",
+          "path": "/v1/admin/home/content",
+          "description": "홈 문구 생성/수정",
+          "auth": true,
+          "requestBody": {
+            "message": "string (required, max 2000)",
+            "sender": "string (required, max 200)"
+          }
+        }
+      ]
+    },
+    "feedback": {
+      "name": "피드백",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/user/feedbacks",
+          "description": "피드백 생성 (익명, 하루 3회 제한)",
+          "auth": true,
+          "requestBody": {
+            "content": "string (required)"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/admin/feedbacks",
+          "description": "피드백 조회 (운영진 전용)",
+          "auth": true,
+          "queryParams": ["page", "size", "sort"]
+        }
+      ]
+    },
+    "activityRecords": {
+      "name": "활동기록",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/admin/activity-records",
+          "description": "활동 점수(기록) 부여",
+          "auth": true,
+          "requestBody": {
+            "memberIdList": "array of number (required)",
+            "category": "string (optional)",
+            "activityName": "string (required, enum)",
+            "activityDate": "date (required)"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/user/members/activity-records",
+          "description": "활동 기록 조회 (무한스크롤)",
+          "auth": true,
+          "queryParams": ["scoreType", "pageSize", "pageNum"]
+        }
+      ]
+    },
+    "badges": {
+      "name": "활동뱃지",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/admin/members/badges",
+          "description": "활동 뱃지 부여",
+          "auth": true,
+          "requestBody": {
+            "badgeType": "string (required, enum)",
+            "memberIdList": "array of number (required)",
+            "generation": "number (required)",
+            "awardedAt": "date (optional)"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/v1/user/members/badges",
+          "description": "마이페이지 활동 뱃지 조회",
+          "auth": true,
+          "queryParams": ["memberId", "pageSize", "pageNum"]
+        }
+      ]
+    },
+    "scores": {
+      "name": "활동점수",
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/v1/user/members/personal-score/pinned5",
+          "description": "활동점수 + 고정 5개 활동기록 조회",
+          "auth": true
+        }
+      ]
+    },
+    "s3": {
+      "name": "파일 업로드",
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/v1/user/presigned-url",
+          "description": "S3 PreSigned URL 생성",
+          "auth": true,
+          "requestBody": {
+            "fileNames": "array of string (required)"
+          }
+        }
+      ]
+    }
+  }
+}

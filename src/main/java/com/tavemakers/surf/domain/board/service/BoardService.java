@@ -20,6 +20,7 @@ import java.util.List;
 public class BoardService {
     private final BoardRepository boardRepository;
 
+    /** 새 게시판 생성 */
     @Transactional
     @LogEvent(value = "board.create", message = "게시판 생성 성공")
     public BoardResDTO createBoard(BoardCreateReqDTO req) {
@@ -28,17 +29,20 @@ public class BoardService {
         return BoardResDTO.from(saved);
     }
 
+    /** 전체 게시판 목록 조회 */
     public List<BoardResDTO> getBoards() {
         List<Board> boards = boardRepository.findAll();
         return boards.stream().map(BoardResDTO::from).toList();
     }
 
+    /** 게시판 단건 조회 */
     public BoardResDTO getBoard(Long id) {
         Board board = boardRepository.findById(id)
                 .orElseThrow(BoardNotFoundException::new);
         return BoardResDTO.from(board);
     }
 
+    /** 게시판 정보 수정 */
     @Transactional
     @LogEvent(value = "board.update", message = "게시판 수정 성공")
     public BoardResDTO updateBoard(
@@ -50,6 +54,7 @@ public class BoardService {
         return BoardResDTO.from(board);
     }
 
+    /** 게시판 삭제 */
     @Transactional
     @LogEvent(value = "board.delete", message = "게시판 삭제 성공")
     public void deleteBoard(

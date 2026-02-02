@@ -3,7 +3,6 @@ package com.tavemakers.surf.domain.member.dto.response;
 import com.tavemakers.surf.domain.member.entity.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import java.math.BigDecimal;
 import java.util.List;

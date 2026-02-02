@@ -2,8 +2,7 @@ package com.tavemakers.surf.domain.post.scheduler;
 
 import com.tavemakers.surf.domain.post.dto.PostViewUpdateDto;
 import com.tavemakers.surf.domain.post.mapper.PostMapper;
-import com.tavemakers.surf.domain.post.repository.PostRepository;
-import com.tavemakers.surf.domain.post.service.PostUpdateService;
+import com.tavemakers.surf.domain.post.service.support.PostUpdateService;
 import com.tavemakers.surf.global.common.aop.annotations.ExecutionTimeLog;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

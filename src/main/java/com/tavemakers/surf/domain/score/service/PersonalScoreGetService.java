@@ -14,11 +14,13 @@ public class PersonalScoreGetService {
 
     private final PersonalActivityScoreRepository personalScoreRepository;
 
+    /** 회원의 개인 활동 점수 조회 */
     public PersonalActivityScore getPersonalScore(Long memberId) {
         return personalScoreRepository.findByMemberId(memberId)
                 .orElseThrow(PersonalScoreNotFoundException::new);
     }
 
+    /** 다수 회원의 개인 활동 점수 목록 조회 */
     public List<PersonalActivityScore> getPersonalScoreList(List<Long> memberIdList) {
         return personalScoreRepository.findAllByMemberIdIn(memberIdList);
     }

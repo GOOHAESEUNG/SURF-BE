@@ -2,7 +2,6 @@ package com.tavemakers.surf.domain.home.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public record HomeResDTO(

@@ -33,6 +33,7 @@ public class MemberWithdrawService {
     @Value("${kakao.unlink-uri}")
     private String unlinkUri;
 
+    /** 회원 탈퇴 처리 및 카카오 연결 해제 */
     @Transactional
     public void withdraw(Long memberId) {
         Member member = memberGetService.getMember(memberId);
