@@ -95,6 +95,10 @@ public class Member extends BaseEntity {
         return activityStatus;
     }
 
+    public boolean isApproved() {
+        return status == MemberStatus.APPROVED;
+    }
+
     @Builder
     public Member(Long kakaoId,
                   String name,

@@ -121,9 +121,13 @@ public class MemberAdminUsecase {
                 .toList();
 
         List<CareerResDTO> memberCareers = careerGetService.getMemberCareers(memberId);
-        PersonalActivityScore personalScore = scoreGetService.getPersonalScore(memberId);
 
-        return MemberInformationResDTO.of(member, memberTracks, personalScore.getScore(), memberCareers);
+        if (member.isApproved()) {
+            PersonalActivityScore personalScore = scoreGetService.getPersonalScore(memberId);
+            return MemberInformationResDTO.of(member, memberTracks, personalScore.getScore(), memberCareers);
+        }
+
+        return MemberInformationResDTO.of(member, memberTracks, null, memberCareers);
     }
 
     private void validateLoginMemberRole(Member member) {
