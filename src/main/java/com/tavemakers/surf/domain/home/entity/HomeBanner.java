@@ -68,7 +68,7 @@ public class HomeBanner {
         if (imageUrl == null || imageUrl.isBlank()) {
             throw new IllegalArgumentException("imageUrl은 null이거나 빈 값일 수 없습니다.");
         }
-        if (linkUrl != null && linkUrl.isBlank()) {
+        if (linkUrl == null || linkUrl.isBlank()) {
             throw new IllegalArgumentException("linkUrl은 null이거나 빈 값일 수 없습니다.");
         }
     }
